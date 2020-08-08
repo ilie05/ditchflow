@@ -8,52 +8,60 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Flask Auth Example</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css" />
+    <link rel="stylesheet" href="../static/bulma/bulma.min.css"/>
+    <link rel="stylesheet" href="../static/bootstrap4/css/bootstrap.min.css"/>
+    <script src="../static/bootstrap4/js/jquery-3.5.1.slim.min.js"></script>
+    <script src="../static/bootstrap4/js/bootstrap.min.js"></script>
+    <script src="../static/bootstrap4/js/popper.min.js"></script>
+    <link rel="stylesheet" href="../static/css/main.css"/>
 </head>
 
 <body>
-    <section class="hero is-primary is-fullheight">
+<section class="hero is-primary is-fullheight">
+    <div class="hero-head">
+        <nav class="navbar">
+            <div class="container">
 
-        <div class="hero-head">
-            <nav class="navbar">
-                <div class="container">
-
-                    <div id="navbarMenuHeroA" class="navbar-menu">
-                        <div class="navbar-end">
-                            <a href="{{ url_for('main.index') }}" class="navbar-item">
-                                Home
-                            </a>
-                            {% if current_user.is_authenticated %}
+                <div id="navbarMenuHeroA" class="navbar-menu">
+                    <div class="navbar-end">
+                        <a href="{{ url_for('main.index') }}" class="navbar-item">
+                            Home
+                        </a>
+                        {% if current_user.is_authenticated %}
                             <a href="{{ url_for('main.profile') }}" class="navbar-item">
                                 Profile
                             </a>
-                            {% endif %}
-                            {% if not current_user.is_authenticated %}
+                        {% endif %}
+                        {% if not current_user.is_authenticated %}
                             <a href="{{ url_for('auth.login') }}" class="navbar-item">
                                 Login
                             </a>
                             <a href="{{ url_for('auth.signup') }}" class="navbar-item">
                                 Sign Up
                             </a>
-                            {% endif %}
-                            {% if current_user.is_authenticated %}
+                        {% endif %}
+                        {% if current_user.is_authenticated %}
                             <a href="{{ url_for('auth.logout') }}" class="navbar-item">
                                 Logout
                             </a>
-                            {% endif %}
-                        </div>
+                        {% endif %}
                     </div>
                 </div>
-            </nav>
-        </div>
-
-        <div class="hero-body">
-            <div class="container has-text-centered">
-               {% block content %}
-               {% endblock %}
             </div>
-        </div>
-    </section>
-</body>
+        </nav>
+    </div>
 
+
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+</section>
+</body>
+<script>
+    var s = $('#sss');
+    console.log(s)
+</script>
 </html>
