@@ -37,7 +37,7 @@ $(document).ready(function ($) {
         tbl += `<tr row_id="${contact['id']}">`;
         tbl += `<td ><div class="row_data" col_name="name">${contact['name']}</div></td>`;
         tbl += `<td ><div class="row_data" col_name="email">${contact['email']}</div></td>`;
-        tbl += `<td ><div class="row_data" col_name="cell">${contact['cell']}</div></td>`;
+        tbl += `<td ><div class="row_data" col_name="cell_number">${contact['cell_number']}</div></td>`;
         tbl += `<td ><div class="row_data" col_name="carrier">`;
 
         tbl += '<select class="selectpicker show-tick" data-style="btn-info">\n';
@@ -75,14 +75,14 @@ $(document).ready(function ($) {
     $(document).on('click', '.row_data', onRowDataClick)
 
     //--->add new contact > start
-    $(document).on('click', '.add_contact', function (event) {
+    $(document).on('click', '.add_contact', function () {
         let last_row = $('.tbl_user_data table tr:last'), tbl = '';
         let row_id = Math.random().toString(36).substring(2);
 
         tbl += `<tr class="new_row" row_id="${row_id}">`;
         tbl += `<td ><div class="row_data editable" col_name="name"></div></td>`;
         tbl += `<td ><div class="row_data editable" col_name="email"></div></td>`;
-        tbl += `<td ><div class="row_data editable" col_name="cell"></div></td>`;
+        tbl += `<td ><div class="row_data editable" col_name="cell_number"></div></td>`;
         tbl += `<td ><div class="row_data" col_name="carrier">`;
 
         tbl += '<select class="selectpicker show-tick" data-style="btn-info">\n';
