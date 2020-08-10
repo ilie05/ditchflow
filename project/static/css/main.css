@@ -1,9 +1,13 @@
+body {
+    overflow: scroll !important;
+}
+
 .box {
     padding: 3em 2em;
 }
 
 .hero-body .container {
-    max-width: 70%;
+    max-width: 80%;
 }
 
 tbody tr td {
@@ -13,7 +17,12 @@ tbody tr td {
 .panel-heading {
     height: 70px;
     padding-top: 20px;
-    min-width: 700px;
+    min-width: 803px;
+}
+
+.add_contact, .save_contacts {
+    float: right;
+    margin-left: 5px;
 }
 
 @media only screen
@@ -23,4 +32,13 @@ and (max-device-width: 1024px) {
         margin-left: 0;
     }
 
+    .hero-body {
+        padding-left: 0 !important;
+        padding-top: 0;
+    }
+}
+
+.new_row .row_data.editable {
+    background-color: #d3d3d3;
+    height: 25px;
 }

@@ -1,23 +1,37 @@
+const trashIcon = '<svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n' +
+    '                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>\n' +
+    '                <path fill-rule="evenodd"\n' +
+    '                      d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>\n' +
+    '            </svg>'
+
+const onRowDataClick = function (event) {
+    var row_div = $(this);
+    var col_name = row_div.attr('col_name');
+    if (col_name === 'carrier' || col_name === 'notify' || col_name === 'delete') return;
+
+    event.preventDefault();
+
+    //make div editable
+    $(this).closest('div').attr('contenteditable', 'true');
+    //add bg css
+    $(this).addClass('bg-warning').css('padding', '0 5px');
+
+    $(this).focus();
+}
+
+const onToggle = function (e) {
+    const toggle = e.target;
+    const row_div = $(toggle).closest('.row_data');
+    var row_id = row_div.closest('tr').attr('row_id');
+    console.log(row_id);
+}
+
+const removeLine = function (context){
+    $(context).closest('tr').remove();
+}
+
 $(document).ready(function ($) {
-    //--->create data table > start
     var tbl = '';
-    tbl += '<table class="table table-hover">'
-
-    //--->create table header > start
-    tbl += '<thead>';
-    tbl += '<tr>';
-    tbl += '<th>First and Last Name</th>';
-    tbl += '<th>Email</th>';
-    tbl += '<th>Cellular Number</th>';
-    tbl += '<th>Cellular Carrier</th>';
-    tbl += '<th>Send Alerts</th>';
-    tbl += '</tr>';
-    tbl += '</thead>';
-    //--->create table header > end
-
-    //--->create table body > start
-    tbl += '<tbody>';
-
     //--->create table body rows > start
     $.each(contacts, function (index, contact) {
         tbl += `<tr row_id="${contact['id']}">`;
@@ -35,8 +49,7 @@ $(document).ready(function ($) {
                 tbl += `<option>${carrier.name}</option>`;
             }
         });
-        tbl += '</div></td>';
-
+        tbl += '<select/></div></td>';
 
         tbl += '<td ><div class="row_data" col_name="notify">';
         tbl += '<label class="switch">\n' +
@@ -45,43 +58,60 @@ $(document).ready(function ($) {
             '        </label>';
         tbl += '</div></td>';
 
+        tbl += '<td ><div class="row_data" col_name="delete">';
+        tbl += '<form action="/delete" method="post">\n' +
+            `     <input name="contact_id" value="${contact['id']}" hidden/>\n` +
+            '     <button type="submit" class="btn btn-default btn-sm">\n' + trashIcon +
+            '     </button>\n' +
+            '    </form>';
+        tbl += '</div></td>';
+
         tbl += '</tr>';
     });
     //--->create table body rows > end
+    $(document).find('.tbl_user_data table tbody').html(tbl);
 
-    tbl += '</tbody>';
-    //--->create table body > end
-    tbl += '</table>'
-    //--->create data table > end
+    $("input[type='checkbox']").change(onToggle);
+    $(document).on('click', '.row_data', onRowDataClick)
 
-    //out put table data
-    $(document).find('.tbl_user_data').html(tbl);
+    //--->add new contact > start
+    $(document).on('click', '.add_contact', function (event) {
+        let last_row = $('.tbl_user_data table tr:last'), tbl = '';
+        let row_id = Math.random().toString(36).substring(2);
 
-    $("input[type='checkbox']").change(function (e) {
-        const toggle = e.target;
-        const row_div = $(toggle).closest('.row_data');
-        var row_id = row_div.closest('tr').attr('row_id');
-        console.log(row_id);
-    });
+        tbl += `<tr class="new_row" row_id="${row_id}">`;
+        tbl += `<td ><div class="row_data editable" col_name="name"></div></td>`;
+        tbl += `<td ><div class="row_data editable" col_name="email"></div></td>`;
+        tbl += `<td ><div class="row_data editable" col_name="cell"></div></td>`;
+        tbl += `<td ><div class="row_data" col_name="carrier">`;
+
+        tbl += '<select class="selectpicker show-tick" data-style="btn-info">\n';
+        $.each(carriers, function (index, carrier) {
+            tbl += `<option>${carrier.name}</option>`;
+        });
+        tbl += '<select/></div></td>';
+
+        tbl += '<td ><div class="row_data" col_name="notify">';
+        tbl += '<label class="switch">\n' +
+            '            <input type="checkbox">\n' +
+            '            <div class="slider"></div>\n' +
+            '        </label>';
+        tbl += '</div></td>';
+
+        tbl += '<td ><div class="row_data" col_name="delete">';
+        tbl += '<button type="submit" class="btn btn-default btn-sm" onclick="removeLine(this)">\n' + trashIcon +
+            '      </button>\n';
+        tbl += '</div></td>';
+
+        tbl += '</tr>';
 
 
-    //--->make div editable > start
-    $(document).on('click', '.row_data', function (event) {
-        var row_div = $(this);
-        var col_name = row_div.attr('col_name');
-        if (col_name === 'carrier' || col_name === 'notify') return;
-
-        event.preventDefault();
-
-        //make div editable
-        $(this).closest('div').attr('contenteditable', 'true');
-        //add bg css
-        $(this).addClass('bg-warning').css('padding', '0 5px');
-
-        $(this).focus();
+        last_row.after(tbl);
+        $('.row_data', tbl).on('click', onRowDataClick);
+        $('.selectpicker:last').selectpicker('refresh');
+        $('input[type="checkbox"]:last').change(onToggle);
     })
-    //--->make div editable > end
-
+    //--->add new contact > end
 
     //--->save single field data > start
     $(document).on('focusout', '.row_data', function (event) {

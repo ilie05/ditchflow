@@ -10,15 +10,27 @@
         let carriers = {{ carriers | tojson }};
     </script>
     <script src="../static/js/contacts.js"></script>
-
     <div class="panel panel-default">
-        <div class="panel-heading"><b>Contact list that will receive notifications.</b></div>
-
+        <div class="panel-heading"><b>Contact list that will receive notifications.</b>
+            <button type="button" class="btn btn-success save_contacts">Save</button>
+            <button type="button" class="btn btn-link add_contact">Add contact</button>
+        </div>
         <div class="panel-body">
-
-            <div class="tbl_user_data"></div>
-
+            <div class="tbl_user_data">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Cellular Number</th>
+                        <th>Cellular Carrier</th>
+                        <th>Send Alerts</th>
+                        <th>Remove</th>
+                    </tr>
+                    <tbody></tbody>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
-
 {% endblock %}

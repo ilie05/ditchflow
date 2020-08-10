@@ -1,5 +1,5 @@
 # main.py
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, url_for, redirect
 from flask_login import login_required, current_user
 
 main = Blueprint('main', __name__)
@@ -8,6 +8,14 @@ main = Blueprint('main', __name__)
 @main.route('/')
 def index():
     return render_template('index.html')
+
+
+@main.route('/delete', methods=['POST'])
+@login_required
+def delete():
+    contact_id = request.form.get('contact_id')
+    print(contact_id)
+    return redirect(url_for('main.contacts'))
 
 
 @main.route('/contacts', methods=['POST', 'GET'])
