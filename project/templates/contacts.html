@@ -1,0 +1,24 @@
+<!-- templates/contacts.html -->
+
+{% extends "base.html" %}
+{% block content %}
+    <link rel="stylesheet" href="../static/bootstrap4/css/bootstrap-select.min.css">
+    <script src="../static/bootstrap4/js/bootstrap-select.min.js"></script>
+    <link href="../static/css/switchToggle.css" rel="stylesheet">
+    <script>
+        let contacts = {{ contacts | tojson }};
+        let carriers = {{ carriers | tojson }};
+    </script>
+    <script src="../static/js/contacts.js"></script>
+
+    <div class="panel panel-default">
+        <div class="panel-heading"><b>Contact list that will receive notifications.</b></div>
+
+        <div class="panel-body">
+
+            <div class="tbl_user_data"></div>
+
+        </div>
+    </div>
+
+{% endblock %}
