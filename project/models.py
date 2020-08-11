@@ -27,6 +27,7 @@ class Contact(db.Model):
     cell_number = db.Column(db.String(100))
     email = db.Column(db.String(100))
     carrier_id = db.Column(db.Integer, db.ForeignKey('carrier.id'))
+    notify = db.Column(db.Boolean, default=True)
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
