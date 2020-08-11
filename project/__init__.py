@@ -3,6 +3,7 @@ from flask import Flask
 from flask_login import LoginManager
 from auth import auth as auth_blueprint
 from main import main as main_blueprint
+from contact import contact as contact_blueprint
 from database import db
 from models import User
 
@@ -32,6 +33,9 @@ def create_app():
 
     # blueprint for non-auth parts of app
     app.register_blueprint(main_blueprint)
+    
+    # blueprint for non-auth parts of app
+    app.register_blueprint(contact_blueprint)
 
     return app
 

@@ -28,7 +28,7 @@
                             Home
                         </a>
                         {% if current_user.is_authenticated %}
-                            <a href="{{ url_for('main.contacts') }}" class="navbar-item">
+                            <a href="{{ url_for('contact.contacts') }}" class="navbar-item">
                                 Contacts
                             </a>
                         {% endif %}
