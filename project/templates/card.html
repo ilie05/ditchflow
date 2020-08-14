@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../static/css/card.css"/>
+</head>
+<div class="cards-container">
+    {% for n in range(9) %}
+        <div class="flip-card-container">
+            <div class="flip-card">
+                <div class="card-front {{ 'offline-indicator' if n % 2 }}">
+                    <ul>
+                        <li><span> <label>Field Name: </label> <br/> <input type="text"/></span></li>
+                        <li><span>  <label>Land Number: </label> <br/> <input type="number"> </span></li>
+                        <li>Status: Online</li>
+                        <li>Battery Voltage: 12.5 V</li>
+                        <li>Temperature: 86 °F</li>
+                        <li>Water Level: 22''</li>
+                        <li>Last seen: 25/08/2020</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+</html>
