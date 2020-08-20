@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+    <h5>Available labels</h5>
+    <span class="badge badge-pill badge-dark ml-2">battery</span>
+    <span class="badge badge-pill badge-dark ml-2">temperature</span>
+    <span class="badge badge-pill badge-dark ml-2">float</span>
+    <span class="badge badge-pill badge-dark ml-2">water</span>
+    <span class="badge badge-pill badge-dark ml-2">sensorName</span>
+    <span class="badge badge-pill badge-dark ml-2">landNumber</span>
+    <span class="badge badge-pill badge-dark ml-2">fieldName</span>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="messages-error">
+                {% for message in messages %}
+                    <p>
+                        {{ message }}
+                    </p>
+                {% endfor %}
+            </div>
+
+        {% endif %}
+    {% endwith %}
+
+    <form method="post">
+        {% for label in labels %}
+            <div class="form-group">
+                <label>{{ label.name[0] | upper }}{{ label.name[1:] }} message</label>
+                <input class="form-control" name="{{ label.name }}" value="{{ label.message }}">
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+{% endblock %}

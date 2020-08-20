@@ -32,6 +32,11 @@
                                 Contacts
                             </a>
                         {% endif %}
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('main.messages') }}" class="navbar-item">
+                                Messages
+                            </a>
+                        {% endif %}
                         {% if not current_user.is_authenticated %}
                             <a href="{{ url_for('auth.login') }}" class="navbar-item">
                                 Login

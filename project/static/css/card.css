@@ -7,6 +7,7 @@
     box-sizing: border-box;
 }
 
+
 .flip-card-container {
     --hue: 150;
     --primary: hsl(var(--hue), 50%, 50%);
@@ -16,7 +17,7 @@
     --grey: hsl(0, 0%, 50%);
 
     width: 25%;
-    height: 400px;
+    height: 450px;
     margin: 40px;
 
     perspective: 1000px;
@@ -130,6 +131,7 @@ and (max-device-width: 1024px) {
     .flip-card-container {
         width: 600px;
     }
+
     .cards-container {
         margin-left: 80px;
     }

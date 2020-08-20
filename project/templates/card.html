@@ -1,23 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="../static/css/card.css"/>
-</head>
+<link rel="stylesheet" href="../static/css/card.css"/>
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
+        integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+<script src="../static/js/home.js"></script>
+
 <div class="cards-container">
-    {% for n in range(9) %}
-        <div class="flip-card-container">
+    {% for item in sensors %}
+        <div class="flip-card-container" itemid={{ item.id }}>
             <div class="flip-card">
-                <div class="card-front {{ 'offline-indicator' if n % 2 }}">
+                <div class="card-front {{ 'offline-indicator' if not item.status }}">
                     <ul>
-                        <li><span> <label>Field Name: </label> <br/> <input type="text"/></span></li>
+                        <li><span> <label>Field Name: </label> <br/> <input type="text" value="{{ item.name }}"/></span>
+                        </li>
                         <li><span>  <label>Land Number: </label> <br/> <input type="number"> </span></li>
-                        <li>Status: Online</li>
-                        <li>Battery Voltage: 12.5 V</li>
-                        <li>Temperature: 86 °F</li>
-                        <li>Water Level: 22''</li>
-                        <li>Last seen: 25/08/2020</li>
+                        <li>Status: {{ 'ONLINE' if item.status else 'OFFLINE' }}</li>
+                        <li>Battery Voltage: {{ '{0} V'.format(item.battery) if item.status else '---' }}</li>
+                        <li>Temperature: {{ '{0} °F'.format(item.temp) if item.status else '---' }} </li>
+                        <li>Water Level: {{ '{0}\'\''.format(item.water) if item.status else '---' }} </li>
+                        <li>Float: {{ 'UP' if item.float else 'DOWN' }}</li>
+                        <li>Last seen: {{ item.last_update }}</li>
                     </ul>
                 </div>
             </div>
