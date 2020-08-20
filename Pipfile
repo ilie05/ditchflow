@@ -8,6 +8,9 @@ flask = "*"
 flask_sqlalchemy = "*"
 flask-login = "*"
 stdiomask = "*"
+flask-socketio = "*"
+gevent = "*"
+gevent-websocket = "*"
 
 [dev-packages]
 
