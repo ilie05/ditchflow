@@ -1,6 +1,6 @@
 # contact.py
 from flask import Blueprint, render_template, request, url_for, redirect
-from flask_login import login_required, current_user
+from flask_login import login_required
 from models import Carrier, Contact
 from database import db
 import json

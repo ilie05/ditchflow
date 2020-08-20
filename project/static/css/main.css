@@ -36,6 +36,10 @@ and (max-device-width: 1024px) {
         padding-left: 0 !important;
         padding-top: 0;
     }
+
+    #moreSensors {
+        margin-left: 47%;
+    }
 }
 
 .new_row .row_data.editable {
@@ -43,11 +47,11 @@ and (max-device-width: 1024px) {
     height: 25px;
 }
 
-.form-group{
+.form-group {
     margin: 30px 0;
 }
 
-.messages-error{
+.messages-error {
     background-color: #ff3860;
     margin-top: 15px;
     border-radius: 5px;
@@ -56,4 +60,8 @@ and (max-device-width: 1024px) {
 .messages-error p {
     padding: 5px;
     margin: 0;
+}
+
+#moreSensors {
+    margin-left: 42%;
 }

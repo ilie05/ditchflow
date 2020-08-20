@@ -11,6 +11,7 @@ stdiomask = "*"
 flask-socketio = "*"
 gevent = "*"
 gevent-websocket = "*"
+pyjwt = "*"
 
 [dev-packages]
 

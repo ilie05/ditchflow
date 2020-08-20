@@ -1,5 +1,6 @@
 # main.py
-from flask import Blueprint, render_template, request, url_for, redirect, flash
+import jwt
+from flask import Blueprint, render_template, request, url_for, redirect, flash, current_app
 from flask_login import login_required, current_user
 import datetime
 import random
@@ -10,9 +11,16 @@ from utils import validate_message, validate_labels
 main = Blueprint('main', __name__)
 
 
+@main.route('/api')
+@login_required
+def api():
+    return "API endpoint"
+
+
 @main.route('/')
+@login_required
 def index():
-    sensors = [sensor.as_dict() for sensor in Sensor.query.all()]
+    sensors = [sensor.as_dict() for sensor in Sensor.query.limit(6)]
     for sensor in sensors:
         sensor['status'] = random.choice([True, False])
         sensor['battery'] = 12.5
@@ -20,7 +28,8 @@ def index():
         sensor['water'] = 23
         sensor['float'] = random.choice([True, False])
 
-    return render_template('index.html', sensors=sensors)
+    token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"), algorithm='HS256').decode()
+    return render_template('index.html', sensors=sensors, jwt_token=str(token))
 
 
 @main.route('/messages', methods=["GET", "POST"])
@@ -37,7 +46,7 @@ def messages():
             print(field)
             labels = validate_message(field)
             if not labels and labels != []:
-                flash(f'Incorrect message for {message["name"].upper()}')
+                flash(f'Incorrect message format for {message["name"].upper()}')
             else:
                 if not validate_labels(labels, msgs):
                     flash(f'Invalid labels for {message["name"].upper()}')
