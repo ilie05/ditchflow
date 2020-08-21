@@ -1,33 +1,39 @@
 # main.py
 import jwt
-from flask import Blueprint, render_template, request, url_for, redirect, flash, current_app
+from flask import Blueprint, render_template, request, url_for, redirect, flash, current_app, jsonify
 from flask_login import login_required, current_user
 import datetime
-import random
 from database import db
 from models import Sensor, Message
-from utils import validate_message, validate_labels
+from utils import validate_message, validate_labels, mock_sensors
 
 main = Blueprint('main', __name__)
 
 
-@main.route('/api')
+@main.route('/moreSensors', methods=["POST"])
 @login_required
-def api():
-    return "API endpoint"
+def more_sensors():
+    payload = request.get_json()
+    page = payload['page'] if 'page' in payload else None
+    if page is None:
+        return jsonify([])
+
+    try:
+        page = int(page)
+        if page < 0:
+            raise ValueError
+        sensors = [sensor.as_dict() for sensor in Sensor.query.offset(6 + page * 3).limit(3)]
+        sensors = mock_sensors(sensors)
+        return jsonify(sensors)
+    except ValueError:
+        return jsonify([])
 
 
 @main.route('/')
 @login_required
 def index():
     sensors = [sensor.as_dict() for sensor in Sensor.query.limit(6)]
-    for sensor in sensors:
-        sensor['status'] = random.choice([True, False])
-        sensor['battery'] = 12.5
-        sensor['temp'] = 84.7
-        sensor['water'] = 23
-        sensor['float'] = random.choice([True, False])
-
+    sensors = mock_sensors(sensors)
     token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"), algorithm='HS256').decode()
     return render_template('index.html', sensors=sensors, jwt_token=str(token))
 

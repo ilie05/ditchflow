@@ -1,3 +1,6 @@
+import random
+
+
 def validate_message(message):
     """
     :param message: input message string
@@ -44,3 +47,14 @@ def validate_labels(labels, messages):
             return False
 
     return True
+
+
+def mock_sensors(sensors):
+    for sensor in sensors:
+        sensor['status'] = random.choice([True, False])
+        sensor['battery'] = 12.5
+        sensor['temp'] = 84.7
+        sensor['water'] = 23
+        sensor['float'] = random.choice([True, False])
+
+    return sensors
