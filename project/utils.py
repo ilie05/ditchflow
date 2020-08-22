@@ -1,4 +1,5 @@
 import random
+import re
 
 
 def validate_message(message):
@@ -58,3 +59,8 @@ def mock_sensors(sensors):
         sensor['float'] = random.choice([True, False])
 
     return sensors
+
+
+def check_email(email):
+    regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+    return re.search(regex, email)
