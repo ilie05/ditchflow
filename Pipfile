@@ -11,6 +11,7 @@ flask-socketio = "*"
 gevent = "*"
 gevent-websocket = "*"
 pyjwt = "*"
+digi-xbee = "*"
 
 [dev-packages]
 

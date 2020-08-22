@@ -34,6 +34,7 @@ def change_password(email):
 
         cursor.execute(f"UPDATE USER SET password='{generate_password_hash(new_password)}' WHERE email='{email}';")
         conn.commit()
+        print("Password has been changed successfully!***")
         break
 
 
@@ -67,6 +68,7 @@ def create_user():
         cursor.execute(
             f"Insert Into USER ('EMAIL','PASSWORD') Values ('{email}', '{generate_password_hash(password)}');")
         conn.commit()
+        print("User has been created successfully!***")
         break
 
 

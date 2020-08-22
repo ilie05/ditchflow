@@ -22,7 +22,7 @@ def more_sensors():
         page = int(page)
         if page < 0:
             raise ValueError
-        sensors = [sensor.as_dict() for sensor in Sensor.query.offset(6 + page * 3).limit(3)]
+        sensors = [sensor.as_dict() for sensor in Sensor.query.offset(9 + page * 3).limit(3)]
         sensors = mock_sensors(sensors)
         return jsonify(sensors)
     except ValueError:
@@ -32,7 +32,7 @@ def more_sensors():
 @main.route('/')
 @login_required
 def index():
-    sensors = [sensor.as_dict() for sensor in Sensor.query.limit(6)]
+    sensors = [sensor.as_dict() for sensor in Sensor.query.limit(9)]
     sensors = mock_sensors(sensors)
     token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"), algorithm='HS256').decode()
     return render_template('index.html', sensors=sensors, jwt_token=str(token))
@@ -65,7 +65,7 @@ def messages():
 
 @main.route('/populate')
 def populate():
-    for i in range(10):
+    for i in range(10, 20):
         sensor = Sensor(name=f'Sensor {i + 1}', last_update=datetime.datetime.now().replace(microsecond=0))
         db.session.add(sensor)
     db.session.commit()
