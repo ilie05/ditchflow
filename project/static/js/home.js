@@ -7,22 +7,21 @@ socket.on('newnumber', function (msg) {
     alert(msg)
 });
 
-const loadMoreSensors = () => {
+const loadMoreSensors = (hide = true, noItems) => {
     fetch('http://localhost:3000/moreSensors', {
         method: 'POST',
         headers: {
             'Authorization': jwtToken,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({page: page})
+        body: JSON.stringify({page, noItems})
     })
         .then(res => res.json())
         .then(data => {
-            console.log(data)
-            if (data.length < 3) {
+            if (data.length < 3 && hide) {
                 $('#moreSensors').hide();
             }
-            page++;
+            if (hide) page++;
             addSensors(data);
         })
 }
@@ -33,6 +32,7 @@ const addSensors = (sensors) => {
         let card = `<div class="flip-card-container" itemid=${item.id}>` +
             '            <div class="flip-card">' +
             `                <div class="card-front ${item.status ? '' : 'offline-indicator'}">` +
+            '                    <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSensor(this)" />' +
             '                    <ul>' +
             `                        <li><span> <label>Field Name: </label> <br/> <input type="text" value="${item.name}"/></span></li>` +
             '                        <li><span>  <label>Land Number: </label> <br/> <input type="number"> </span></li>' +
@@ -61,3 +61,28 @@ const formatDate = (date) => {
 
     return YYYY + "-" + MM + "-" + DD + " " + hh + ":" + mm + ":" + ss;
 }
+
+const deleteSensor = (context) => {
+    const card = $(context).closest(".flip-card-container");
+    const sensorId = card.attr('itemid');
+    console.log(sensorId);
+    fetch('http://localhost:3000', {
+        method: 'DELETE',
+        headers: {
+            'Authorization': jwtToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({sensorId})
+    })
+        .then(res => {
+            if (res.ok) {
+                card.remove();
+                loadMoreSensors(false, 1);
+            }
+        });
+}
+
+
+// {\n} on message page
+// battery min 11 V
+// 30 min check database for online status

@@ -136,3 +136,16 @@ and (max-device-width: 1024px) {
         margin-left: 80px;
     }
 }
+
+.delete-card {
+    width: 40px;
+    height: 40px;
+    border-radius: 9px;
+    position: absolute;
+    top: 1px;
+    right: 1px;
+}
+
+.delete-card:hover {
+    cursor: pointer;
+}

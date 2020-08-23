@@ -3,6 +3,7 @@
         <div class="flip-card-container" itemid={{ item.id }}>
             <div class="flip-card">
                 <div class="card-front {{ 'offline-indicator' if not item.status }}">
+                    <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSensor(this)"/>
                     <ul>
                         <li><span> <label>Field Name: </label> <br/> <input type="text" value="{{ item.name }}"/></span>
                         </li>
