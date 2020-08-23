@@ -5,6 +5,17 @@ from database import cursor, conn
 from utils import check_email
 
 
+def delete_user(email):
+    user = cursor.execute(f'SELECT * FROM USER WHERE EMAIL="{email}";').fetchone()
+    if not user:
+        print(f"***The user with '{email}' email address does not exist***")
+        return
+
+    cursor.execute(f"DELETE FROM USER WHERE email='{email}';")
+    conn.commit()
+    print("***User has been deleted successfully!***")
+
+
 def change_password(email):
     user = cursor.execute(f'SELECT * FROM USER WHERE EMAIL="{email}";').fetchone()
     if not user:
@@ -34,7 +45,7 @@ def change_password(email):
 
         cursor.execute(f"UPDATE USER SET password='{generate_password_hash(new_password)}' WHERE email='{email}';")
         conn.commit()
-        print("Password has been changed successfully!***")
+        print("***Password has been changed successfully!***")
         break
 
 
@@ -68,18 +79,20 @@ def create_user():
         cursor.execute(
             f"Insert Into USER ('EMAIL','PASSWORD') Values ('{email}', '{generate_password_hash(password)}');")
         conn.commit()
-        print("User has been created successfully!***")
+        print("***User has been created successfully!***")
         break
 
 
 class HELP:
     CREATE_USER = '--create-user'
     CHANGE_USER_PASSWORD = '--change-password'
-    CHANGE_USER_PASSWORD_ARG = 'user-email-address'
+    EMAIL_ARG = 'user-email-address'
+    DELETE_USER = '--delete-user'
 
     def __str__(self):
-        return f'{self.CREATE_USER}\t\t\t\t\tCreate a new user\n{self.CHANGE_USER_PASSWORD} ' + \
-               f'"{self.CHANGE_USER_PASSWORD_ARG}"\t\tChange user password'
+        return f'{self.CREATE_USER}\t\t\t\t\tCreate a new user\n' + \
+               f'{self.CHANGE_USER_PASSWORD} "{self.EMAIL_ARG}"\t\tChange user password\n' + \
+               f'{self.DELETE_USER} "{self.EMAIL_ARG}" \t\tDelete user'
 
 
 if __name__ == '__main__':
@@ -99,6 +112,12 @@ if __name__ == '__main__':
             exit(1)
         email = argv[2]
         change_password(email)
+    elif arg1 == helper.DELETE_USER:
+        if len(argv) < 3:
+            print(ERROR_MESSAGE)
+            exit(1)
+        email = argv[2]
+        delete_user(email)
     elif arg1 == '-h' or arg1 == '--help':
         print(helper)
     else:
