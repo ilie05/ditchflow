@@ -1,12 +1,3 @@
-const socket = io('http://' + document.domain + ':' + location.port + '/test');
-socket.on('connect', function () {
-    socket.emit('event1', {data: 'I\'m connected!'});
-});
-
-socket.on('newnumber', function (msg) {
-    alert(msg)
-});
-
 const loadMoreSensors = (hide = true, noItems) => {
     fetch('http://localhost:3000/moreSensors', {
         method: 'POST',
@@ -37,9 +28,9 @@ const addSensors = (sensors) => {
             `                        <li><span> <label>Field Name: </label> <br/> <input type="text" value="${item.name}"/></span></li>` +
             '                        <li><span>  <label>Land Number: </label> <br/> <input type="number"> </span></li>' +
             `                        <li>Status: ${item.status ? 'ONLINE' : 'OFFLINE'}</li>` +
-            `                        <li>Battery Voltage: ${item.status ? item.battery : '---'}</li>` +
-            `                        <li>Temperature: ${item.status ? item.temp : '---'} </li>` +
-            `                        <li>Water Level: ${item.status ? item.water : '---'} </li>` +
+            `                        <li>Battery Voltage: ${item.status ? item.battery + ' V' : '---'}</li>` +
+            `                        <li>Temperature: ${item.status ? item.temp + ' F' : '---'} </li>` +
+            `                        <li>Water Level: ${item.status ? item.water + ' inches' : '---'} </li>` +
             `                        <li>Float: ${item.status ? 'UP' : 'DOWN'}</li>` +
             `                        <li>Last seen: ${formatDate(item.last_update)}</li>` +
             '                    </ul>' +

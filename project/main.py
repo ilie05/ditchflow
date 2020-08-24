@@ -84,7 +84,7 @@ def messages():
 
 @main.route('/populatesensors')
 def populate():
-    for i in range(0, 8):
+    for i in range(0, 15):
         sensor = Sensor(name=f'Sensor {i + 1}', last_update=datetime.datetime.now().replace(microsecond=0))
         db.session.add(sensor)
     db.session.commit()

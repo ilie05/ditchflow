@@ -5,10 +5,9 @@
         let page = 0;
     </script>
     <link rel="stylesheet" href="../static/css/card.css"/>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
-            integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+    <script src="../static/js/socket.io.js"></script>
     <script src="../static/js/home.js"></script>
+    <script src="../static/js/sock.js"></script>
     {% include 'card.html' %}
     <button id="moreSensors" type="button" class="btn btn-primary" onclick="loadMoreSensors()">More sensors</button>
-
 {% endblock %}

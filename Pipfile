@@ -12,6 +12,7 @@ gevent = "*"
 gevent-websocket = "*"
 pyjwt = "*"
 digi-xbee = "*"
+flask-threads = "*"
 
 [dev-packages]
 

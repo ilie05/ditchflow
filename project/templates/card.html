@@ -11,7 +11,7 @@
                         <li>Status: {{ 'ONLINE' if item.status else 'OFFLINE' }}</li>
                         <li>Battery Voltage: {{ '{0} V'.format(item.battery) if item.status else '---' }}</li>
                         <li>Temperature: {{ '{0} °F'.format(item.temp) if item.status else '---' }} </li>
-                        <li>Water Level: {{ '{0}\'\''.format(item.water) if item.status else '---' }} </li>
+                        <li>Water Level: {{ '{0} inches'.format(item.water) if item.status else '---' }} </li>
                         <li>Float: {{ 'UP' if item.float else 'DOWN' }}</li>
                         <li>Last seen: {{ item.last_update }}</li>
                     </ul>

@@ -8,6 +8,7 @@ from main import main as main_blueprint
 from contact import contact as contact_blueprint
 from database import db
 from models import User
+from sensors_rcv import listen_to_sensors
 
 app = Flask(__name__)
 
@@ -50,12 +51,19 @@ app.register_blueprint(main_blueprint)
 # blueprint for non-auth parts of app
 app.register_blueprint(contact_blueprint)
 
-# socketio = SocketIO(app)
-# return app, socketio
-
+socket_io = SocketIO(app)
 
 if __name__ == '__main__':
-    # app, socketio = create_app()
-    # app.app_context().push()
-    app.run(debug=True, port=3000)
-    # socketio.run(app, debug=True, port=3000)
+    context = app.app_context()
+    context.push()
+
+
+    @app.before_first_request
+    def activate_job():
+        with context:
+            listen_to_sensors(socket_io)
+
+
+    socket_io.run(app, debug=True, port=3000)
+
+    # app.run(debug=True, port=3000)

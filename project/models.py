@@ -38,6 +38,11 @@ class Sensor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
     land_number = db.Column(db.String(100), unique=True)
+    status = db.Column(db.Boolean, default=True)
+    battery = db.Column(db.Integer)
+    temperature = db.Column(db.Integer)
+    water = db.Column(db.Integer)
+    float = db.Column(db.Boolean)
     address = db.Column(db.String(100), unique=True)
     last_update = db.Column(db.DateTime)
 
