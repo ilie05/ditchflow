@@ -43,7 +43,6 @@ def more_sensors():
 def index():
     if request.method == 'GET':
         sensors = [sensor.as_dict() for sensor in Sensor.query.limit(9)]
-        sensors = mock_sensors(sensors)
         token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                            algorithm='HS256').decode()
         return render_template('index.html', sensors=sensors, jwt_token=str(token))

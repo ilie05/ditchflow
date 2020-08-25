@@ -25,14 +25,14 @@ const addSensors = (sensors) => {
             `                <div class="card-front ${item.status ? '' : 'offline-indicator'}">` +
             '                    <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSensor(this)" />' +
             '                    <ul>' +
-            `                        <li><span> <label>Field Name: </label> <br/> <input type="text" value="${item.name}"/></span></li>` +
-            '                        <li><span>  <label>Land Number: </label> <br/> <input type="number"> </span></li>' +
-            `                        <li>Status: ${item.status ? 'ONLINE' : 'OFFLINE'}</li>` +
-            `                        <li>Battery Voltage: ${item.status ? item.battery + ' V' : '---'}</li>` +
-            `                        <li>Temperature: ${item.status ? item.temp + ' F' : '---'} </li>` +
-            `                        <li>Water Level: ${item.status ? item.water + ' inches' : '---'} </li>` +
-            `                        <li>Float: ${item.status ? 'UP' : 'DOWN'}</li>` +
-            `                        <li>Last seen: ${formatDate(item.last_update)}</li>` +
+            `                        <li class="sName">Field Name: ${item.name}</li>` +
+            '                        <li><span><label>Land Number: </label> <br/> <input type="number"> </span></li>' +
+            `                        <li class="sStatus">Status: ${item.status ? 'ONLINE' : 'OFFLINE'}</li>` +
+            `                        <li class="sBattery">Battery Voltage: ${item.status ? item.battery + ' V' : '---'}</li>` +
+            `                        <li class="sTemperature">Temperature: ${item.status ? item.temp + ' F' : '---'} </li>` +
+            `                        <li class="sWater">Water Level: ${item.status ? item.water + ' inches' : '---'} </li>` +
+            `                        <li class="sFloat">Float: ${item.status ? 'UP' : 'DOWN'}</li>` +
+            `                        <li class="sLastSeen">Last seen: ${formatDate(item.last_update)}</li>` +
             '                    </ul>' +
             '                </div>' +
             '            </div>' +

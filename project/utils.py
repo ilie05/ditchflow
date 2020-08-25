@@ -61,6 +61,24 @@ def mock_sensors(sensors):
     return sensors
 
 
+def mock_notification_sensor():
+    mocks = [{'address': 'address0', 'name': 'name0'}, {'address': 'address1', 'name': 'name1'},
+             {'address': 'address2', 'name': 'name2'}, {'address': 'address3', 'name': 'name3'},
+             {'address': 'address4', 'name': 'name4'}, {'address': 'address5', 'name': 'name5'}]
+
+    idx = random.randrange(len(mocks))
+
+    battery = random.randrange(90, 130)
+    temperature = random.randrange(800, 1200)
+    water = random.randrange(10, 50)
+    float = random.choice([True, False])
+    float = 'UP' if float else 'DOWN'
+    name = mocks[idx]['name']
+    address = mocks[idx]['address']
+
+    return address, f'{name},{float},{battery},{battery},{temperature},{water}'
+
+
 def check_email(email):
     regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
     return re.search(regex, email)

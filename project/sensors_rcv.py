@@ -5,28 +5,45 @@ from database import db
 import datetime
 from flask_login import current_user
 import time
+from utils import mock_notification_sensor
+
 
 # local_xbee = XBeeDevice("COM1", 9600)
 # remote_xbee = RemoteXBeeDevice(local_xbee, XBee64BitAddress.from_hex_string("0013A20012345678"))
 
 
-def create_update_sensor(message, address):
+def create_update_sensor(message, address, socket_io):
     sensor = Sensor.query.filter_by(address=address).first()
+    current_time = datetime.datetime.now().replace(microsecond=0)
+    print(f'Recieved data from sensor: address: {address}  data: {message}')
+    try:
+        name = message[0]
+        float = True if message[1] == 'UP' else False
+        battery = int(message[2]) / 10
+        temperature = int(message[3]) / 10
+        water = int(message[4]) / 10
 
-    if not sensor:
-        # does not exist, create one
-        sensor = Sensor(name=message[0], address=address, last_update=datetime.datetime.now().replace(microsecond=0))
-        db.session.add(sensor)
-    else:
-        # exists, update the name and the date
-        sensor.name = message[0]
-        sensor.status = True
-        sensor.float = True if message[1] == 'UP' else False
-        sensor.battery = int(message[2]) / 10
-        sensor.temperature = int(message[3]) / 10
-        sensor.water = int(message[4]) / 10
-        sensor.last_update = datetime.datetime.now().replace(microsecond=0)
-    db.session.commit()
+        if not sensor:
+            # does not exist, create one
+            sensor = Sensor(name=name, address=address, last_update=current_time, battery=battery, float=float,
+                            temperature=temperature, water=water)
+            db.session.add(sensor)
+        else:
+            # exists, update the name and the date
+            sensor.name = name
+            sensor.status = True
+            sensor.float = float
+            sensor.battery = battery
+            sensor.temperature = temperature
+            sensor.water = water
+            sensor.last_update = current_time
+        db.session.commit()
+        data_to_send = {'id': sensor.id, 'name': name, 'last_update': str(current_time), 'battery': battery,
+                        'float': float, 'temperature': temperature, 'water': water}
+        socket_io.emit('sensor_notification', data_to_send, namespace='/sensor')
+    except Exception as e:
+        print(e)
+        print("INVALID DATA FROM SENSORS")
 
 
 def thread_function():
@@ -61,6 +78,10 @@ def test_callback(socket_io):
     i = 0
     while True:
         time.sleep(3)
+        address, message = mock_notification_sensor()
+        print(address, message)
+        message = message.split(',')
+        create_update_sensor(message, address, socket_io)
         # mess = Message.query.filter_by(name='water').first()
         # mess.message = f'A lot of data here {i}'
         # db.session.add(mess)
@@ -68,7 +89,7 @@ def test_callback(socket_io):
         # print(mess.message)
         print(i)
         print("\n\n")
-        socket_io.emit('newnumber', {'number': i}, namespace='/sensor')
+
         i += 1
 
 
