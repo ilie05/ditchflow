@@ -1,4 +1,3 @@
-# main.py
 import jwt
 from flask import Blueprint, render_template, request, url_for, redirect, flash, current_app, jsonify, Response
 from flask_login import login_required, current_user
@@ -60,10 +59,10 @@ def index():
 @login_required
 def messages():
     msgs = [msg.as_dict() for msg in Message.query.all()]
-    exclude_fields = ['sensorName', 'landNumber', 'fieldName']
+    exclude_fields = ['name', 'land_number', 'field_name', 'water', 'temperature']
     filtered_msgs = filter(lambda label: label['name'] not in exclude_fields, msgs)
     if request.method == 'GET':
-        return render_template('messages.html', labels=filtered_msgs)
+        return render_template('messages.html', labels=filtered_msgs, lbs=msgs)
     else:
         for message in filtered_msgs:
             field = request.form.get(message['name'])
@@ -73,7 +72,7 @@ def messages():
                 flash(f'Incorrect message format for {message["name"].upper()}')
             else:
                 if not validate_labels(labels, msgs):
-                    flash(f'Invalid labels for {message["name"].upper()}')
+                    flash(f'Invalid labels for {message["name"].upper()} message')
                     continue
                 db_message = Message.query.filter_by(name=message["name"]).first()
                 db_message.message = field
@@ -88,26 +87,3 @@ def populate():
         db.session.add(sensor)
     db.session.commit()
     return 'Populate Sensor table'
-
-
-@main.route('/populatelabel')
-def populatelabel():
-    sensor = Message(name='status', message='')
-    db.session.add(sensor)
-    sensor = Message(name='battery', message='')
-    db.session.add(sensor)
-    sensor = Message(name='temperature', message='')
-    db.session.add(sensor)
-    sensor = Message(name='float', message='')
-    db.session.add(sensor)
-    sensor = Message(name='water', message='')
-    db.session.add(sensor)
-    sensor = Message(name='sensorName', message='')
-    db.session.add(sensor)
-    sensor = Message(name='landNumber', message='')
-    db.session.add(sensor)
-    sensor = Message(name='fieldName', message='')
-    db.session.add(sensor)
-
-    db.session.commit()
-    return 'Populate Label table'

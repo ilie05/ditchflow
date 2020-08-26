@@ -1,13 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
     <h5>Available labels</h5>
-    <span class="badge badge-pill badge-dark ml-2">battery</span>
-    <span class="badge badge-pill badge-dark ml-2">temperature</span>
-    <span class="badge badge-pill badge-dark ml-2">float</span>
-    <span class="badge badge-pill badge-dark ml-2">water</span>
-    <span class="badge badge-pill badge-dark ml-2">sensorName</span>
-    <span class="badge badge-pill badge-dark ml-2">landNumber</span>
-    <span class="badge badge-pill badge-dark ml-2">fieldName</span>
+    {% for lb in lbs %}
+        <span class="badge badge-pill badge-dark ml-2">{{ lb.name }}</span>
+    {% endfor %}
 
     {% with messages = get_flashed_messages() %}
         {% if messages %}

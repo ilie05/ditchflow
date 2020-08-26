@@ -1,3 +1,4 @@
+from flask import current_app
 import random
 import re
 
@@ -50,8 +51,32 @@ def validate_labels(labels, messages):
     return True
 
 
-def send_notification(id):
-    pass
+def format_message(message, sensor):
+    sensor = sensor.as_dict()
+    sensor['field_name'] = current_app.config.get("FIELD_NAME")
+    labels = validate_message(message)
+    if labels is None:
+        return
+
+    for label in labels:
+        replace_str = str(sensor[label])
+        if label == 'status':
+            replace_str = 'ONLINE' if sensor[label] else 'OFFLINE'
+        elif label == 'float':
+            replace_str = 'UP' if sensor[label] else 'DOWN'
+        message = message.replace('{' + label + '}', replace_str)
+
+    return message
+
+
+def format_phone_number(number):
+    res = ''
+    digits = [str(n) for n in list(range(10))]
+    for c in number:
+        if c in digits:
+            res += c
+
+    return res
 
 
 def mock_sensors(sensors):

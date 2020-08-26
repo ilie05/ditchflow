@@ -1,9 +1,9 @@
-# init.py
 import jwt
 from flask import Flask, current_app
 from flask_socketio import SocketIO
 from auth import auth as auth_blueprint
 from flask_login import LoginManager
+from datetime import timedelta
 from main import main as main_blueprint
 from contact import contact as contact_blueprint
 from database import db
@@ -12,10 +12,14 @@ from sensors_rcv import listen_sensors_thread
 
 app = Flask(__name__)
 
+app.config.from_object('config.Config')
+
 app.config['SECRET_KEY'] = 'WuLXEWvce8EWr5KEPF'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['JWT_SECRET'] = 'mkFOcbEeBGBHLKiMxM6m'
+
+app.permanent_session_lifetime = timedelta(days=app.config.get("SESSION_DURATION"))
 
 db.init_app(app)
 with app.app_context():
@@ -65,5 +69,3 @@ if __name__ == '__main__':
 
 
     socket_io.run(app, debug=True, port=3000)
-
-    # app.run(debug=True, port=3000)

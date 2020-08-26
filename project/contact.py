@@ -1,9 +1,9 @@
-# contact.py
 from flask import Blueprint, render_template, request, url_for, redirect
 from flask_login import login_required
 from models import Carrier, Contact
 from database import db
 import json
+from utils import format_phone_number
 
 contact = Blueprint('contact', __name__)
 
@@ -26,7 +26,7 @@ def create():
         if db_contact:
             db_contact.name = contact['name']
             db_contact.email = contact['email']
-            db_contact.cell_number = contact['cell_number']
+            db_contact.cell_number = format_phone_number(contact['cell_number'])
             db_contact.carrier_id = contact['carrier_id']
             db_contact.notify = contact['notify']
         else:

@@ -37,7 +37,7 @@ class Sensor(db.Model):
     __tablename__ = 'sensor'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
-    land_number = db.Column(db.String(100), unique=True)
+    land_number = db.Column(db.String(100), default='')
     status = db.Column(db.Boolean, default=True)
     battery = db.Column(db.Integer)
     temperature = db.Column(db.Integer)

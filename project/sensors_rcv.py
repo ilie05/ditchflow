@@ -3,9 +3,14 @@ from digi.xbee.devices import XBeeDevice, XBee64BitAddress
 from models import Message, Sensor
 from database import db
 import datetime
+from flask import current_app
 from flask_login import current_user
 import time
-from utils import mock_notification_sensor, send_notification
+import threading
+from utils import mock_notification_sensor
+from email_service import send_status_notification
+
+lock = threading.Lock()
 
 
 # local_xbee = XBeeDevice("COM1", 9600)
@@ -15,7 +20,7 @@ from utils import mock_notification_sensor, send_notification
 def create_update_sensor(message, address, socket_io):
     sensor = Sensor.query.filter_by(address=address).first()
     current_time = datetime.datetime.now().replace(microsecond=0)
-    print(f'Recieved data from sensor: address: {address}  data: {message}')
+    # print(f'Recieved data from sensor: address: {address}  data: {message}')
     try:
         name = message[0]
         float = True if message[1] == 'UP' else False
@@ -40,6 +45,15 @@ def create_update_sensor(message, address, socket_io):
         db.session.commit()
         data_to_send = {'id': sensor.id, 'name': name, 'last_update': str(current_time), 'battery': battery,
                         'float': float, 'temperature': temperature, 'water': water}
+
+        if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
+            # send notification for battery
+            send_status_notification(sensor, 'battery')
+
+        if float:
+            # send notification for battery
+            send_status_notification(sensor, 'float')
+
         socket_io.emit('sensor_notification', data_to_send, namespace='/sensor')
     except Exception as e:
         print(e)
@@ -75,37 +89,32 @@ def thread_function():
 
 
 def test_callback(socket_io):
-    i = 0
     while True:
         time.sleep(3)
         address, message = mock_notification_sensor()
-        print(address, message)
         message = message.split(',')
         create_update_sensor(message, address, socket_io)
-        # mess = Message.query.filter_by(name='water').first()
-        # mess.message = f'A lot of data here {i}'
-        # db.session.add(mess)
-        # db.session.commit()
-        # print(mess.message)
-        print(i)
-        print("\n\n")
-        i += 1
+        print("\n")
 
 
 def check_status(socket_io):
     notified_sensor_ids = []
-    check_time = 1800  # 30 min
+    check_time = current_app.config.get("GO_OFFLINE_TIME")  # 30 min
     while True:
-        time.sleep(5)  # every 10 min
+        time.sleep(current_app.config.get("CHECK_FOR_STATUS_TIME"))  # every 10 min
         current_time = datetime.datetime.now().replace(microsecond=0)
+        db.session.commit()
         sensors = Sensor.query.all()
         for sensor in sensors:
             last_update = sensor.last_update
             total_diff = current_time - last_update
             total_diff_sec = total_diff.total_seconds()
             if total_diff_sec > check_time:
+                sensor.status = False
+                db.session.add(sensor)
+                db.session.commit()
                 if sensor.id not in notified_sensor_ids:
-                    send_notification(sensor.id)
+                    send_status_notification(sensor, 'status')
                     notified_sensor_ids.append(sensor.id)
                 socket_io.emit('goOffline', sensor.id, namespace='/sensor')
             else:
@@ -115,11 +124,11 @@ def check_status(socket_io):
 
 def listen_sensors_thread(socket_io):
     t1 = AppContextThread(target=test_callback, args=(socket_io,))
-    print("Listen sensors thread before running")
-    # t1.start()
+    print("***Listen sensors thread before running***")
+    t1.start()
 
     t2 = AppContextThread(target=check_status, args=(socket_io,))
-    print("Check Status thread before running")
+    print("***Check Status thread before running***")
     t2.start()
 
     @socket_io.on('connect', namespace='/sensor')
