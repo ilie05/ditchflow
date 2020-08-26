@@ -16,3 +16,16 @@ socket.on('sensor_notification', function (data) {
 
     $(card).find('.card-front').removeClass('offline-indicator');
 });
+
+socket.on('goOffline', function (id) {
+    let card = $(`.cards-container [itemid=${id}]`);
+    if (!card.length) return;
+
+    $(card).find('li.sStatus').text('Status: OFFLINE');
+    $(card).find('li.sWater').text('Water Level: ---');
+    $(card).find('li.sBattery').text('Battery Voltage: ---');
+    $(card).find('li.sTemperature').text('Temperature: ---');
+    $(card).find('li.sFloat').text('Float: ---');
+
+    $(card).find('.card-front').addClass('offline-indicator');
+});

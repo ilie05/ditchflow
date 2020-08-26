@@ -5,7 +5,7 @@ from database import db
 import datetime
 from flask_login import current_user
 import time
-from utils import mock_notification_sensor
+from utils import mock_notification_sensor, send_notification
 
 
 # local_xbee = XBeeDevice("COM1", 9600)
@@ -89,14 +89,38 @@ def test_callback(socket_io):
         # print(mess.message)
         print(i)
         print("\n\n")
-
         i += 1
 
 
-def listen_to_sensors(socket_io):
-    t = AppContextThread(target=test_callback, args=(socket_io,))
-    print("Sensors receive thread before running")
-    t.start()
+def check_status(socket_io):
+    notified_sensor_ids = []
+    check_time = 1800  # 30 min
+    while True:
+        time.sleep(5)  # every 10 min
+        current_time = datetime.datetime.now().replace(microsecond=0)
+        sensors = Sensor.query.all()
+        for sensor in sensors:
+            last_update = sensor.last_update
+            total_diff = current_time - last_update
+            total_diff_sec = total_diff.total_seconds()
+            if total_diff_sec > check_time:
+                if sensor.id not in notified_sensor_ids:
+                    send_notification(sensor.id)
+                    notified_sensor_ids.append(sensor.id)
+                socket_io.emit('goOffline', sensor.id, namespace='/sensor')
+            else:
+                if sensor.id in notified_sensor_ids:
+                    notified_sensor_ids.remove(sensor.id)
+
+
+def listen_sensors_thread(socket_io):
+    t1 = AppContextThread(target=test_callback, args=(socket_io,))
+    print("Listen sensors thread before running")
+    # t1.start()
+
+    t2 = AppContextThread(target=check_status, args=(socket_io,))
+    print("Check Status thread before running")
+    t2.start()
 
     @socket_io.on('connect', namespace='/sensor')
     def test_connect():

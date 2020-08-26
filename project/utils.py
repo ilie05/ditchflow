@@ -50,6 +50,10 @@ def validate_labels(labels, messages):
     return True
 
 
+def send_notification(id):
+    pass
+
+
 def mock_sensors(sensors):
     for sensor in sensors:
         sensor['status'] = random.choice([True, False])

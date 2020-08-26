@@ -8,7 +8,7 @@ from main import main as main_blueprint
 from contact import contact as contact_blueprint
 from database import db
 from models import User
-from sensors_rcv import listen_to_sensors
+from sensors_rcv import listen_sensors_thread
 
 app = Flask(__name__)
 
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     @app.before_first_request
     def activate_job():
         with context:
-            listen_to_sensors(socket_io)
+            listen_sensors_thread(socket_io)
 
 
     socket_io.run(app, debug=True, port=3000)
