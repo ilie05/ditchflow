@@ -1,11 +1,10 @@
 class Config:
     # SMTP Credentials
-    MAIL_SERVER = 'smtp.gmail.com'
-    MAIL_PORT = 587
-    MAIL_USE_TLS = True
-    MAIL_USE_SSL = False
-    MAIL_USERNAME = ''
-    MAIL_PASSWORD = ''
+    MAIL_SERVER = 'mail.ditchflow.com'
+    MAIL_PORT = 25
+    MAIL_USERNAME = 'alert@ditchflow.com'
+    MAIL_PASSWORD = 'SINCE1937'
+    MAIL_SENDER = 'alert@ditchflow.com'
 
     SESSION_DURATION = 1  # DAYS. The period duration to stay logged in
 

@@ -75,8 +75,13 @@ def format_phone_number(number):
     for c in number:
         if c in digits:
             res += c
-
     return res
+
+
+def remove_tags(text):
+    TAG_RE = re.compile(r'<[^>]+>')
+    text = TAG_RE.sub('', text)
+    return text.strip()
 
 
 def mock_sensors(sensors):

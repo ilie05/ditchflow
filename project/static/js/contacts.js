@@ -109,7 +109,7 @@ $(document).ready(function ($) {
 
         tbl += '<td ><div class="row_data" col_name="notify">';
         tbl += '<label class="switch">\n' +
-            '            <input type="checkbox">\n' +
+            '            <input type="checkbox" checked>\n' +
             '            <div class="slider"></div>\n' +
             '        </label>';
         tbl += '</div></td>';
@@ -125,7 +125,7 @@ $(document).ready(function ($) {
         $('.row_data', tbl).on('click', onRowDataClick);
         $('.selectpicker:last').selectpicker('refresh');
         $('input[type="checkbox"]:last').change(onToggle);
-        contacts.push({id: row_id, name: '', email: '', carrier_id: 1, cell_number: '', notify: false});
+        contacts.push({id: row_id, name: '', email: '', carrier_id: 1, cell_number: '', notify: true});
     })
     //--->add new contact > end
 

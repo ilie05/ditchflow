@@ -17,7 +17,7 @@ tbody tr td {
 .panel-heading {
     height: 70px;
     padding-top: 20px;
-    min-width: 803px;
+    min-width: 822px;
 }
 
 .add_contact, .save_contacts {
@@ -64,4 +64,13 @@ and (max-device-width: 1024px) {
 
 #moreSensors {
     margin-left: 42%;
+}
+
+.dropdown-menu.show{
+    max-height: 200px;
+}
+
+.row_data[col_name='cell_number']{
+    min-height: 15px;
+    min-width: 10px;
 }
