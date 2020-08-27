@@ -8,9 +8,8 @@ from utils import format_message
 def send_email(msg):
     port = current_app.config.get("MAIL_PORT")
     smtp_server = current_app.config.get("MAIL_SERVER")
-    username = current_app.config.get("MAIL_USERNAME")
+    sender = username = current_app.config.get("MAIL_USERNAME")
     password = current_app.config.get("MAIL_PASSWORD")
-    sender = current_app.config.get("MAIL_SENDER")
 
     contacts = Contact.query.filter_by(notify=True).all()
     for contact in contacts:
@@ -19,18 +18,16 @@ def send_email(msg):
             print(f'*** NO CARRIER FOUND FOR CONTACT NAME: {contact.name}')
             continue
 
-        receiver = f'{contact.cell_number}@{carrier.email}'
-        receiver = contact.email
+        receiver = [f'{contact.cell_number}@{carrier.email}', contact.email]
 
-        message = f"""\
-        Subject: Ditchflow Notification
-        To: {receiver}
-        From: {sender}
+        message = f"""Subject: Ditchflow Notification\n\n
         {msg}"""
 
         print(f'Message to send: {message}')
+
         try:
             with smtplib.SMTP(smtp_server, port) as server:
+                server.starttls()
                 server.login(username, password)
                 server.sendmail(sender, receiver, message)
             print('Sent')

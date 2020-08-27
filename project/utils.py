@@ -110,7 +110,7 @@ def mock_notification_sensor():
     name = mocks[idx]['name']
     address = mocks[idx]['address']
 
-    return address, f'{name},{float},{battery},{battery},{temperature},{water}'
+    return address, f'{name},{float},{battery},{temperature},{water}'
 
 
 def check_email(email):

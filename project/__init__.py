@@ -45,13 +45,8 @@ def load_user(request):
     return user_entry
 
 
-# blueprint for auth routes in our app
 app.register_blueprint(auth_blueprint)
-
-# blueprint for non-auth parts of app
 app.register_blueprint(main_blueprint)
-
-# blueprint for non-auth parts of app
 app.register_blueprint(contact_blueprint)
 
 socket_io = SocketIO(app)
@@ -67,4 +62,4 @@ if __name__ == '__main__':
             listen_sensors_thread(socket_io)
 
 
-    socket_io.run(app, debug=True, port=3000)
+    socket_io.run(app, host='0.0.0.0', debug=True, port=3000)

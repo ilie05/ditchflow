@@ -1,14 +1,13 @@
 class Config:
     # SMTP Credentials
-    MAIL_SERVER = 'mail.ditchflow.com'
-    MAIL_PORT = 25
-    MAIL_USERNAME = 'alert@ditchflow.com'
-    MAIL_PASSWORD = 'SINCE1937'
-    MAIL_SENDER = 'alert@ditchflow.com'
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 587
+    MAIL_USERNAME = ''
+    MAIL_PASSWORD = ''
 
     SQLALCHEMY_DATABASE_URI = 'sqlite:///db.sqlite'
 
-    SESSION_DURATION = 1  # DAYS. The period duration to stay logged in
+    SESSION_DURATION = 5  # DAYS. The period duration to stay logged in
 
     FIELD_NAME = 'Field no. 1'
 
