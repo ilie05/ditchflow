@@ -6,6 +6,8 @@ class Config:
     MAIL_PASSWORD = 'SINCE1937'
     MAIL_SENDER = 'alert@ditchflow.com'
 
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///db.sqlite'
+
     SESSION_DURATION = 1  # DAYS. The period duration to stay logged in
 
     FIELD_NAME = 'Field no. 1'

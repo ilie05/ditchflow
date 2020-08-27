@@ -15,7 +15,6 @@ app = Flask(__name__)
 app.config.from_object('config.Config')
 
 app.config['SECRET_KEY'] = 'WuLXEWvce8EWr5KEPF'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['JWT_SECRET'] = 'mkFOcbEeBGBHLKiMxM6m'
 
