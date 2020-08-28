@@ -72,8 +72,3 @@ const deleteSensor = (context) => {
             }
         });
 }
-
-
-// {\n} on message page
-// battery min 11 V
-// 30 min check database for online status
