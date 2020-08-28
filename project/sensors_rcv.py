@@ -9,7 +9,6 @@ import time
 import threading
 from utils import mock_notification_sensor
 from email_service import send_status_notification
-from multiprocessing import Process
 
 lock = threading.Lock()
 
@@ -121,7 +120,7 @@ def check_status(socket_io):
 
 
 def listen_sensors_thread(socket_io):
-    t1 = Process(target=receive_sensor_data, args=(socket_io,))
+    t1 = AppContextThread(target=receive_sensor_data, args=(socket_io,))
     print("***Listen sensors thread before running***")
     t1.start()
 
