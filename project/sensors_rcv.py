@@ -73,7 +73,7 @@ def receive_sensor_data():
                     # DATA FORMAT:  Sensor 1,UP,125,901,241
                     rcv_data = xbee_message.data.decode()
                     rcv_data = rcv_data.split(',')
-                    dev_address = xbee_message.remote_device.get_64bit_addr()
+                    dev_address = str(xbee_message.remote_device.get_64bit_addr())
                     print(f"From {dev_address} >> {rcv_data}")
 
                     data = create_update_sensor(rcv_data, dev_address)
