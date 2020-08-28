@@ -20,7 +20,6 @@ lock = threading.Lock()
 def create_update_sensor(message, address, socket_io):
     sensor = Sensor.query.filter_by(address=address).first()
     current_time = datetime.datetime.now().replace(microsecond=0)
-    # print(f'Recieved data from sensor: address: {address}  data: {message}')
     try:
         name = message[0]
         float = True if message[1] == 'UP' else False
@@ -60,15 +59,13 @@ def create_update_sensor(message, address, socket_io):
         print("INVALID DATA FROM SENSORS")
 
 
-def thread_function():
-    PORT = "/dev/ttyAMA0"
-    BAUD_RATE = 9600
-    device = XBeeDevice(PORT, BAUD_RATE)
+def receive_sensor_data(socket_io):
+    port = current_app.config.get("DEVICE_PORT")
+    baud_rate = current_app.config.get("BAUD_RATE")
+    device = XBeeDevice(port, baud_rate)
     try:
         device.open()
-
         device.flush_queues()
-
         print("Waiting for data...\n")
 
         while True:
@@ -82,7 +79,7 @@ def thread_function():
 
                 print(f"From {dev_address} >> {rcv_data}")
 
-                create_update_sensor(rcv_data, dev_address)
+                create_update_sensor(rcv_data, dev_address, socket_io)
     finally:
         if device is not None and device.is_open():
             device.close()
@@ -123,7 +120,7 @@ def check_status(socket_io):
 
 
 def listen_sensors_thread(socket_io):
-    t1 = AppContextThread(target=test_callback, args=(socket_io,))
+    t1 = AppContextThread(target=receive_sensor_data, args=(socket_io,))
     print("***Listen sensors thread before running***")
     t1.start()
 
