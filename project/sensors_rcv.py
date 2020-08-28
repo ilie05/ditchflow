@@ -76,7 +76,9 @@ def receive_sensor_data():
                     dev_address = xbee_message.remote_device.get_64bit_addr()
                     print(f"From {dev_address} >> {rcv_data}")
 
-                    create_update_sensor(rcv_data, dev_address)
+                    data = create_update_sensor(rcv_data, dev_address)
+                    data = f"data:{json.dumps(data)}\n\n"
+                    return Response(data, mimetype='text/event-stream')
         finally:
             if device is not None and device.is_open():
                 device.close()
