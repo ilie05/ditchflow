@@ -81,14 +81,16 @@ def receive_sensor_data(socket_io):
                         send_status_notification(sensor, 'battery')
                         notified_battery_ids.append(sensor.id)
                 else:
-                    notified_battery_ids.remove(sensor.id)
+                    if sensor.id in notified_battery_ids:
+                        notified_battery_ids.remove(sensor.id)
 
                 if float:
                     if sensor.id not in notified_float_ids:
                         send_status_notification(sensor, 'float')
                         notified_float_ids.append(sensor.id)
                     else:
-                        notified_float_ids.remove(sensor.id)
+                        if sensor.id in notified_float_ids:
+                            notified_float_ids.remove(sensor.id)
                 socket_io.emit('sensor_notification', data_to_send, namespace='/sensor')
     finally:
         if device is not None and device.is_open():
