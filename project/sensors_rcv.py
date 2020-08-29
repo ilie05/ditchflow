@@ -88,9 +88,9 @@ def receive_sensor_data(socket_io):
                     if sensor.id not in notified_float_ids:
                         send_status_notification(sensor, 'float')
                         notified_float_ids.append(sensor.id)
-                    else:
-                        if sensor.id in notified_float_ids:
-                            notified_float_ids.remove(sensor.id)
+                else:
+                    if sensor.id in notified_float_ids:
+                        notified_float_ids.remove(sensor.id)
                 socket_io.emit('sensor_notification', data_to_send, namespace='/sensor')
     finally:
         if device is not None and device.is_open():
@@ -121,9 +121,9 @@ def test_callback(socket_io):
             if sensor.id not in notified_float_ids:
                 send_status_notification(sensor, 'float')
                 notified_float_ids.append(sensor.id)
-            else:
-                if sensor.id in notified_float_ids:
-                    notified_float_ids.remove(sensor.id)
+        else:
+            if sensor.id in notified_float_ids:
+                notified_float_ids.remove(sensor.id)
         socket_io.emit('sensor_notification', data_to_send, namespace='/sensor')
 
         print("\n")
@@ -155,7 +155,7 @@ def check_status(socket_io):
 
 
 def listen_sensors_thread(socket_io):
-    t1 = AppContextThread(target=receive_sensor_data, args=(socket_io,))
+    t1 = AppContextThread(target=test_callback, args=(socket_io,))
     print("***Listen sensors thread before running***")
     t1.start()
 
