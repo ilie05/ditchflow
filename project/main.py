@@ -66,7 +66,6 @@ def messages():
     else:
         for message in filtered_msgs:
             field = request.form.get(message['name'])
-            print(field)
             labels = validate_message(field)
             if not labels and labels != []:
                 flash(f'Incorrect message format for {message["name"].upper()}')

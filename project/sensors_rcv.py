@@ -17,7 +17,7 @@ lock = threading.Lock()
 # remote_xbee = RemoteXBeeDevice(local_xbee, XBee64BitAddress.from_hex_string("0013A20012345678"))
 
 
-def create_update_sensor(message, address, socket_io):
+def create_update_sensor(message, address):
     sensor = Sensor.query.filter_by(address=address).first()
     current_time = datetime.datetime.now().replace(microsecond=0)
     try:
@@ -42,26 +42,19 @@ def create_update_sensor(message, address, socket_io):
             sensor.water = water
             sensor.last_update = current_time
         db.session.commit()
-        data_to_send = {'id': sensor.id, 'name': name, 'last_update': str(current_time), 'battery': battery,
-                        'float': float, 'temperature': temperature, 'water': water}
-
-        if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
-            # send notification for battery
-            send_status_notification(sensor, 'battery')
-
-        if float:
-            # send notification for battery
-            send_status_notification(sensor, 'float')
-
-        socket_io.emit('sensor_notification', data_to_send, namespace='/sensor')
+        return {'id': sensor.id, 'name': name, 'last_update': str(current_time), 'battery': battery,
+                'float': float, 'temperature': temperature, 'water': water}, sensor
     except Exception as e:
         print(e)
         print("INVALID DATA FROM SENSORS")
 
 
 def receive_sensor_data(socket_io):
-    port = "/dev/ttyAMA0"
-    baud_rate = 9600
+    notified_battery_ids = []
+    notified_float_ids = []
+
+    port = current_app.config.get("DEVICE_PORT")
+    baud_rate = current_app.config.get("BAUD_RATE")
     device = XBeeDevice(port, baud_rate)
     try:
         device.open()
@@ -79,18 +72,58 @@ def receive_sensor_data(socket_io):
 
                 print(f"From {dev_address} >> {rcv_data}")
 
-                create_update_sensor(rcv_data, dev_address, socket_io)
+                data_to_send, sensor = create_update_sensor(rcv_data, dev_address)
+
+                battery = data_to_send['battery']
+                float = data_to_send['float']
+                if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
+                    if sensor.id not in notified_battery_ids:
+                        send_status_notification(sensor, 'battery')
+                        notified_battery_ids.append(sensor.id)
+                else:
+                    notified_battery_ids.remove(sensor.id)
+
+                if float:
+                    if sensor.id not in notified_float_ids:
+                        send_status_notification(sensor, 'float')
+                        notified_float_ids.append(sensor.id)
+                    else:
+                        notified_float_ids.remove(sensor.id)
+                socket_io.emit('sensor_notification', data_to_send, namespace='/sensor')
     finally:
         if device is not None and device.is_open():
             device.close()
 
 
 def test_callback(socket_io):
+    notified_battery_ids = []
+    notified_float_ids = []
     while True:
         time.sleep(3)
         address, message = mock_notification_sensor()
         message = message.split(',')
-        create_update_sensor(message, address, socket_io)
+
+        data_to_send, sensor = create_update_sensor(message, address)
+
+        battery = data_to_send['battery']
+        float = data_to_send['float']
+        if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
+            if sensor.id not in notified_battery_ids:
+                send_status_notification(sensor, 'battery')
+                notified_battery_ids.append(sensor.id)
+        else:
+            if sensor.id in notified_battery_ids:
+                notified_battery_ids.remove(sensor.id)
+
+        if float:
+            if sensor.id not in notified_float_ids:
+                send_status_notification(sensor, 'float')
+                notified_float_ids.append(sensor.id)
+            else:
+                if sensor.id in notified_float_ids:
+                    notified_float_ids.remove(sensor.id)
+        socket_io.emit('sensor_notification', data_to_send, namespace='/sensor')
+
         print("\n")
 
 
