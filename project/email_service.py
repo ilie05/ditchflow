@@ -24,7 +24,7 @@ def send_email(msg):
         {msg}"""
 
         print(f'Message to send: {message}')
-
+        print(f'Sending to :{receiver}')
         try:
             with smtplib.SMTP(smtp_server, port) as server:
                 server.starttls()
