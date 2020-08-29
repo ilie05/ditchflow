@@ -84,17 +84,23 @@ def receive_sensor_data():
                 device.close()
 
 
-def test_callback():
+def test_callback(context):
     @current_app.route('/sensor_notification')
     def callback_test():
-        while True:
-            time.sleep(1)
-            address, message = mock_notification_sensor()
-            message = message.split(',')
-            data = create_update_sensor(message, address)
-            data = f"data:{json.dumps(data)}\n\n"
-            print(f'Data pushed: {data}')
-            return Response(data, mimetype='text/event-stream')
+        def wrapper():
+            with context:
+
+                while True:
+                    # time.sleep(1)
+                    address, message = mock_notification_sensor()
+                    message = message.split(',')
+                    data = create_update_sensor(message, address)
+                    data = f"data:{json.dumps(data)}\n\n"
+                    print(f'Data pushed: {data}')
+                    yield data
+                    time.sleep(1)
+
+        return Response(wrapper(), mimetype='text/event-stream')
 
 
 def check_status():
@@ -126,8 +132,8 @@ def check_status():
                         notified_sensor_ids.remove(sensor.id)
 
 
-def listen_sensors_thread():
-    t1 = AppContextThread(target=receive_sensor_data)
+def listen_sensors_thread(context):
+    t1 = AppContextThread(target=test_callback, args=(context,))
     print("***Listen sensors thread before running***")
     t1.start()
 
