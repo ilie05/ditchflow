@@ -1,5 +1,5 @@
 const loadMoreSensors = (hide = true, noItems) => {
-    fetch('http://localhost:3000/moreSensors', {
+    fetch(`http://${document.domain}:${location.port}/moreSensors`, {
         method: 'POST',
         headers: {
             'Authorization': jwtToken,
@@ -56,8 +56,7 @@ const formatDate = (date) => {
 const deleteSensor = (context) => {
     const card = $(context).closest(".flip-card-container");
     const sensorId = card.attr('itemid');
-    console.log(sensorId);
-    fetch('http://localhost:3000', {
+    fetch(`http://${document.domain}:${location.port}`, {
         method: 'DELETE',
         headers: {
             'Authorization': jwtToken,
@@ -73,7 +72,3 @@ const deleteSensor = (context) => {
         });
 }
 
-
-// {\n} on message page
-// battery min 11 V
-// 30 min check database for online status

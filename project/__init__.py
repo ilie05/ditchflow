@@ -10,11 +10,12 @@ from database import db
 from models import User
 from sensors_rcv import listen_sensors_thread
 from digi.xbee.devices import XBeeDevice
-
+from flask_cors import CORS
 
 app = Flask(__name__)
 
 app.config.from_object('config.Config')
+CORS(app)
 
 app.config['SECRET_KEY'] = 'WuLXEWvce8EWr5KEPF'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
