@@ -1,5 +1,5 @@
 from flaskthreads import AppContextThread
-from digi.xbee.devices import XBeeDevice, XBee64BitAddress
+from digi.xbee.devices import XBeeDevice
 from models import Message, Sensor
 from database import db
 import datetime
@@ -60,8 +60,8 @@ def create_update_sensor(message, address, socket_io):
 
 
 def receive_sensor_data(socket_io):
-    port = current_app.config.get("DEVICE_PORT")
-    baud_rate = current_app.config.get("BAUD_RATE")
+    port = "/dev/ttyAMA0"
+    baud_rate = 9600
     device = XBeeDevice(port, baud_rate)
     try:
         device.open()
@@ -75,7 +75,7 @@ def receive_sensor_data(socket_io):
                 rcv_data = xbee_message.data.decode()
                 rcv_data = rcv_data.split(',')
 
-                dev_address = xbee_message.remote_device.get_64bit_addr()
+                dev_address = str(xbee_message.remote_device.get_64bit_addr())
 
                 print(f"From {dev_address} >> {rcv_data}")
 

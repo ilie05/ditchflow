@@ -9,6 +9,33 @@ from contact import contact as contact_blueprint
 from database import db
 from models import User
 from sensors_rcv import listen_sensors_thread
+from digi.xbee.devices import XBeeDevice
+import threading
+
+
+def receive_sensor_data():
+    port = "/dev/ttyAMA0"
+    baud_rate = 9600
+    device = XBeeDevice(port, baud_rate)
+    try:
+        device.open()
+        device.flush_queues()
+        print("Waiting for data...\n")
+
+        while True:
+            xbee_message = device.read_data()
+            if xbee_message is not None:
+                # DATA FORMAT:  Sensor 1,UP,125,901,241
+                rcv_data = xbee_message.data.decode()
+                rcv_data = rcv_data.split(',')
+
+                dev_address = str(xbee_message.remote_device.get_64bit_addr())
+
+                print(f"From {dev_address} >> {rcv_data}")
+    finally:
+        if device is not None and device.is_open():
+            device.close()
+
 
 app = Flask(__name__)
 
@@ -48,6 +75,9 @@ def load_user(request):
 app.register_blueprint(auth_blueprint)
 app.register_blueprint(main_blueprint)
 app.register_blueprint(contact_blueprint)
+
+t1 = threading.Thread(target=receive_sensor_data)
+t1.start()
 
 socket_io = SocketIO(app)
 
