@@ -155,7 +155,7 @@ def check_status(socket_io):
 
 
 def listen_sensors_thread(socket_io):
-    t1 = AppContextThread(target=test_callback, args=(socket_io,))
+    t1 = AppContextThread(target=receive_sensor_data, args=(socket_io,))
     print("***Listen sensors thread before running***")
     t1.start()
 
