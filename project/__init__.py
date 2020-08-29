@@ -76,10 +76,10 @@ app.register_blueprint(auth_blueprint)
 app.register_blueprint(main_blueprint)
 app.register_blueprint(contact_blueprint)
 
+socket_io = SocketIO(app)
+
 t1 = threading.Thread(target=receive_sensor_data)
 t1.start()
-
-socket_io = SocketIO(app)
 
 if __name__ == '__main__':
     context = app.app_context()
@@ -89,7 +89,8 @@ if __name__ == '__main__':
     @app.before_first_request
     def activate_job():
         with context:
-            listen_sensors_thread(socket_io)
+            # listen_sensors_thread(socket_io)
+            pass
 
 
     socket_io.run(app, host='0.0.0.0', debug=True, port=3000)
