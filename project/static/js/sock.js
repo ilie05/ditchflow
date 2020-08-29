@@ -4,6 +4,7 @@ socket.on('connect', function () {
 });
 
 socket.on('sensor_notification', function (data) {
+    console.log(data);
     let card = $(`.cards-container [itemid=${data.id}]`);
     if (!card.length) return;
 
@@ -18,6 +19,7 @@ socket.on('sensor_notification', function (data) {
 });
 
 socket.on('goOffline', function (id) {
+    console.log(id)
     let card = $(`.cards-container [itemid=${id}]`);
     if (!card.length) return;
 

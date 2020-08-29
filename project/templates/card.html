@@ -11,7 +11,7 @@
                         <li class="sBattery">Battery
                             Voltage: {{ '{0} V'.format(item.battery) if item.status else '---' }}</li>
                         <li class="sTemperature">
-                            Temperature: {{ '{0} °F'.format(item.temp) if item.status else '---' }} </li>
+                            Temperature: {{ '{0} °F'.format(item.temperature) if item.status else '---' }} </li>
                         <li class="sWater">Water
                             Level: {{ '{0} inches'.format(item.water) if item.status else '---' }} </li>
                         <li class="sFloat">Float: {{ 'UP' if item.float else 'DOWN' }}</li>
