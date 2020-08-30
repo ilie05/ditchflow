@@ -19,7 +19,7 @@ socket.on('sensor_notification', function (data) {
 });
 
 socket.on('goOffline', function (id) {
-    console.log(id)
+    console.log(`The sensor with id ${id} went offline.`)
     let card = $(`.cards-container [itemid=${id}]`);
     if (!card.length) return;
 

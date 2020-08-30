@@ -149,3 +149,11 @@ and (max-device-width: 1024px) {
 .delete-card:hover {
     cursor: pointer;
 }
+
+.card-error{
+    display: none;
+    position: absolute;
+    margin-top: 410px;
+    font-size: 11px;
+    color: deepskyblue;
+}

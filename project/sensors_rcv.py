@@ -32,6 +32,9 @@ def create_update_sensor(message, address):
             sensor = Sensor(name=name, address=address, last_update=current_time, battery=battery, float=float,
                             temperature=temperature, water=water)
             db.session.add(sensor)
+            # we commit the session in order to get an id for the sensor and then save it on land_number
+            db.session.commit()
+            sensor.land_number = sensor.id
         else:
             # exists, update the name and the date
             sensor.name = name

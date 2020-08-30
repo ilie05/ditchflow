@@ -1,5 +1,7 @@
+const MAIN_URL = `http://${document.domain}:${location.port}/`;
+
 const loadMoreSensors = (hide = true, noItems) => {
-    fetch(`http://${document.domain}:${location.port}/moreSensors`, {
+    fetch(`${MAIN_URL}moreSensors`, {
         method: 'POST',
         headers: {
             'Authorization': jwtToken,
@@ -26,7 +28,7 @@ const addSensors = (sensors) => {
             '                    <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSensor(this)" />' +
             '                    <ul>' +
             `                        <li class="sName">Field Name: ${item.name}</li>` +
-            '                        <li><span><label>Land Number: </label> <br/> <input type="number"> </span></li>' +
+            '                        <li><span><label>Land Number: </label> <br/> <input type="number" value="{{ item.land_number }}" onfocusout="updateLandNumber(this)"> </span></li>' +
             `                        <li class="sStatus">Status: ${item.status ? 'ONLINE' : 'OFFLINE'}</li>` +
             `                        <li class="sBattery">Battery Voltage: ${item.status ? item.battery + ' V' : '---'}</li>` +
             `                        <li class="sTemperature">Temperature: ${item.status ? item.temp + ' F' : '---'} </li>` +
@@ -56,7 +58,7 @@ const formatDate = (date) => {
 const deleteSensor = (context) => {
     const card = $(context).closest(".flip-card-container");
     const sensorId = card.attr('itemid');
-    fetch(`http://${document.domain}:${location.port}`, {
+    fetch(`${MAIN_URL}`, {
         method: 'DELETE',
         headers: {
             'Authorization': jwtToken,
@@ -72,3 +74,28 @@ const deleteSensor = (context) => {
         });
 }
 
+const updateLandNumber = (context) => {
+    const card = $(context).closest(".flip-card-container");
+    const sensorId = card.attr('itemid');
+    const landNumber = $(context).val();
+    if (!landNumber) return
+
+    fetch(`${MAIN_URL}`, {
+        method: 'POST',
+        headers: {
+            'Authorization': jwtToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({sensorId, landNumber})
+    })
+        .then(res => {
+            if (res.ok) {
+                $(card).find('.card-error').hide();
+            } else {
+                if (res.status === 409) {
+                    // land number already exists
+                    $(card).find('.card-error').show();
+                }
+            }
+        });
+}

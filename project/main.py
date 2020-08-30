@@ -1,7 +1,7 @@
 import jwt
 from flask import Blueprint, render_template, request, url_for, redirect, flash, current_app, jsonify, Response
 from flask_login import login_required, current_user
-import datetime
+from sqlalchemy import exc
 from database import db
 from models import Sensor, Message
 from utils import validate_message, validate_labels, mock_sensors
@@ -46,12 +46,28 @@ def index():
                            algorithm='HS256').decode()
         return render_template('index.html', sensors=sensors, jwt_token=str(token))
     elif request.method == 'POST':
-        pass
+        # update land number
+        payload = request.get_json()
+        sensor_id = payload['sensorId'] if 'sensorId' in payload else None
+        land_number = payload['landNumber'] if 'landNumber' in payload else None
+
+        sensor = Sensor.query.filter_by(id=sensor_id).first()
+        sensor.land_number = land_number
+        try:
+            db.session.commit()
+        except exc.IntegrityError:
+            db.session.rollback()
+            print("CATCH")
+            return Response(status=409)
+
+        return Response(status=200)
     else:
         payload = request.get_json()
         sensor_id = payload['sensorId'] if 'sensorId' in payload else None
+
         Sensor.query.filter_by(id=sensor_id).delete()
         db.session.commit()
+
         return Response(status=200)
 
 
@@ -77,12 +93,3 @@ def messages():
                 db_message.message = field
                 db.session.commit()
         return redirect(url_for('main.messages'))
-
-
-@main.route('/populatesensors')
-def populate():
-    for i in range(0, 15):
-        sensor = Sensor(name=f'Sensor {i + 1}', last_update=datetime.datetime.now().replace(microsecond=0))
-        db.session.add(sensor)
-    db.session.commit()
-    return 'Populate Sensor table'
