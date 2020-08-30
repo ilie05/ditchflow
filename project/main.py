@@ -57,7 +57,6 @@ def index():
             db.session.commit()
         except exc.IntegrityError:
             db.session.rollback()
-            print("CATCH")
             return Response(status=409)
 
         return Response(status=200)

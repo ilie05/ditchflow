@@ -40,6 +40,10 @@ and (max-device-width: 1024px) {
     #moreSensors {
         margin-left: 47%;
     }
+
+    .hero-head img {
+        display: none;
+    }
 }
 
 .new_row .row_data.editable {
@@ -66,11 +70,19 @@ and (max-device-width: 1024px) {
     margin-left: 42%;
 }
 
-.dropdown-menu.show{
+.dropdown-menu.show {
     max-height: 200px;
 }
 
-.row_data[col_name='cell_number']{
+.row_data[col_name='cell_number'] {
     min-height: 15px;
     min-width: 10px;
+}
+
+.hero-head img {
+    position: absolute;
+    margin-left: 89%;
+    margin-top: -50px;
+    width: 230px;
+    height: 230px;
 }
