@@ -81,8 +81,8 @@ and (max-device-width: 1024px) {
 
 .hero-head img {
     position: absolute;
-    margin-left: 89%;
-    margin-top: -50px;
-    width: 230px;
-    height: 230px;
+    margin-left: 88%;
+    margin-top: -55px;
+    width: 200px;
+    height: 200px;
 }
