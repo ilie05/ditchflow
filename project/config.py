@@ -13,7 +13,7 @@ class Config:
 
     BATTERY_MIN_VOLTAGE = 10  # value in Volts
     GO_OFFLINE_TIME = 1800  # value in seconds
-    CHECK_FOR_STATUS_TIME = 5  # value in seconds
+    CHECK_FOR_STATUS_TIME = 10  # value in seconds
 
     # device settings
     DEVICE_PORT = "/dev/ttyAMA0"

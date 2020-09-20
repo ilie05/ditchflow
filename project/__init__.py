@@ -9,10 +9,13 @@ from contact import contact as contact_blueprint
 from database import db
 from models import User
 from sensors_rcv import listen_sensors_thread
+from digi.xbee.devices import XBeeDevice
+from flask_cors import CORS
 
 app = Flask(__name__)
 
 app.config.from_object('config.Config')
+CORS(app)
 
 app.config['SECRET_KEY'] = 'WuLXEWvce8EWr5KEPF'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
@@ -48,6 +51,8 @@ app.register_blueprint(auth_blueprint)
 app.register_blueprint(main_blueprint)
 app.register_blueprint(contact_blueprint)
 
+socket_io = SocketIO(app, async_mode='threading')
+
 if __name__ == '__main__':
     context = app.app_context()
     context.push()
@@ -56,7 +61,6 @@ if __name__ == '__main__':
     @app.before_first_request
     def activate_job():
         with context:
-            listen_sensors_thread(context)
+            listen_sensors_thread(socket_io)
 
-
-    app.run(host='0.0.0.0', debug=True, port=3000, threaded=True)
+    socket_io.run(app, host='0.0.0.0', debug=True, port=3000)

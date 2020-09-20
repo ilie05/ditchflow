@@ -12,6 +12,8 @@ gevent-websocket = "*"
 pyjwt = "*"
 digi-xbee = "*"
 flask-threads = "*"
+eventlet = "*"
+flask-cors = "*"
 
 [dev-packages]
 

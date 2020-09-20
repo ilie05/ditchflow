@@ -1,7 +1,9 @@
-const source1 = new EventSource("/sensor_notification");
+const socket = io(`http://${document.domain}:${location.port}/sensor`);
+socket.on('connect', function () {
+    console.log("Connected")
+});
 
-source1.onmessage = function (event) {
-    const data = JSON.parse(event.data);
+socket.on('sensor_notification', function (data) {
     console.log(data);
     let card = $(`.cards-container [itemid=${data.id}]`);
     if (!card.length) return;
@@ -14,12 +16,10 @@ source1.onmessage = function (event) {
     $(card).find('li.sLastSeen').text(`Last seen: ${data.last_update}`);
 
     $(card).find('.card-front').removeClass('offline-indicator');
-}
+});
 
-const source2 = new EventSource("/goOffline");
-source2.onmessage = function (event) {
-    const id = JSON.parse(event.data);
-    console.log(id);
+socket.on('goOffline', function (id) {
+    console.log(`The sensor with id ${id} went offline.`)
     let card = $(`.cards-container [itemid=${id}]`);
     if (!card.length) return;
 
@@ -30,4 +30,4 @@ source2.onmessage = function (event) {
     $(card).find('li.sFloat').text('Float: ---');
 
     $(card).find('.card-front').addClass('offline-indicator');
-}
+});

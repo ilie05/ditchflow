@@ -38,18 +38,6 @@ def create():
     return redirect(url_for('contact.contacts'))
 
 
-@contact.route('/test')
-def test():
-    contact1 = Contact(name='Nero Brone', cell_number="453-231-017", email='tony@gmail.com', carrier_id=2)
-    # contact2 = Contact(name='John Doe', cell_number="253-327-4900", email='john@yahoo.com', carrier_id=3)
-    # contact3 = Contact(name='Julie Drock', cell_number="617-694-0614", email='julie@gmail.com', carrier_id=2)
-    # # carrier2 = Carrier(id=2, name='AT&T', email='@txt.att.net')
-    # db.session.bulk_save_objects([contact1, contact2, contact3])
-    # db.session.add(contact1)
-    # db.session.commit()
-    return render_template('index.html')
-
-
 @contact.route('/contacts', methods=['POST', 'GET'])
 @login_required
 def contacts():
