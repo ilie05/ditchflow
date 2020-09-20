@@ -9,42 +9,20 @@ from utils import validate_message, validate_labels, mock_sensors
 main = Blueprint('main', __name__)
 
 
-@main.route('/moreSensors', methods=["POST"])
-@login_required
-def more_sensors():
-    payload = request.get_json()
-    page = payload['page'] if 'page' in payload else None
-    no_items = payload['noItems'] if 'noItems' in payload else None
-
-    if page is None:
-        return jsonify([])
-
-    if no_items is None:
-        no_items = 3
-        offset = 9 + page * 3
-    else:
-        offset = 9 + page * 3 - no_items
-
-    try:
-        page = int(page)
-        if page < 0:
-            raise ValueError
-
-        sensors = [sensor.as_dict() for sensor in Sensor.query.offset(offset).limit(no_items)]
-        sensors = mock_sensors(sensors)
-        return jsonify(sensors)
-    except ValueError:
-        return jsonify([])
-
-
-@main.route('/', methods=["GET", "POST", "DELETE"])
+@main.route('/', )
 @login_required
 def index():
+    return render_template('index.html')
+
+
+@main.route('/sensors', methods=["GET", "POST", "DELETE"])
+@login_required
+def sensor():
     if request.method == 'GET':
-        sensors = [sensor.as_dict() for sensor in Sensor.query.limit(9)]
+        sensors = [sensor.as_dict() for sensor in Sensor.query.all()]
         token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                            algorithm='HS256').decode()
-        return render_template('index.html', sensors=sensors, jwt_token=str(token))
+        return render_template('sensors.html', sensors=sensors, jwt_token=str(token))
     elif request.method == 'POST':
         # update land number
         payload = request.get_json()

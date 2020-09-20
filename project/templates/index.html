@@ -1,13 +1,4 @@
 {% extends "base.html" %}
 {% block content %}
-    <script type="text/javascript">
-        const jwtToken = "{{ jwt_token }}";
-        let page = 0;
-    </script>
-    <link rel="stylesheet" href="../static/css/card.css"/>
-    <script src="../static/js/socket.io.js"></script>
-    <script src="../static/js/home.js"></script>
-    <script src="../static/js/sock.js"></script>
-    {% include 'card.html' %}
-    <button id="moreSensors" type="button" class="btn btn-primary" onclick="loadMoreSensors()">More sensors</button>
+    <h6>HOME</h6>
 {% endblock %}
