@@ -8,6 +8,7 @@ from main import main as main_blueprint
 from contact import contact as contact_blueprint
 from database import db
 from models import User
+from utils import load_config_settings
 from sensors_rcv import listen_sensors_thread
 from digi.xbee.devices import XBeeDevice
 from flask_cors import CORS
@@ -15,6 +16,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 
 app.config.from_object('config.Config')
+load_config_settings(app)
 CORS(app)
 
 app.config['SECRET_KEY'] = 'WuLXEWvce8EWr5KEPF'

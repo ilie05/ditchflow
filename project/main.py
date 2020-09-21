@@ -5,7 +5,7 @@ from sqlalchemy import exc
 from database import db
 import datetime
 from models import Sensor, Message, Valve
-from utils import validate_message, validate_labels, mock_sensors
+from utils import validate_message, validate_labels, mock_sensors, write_settings
 
 main = Blueprint('main', __name__)
 
@@ -63,6 +63,18 @@ def valve():
         token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                            algorithm='HS256').decode()
         return render_template('valves.html', valves=valves, jwt_token=str(token))
+
+
+@main.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    if request.method == 'GET':
+        return render_template('settings.html', field_name=current_app.config.get("fieldName"))
+    else:
+        field_name = request.form.get('fieldName')
+        current_app.config['fieldName'] = field_name
+        write_settings({'fieldName': field_name})
+        return redirect(url_for('main.settings'))
 
 
 @main.route('/messages', methods=["GET", "POST"])

@@ -1,6 +1,7 @@
 from flask import current_app
 import random
 import re
+import json
 
 
 def validate_message(message):
@@ -96,9 +97,9 @@ def mock_sensors(sensors):
 
 
 def mock_notification_sensor():
-    mocks = [{'address': 'address0', 'name': 'name0'}, {'address': 'address1', 'name': 'name1'},
-             {'address': 'address2', 'name': 'name2'}, {'address': 'address3', 'name': 'name3'},
-             {'address': 'address4', 'name': 'name4'}, {'address': 'address5', 'name': 'name5'}]
+    mocks = [{'address': 'address0', 'name': 'sensor0'}, {'address': 'address1', 'name': 'sensor1'},
+             {'address': 'address2', 'name': 'sensor2'}, {'address': 'address3', 'name': 'sensor3'},
+             {'address': 'address4', 'name': 'sensor4'}, {'address': 'address5', 'name': 'sensor5'}]
 
     idx = random.randrange(len(mocks))
 
@@ -113,6 +114,39 @@ def mock_notification_sensor():
     return address, f'{name},{float},{battery},{temperature},{water}'
 
 
+def mock_notification_valve():
+    mocks = [{'address': 'address0', 'name': 'valve0'}, {'address': 'address1', 'name': 'valve1'},
+             {'address': 'address2', 'name': 'valve2'}, {'address': 'address3', 'name': 'valve3'},
+             {'address': 'address4', 'name': 'valve4'}, {'address': 'address5', 'name': 'valve5'}]
+
+    idx = random.randrange(len(mocks))
+
+    land_number = 1
+    position = random.randrange(1, 100)
+    battery = random.randrange(90, 130)
+    temperature = random.randrange(800, 1200)
+    water = random.randrange(10, 50)
+    name = mocks[idx]['name']
+    address = mocks[idx]['address']
+
+    return address, f'{name},{float},{battery},{temperature},{water}'
+
+
 def check_email(email):
     regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
     return re.search(regex, email)
+
+
+def load_config_settings(app):
+    with open('settings.json') as config_file:
+        config_data = json.load(config_file)
+        app.config.update(config_data)
+
+
+def write_settings(data):
+    with open('settings.json') as config_file:
+        config_data = json.load(config_file)
+        with open('settings.json', 'w') as f:
+            for key in data:
+                config_data[key] = data[key]
+            json.dump(config_data, f)
