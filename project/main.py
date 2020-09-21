@@ -3,7 +3,8 @@ from flask import Blueprint, render_template, request, url_for, redirect, flash,
 from flask_login import login_required, current_user
 from sqlalchemy import exc
 from database import db
-from models import Sensor, Message
+import datetime
+from models import Sensor, Message, Valve
 from utils import validate_message, validate_labels, mock_sensors
 
 main = Blueprint('main', __name__)
@@ -46,6 +47,22 @@ def sensor():
         db.session.commit()
 
         return Response(status=200)
+
+
+@main.route('/valves')
+@login_required
+def valve():
+    if request.method == 'GET':
+        # valves = [valve.as_dict() for valve in Valve.query.all()]
+        valves = [{'id': 2, 'name': 'valve1', 'set_id': 2, 'land_number': 3, 'status': True, 'position': 34, 'battery': 11.4,
+                   'temperature': 65, 'water': 22, 'last_update': datetime.datetime.now().replace(microsecond=0)},
+                  {'id': 2, 'name': 'valve1', 'set_id': 2, 'land_number': 3, 'status': True, 'position': 34, 'battery': 11.4,
+                   'temperature': 65, 'water': 22, 'last_update': datetime.datetime.now().replace(microsecond=0)},
+                  {'id': 2, 'name': 'valve1', 'set_id': 2, 'land_number': 3, 'status': False, 'position': 34, 'battery': 11.4,
+                   'temperature': 65, 'water': 22, 'last_update': datetime.datetime.now().replace(microsecond=0)}, ]
+        token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
+                           algorithm='HS256').decode()
+        return render_template('valves.html', valves=valves, jwt_token=str(token))
 
 
 @main.route('/messages', methods=["GET", "POST"])

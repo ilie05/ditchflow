@@ -4,32 +4,41 @@
         const jwtToken = "{{ jwt_token }}";
     </script>
     <link rel="stylesheet" href="../static/css/card-sensors.css"/>
-    <script src="../static/js/socket.io.js"></script>
-    <script src="../static/js/sensors.js"></script>
-    <script src="../static/js/sensors-sock.js"></script>
+    <link rel="stylesheet" href="../static/css/card-valves.css"/>
+    <script src="../static/js/valves.js"></script>
+    <script src="../static/js/valves-sock.js"></script>
     <div class="cards-container">
-        {% for item in sensors %}
+        {% for item in valves %}
             <div class="flip-card-container" itemid={{ item.id }}>
                 <div class="flip-card">
                     <div class="card-front {{ 'offline-indicator' if not item.status }}">
                         <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSensor(this)"/>
                         <ul>
-                            <li class="sName">Sensor Name: {{ item.name }}</li>
+                            <li class="vName">Valve Name: {{ item.name }}</li>
+                            <li class="vName">Set Number: {{ item.set_id }}</li>
                             <li>
                             <span>
                                 <label>Land Number: </label> <br/> <input type="number" value="{{ item.land_number }}"
                                                                           onfocusout="updateLandNumber(this)"/>
                             </span>
                             </li>
-                            <li class="sStatus">Status: {{ 'ONLINE' if item.status else 'OFFLINE' }}</li>
-                            <li class="sBattery">Battery
+                            <li class="vStatus">Status: {{ 'ONLINE' if item.status else 'OFFLINE' }}</li>
+                            <li class="vActuatorStatus">Actuator Status: {{ item.actuator_status if item.status else '---' }}</li>
+                            <li class="vActuatorActualPosition">Actuator Actual Position: {{ item.position if item.status else '---' }}</li>
+                            <li class="vActuatorSetPosition">
+                                <span>
+                                    <label>Actuator Set Position: </label>
+                                    <input type="number" min="0" max="100"/>
+                                    <button style="display: {{ '' if item.status else 'none' }}" class="btn btn-link" onclick="sendPosition(this)">Send</button>
+                                </span>
+                            </li>
+                            <li class="vBattery">Battery
                                 Voltage: {{ '{0} V'.format(item.battery) if item.status else '---' }}</li>
-                            <li class="sTemperature">
+                            <li class="vTemperature">
                                 Temperature: {{ '{0} °F'.format(item.temperature) if item.status else '---' }} </li>
-                            <li class="sWater">Water
+                            <li class="vWater">Water
                                 Level: {{ '{0} inches'.format(item.water) if item.status else '---' }} </li>
-                            <li class="sFloat">Float: {{ 'UP' if item.float else 'DOWN' }}</li>
-                            <li class="sLastSeen">Last seen: {{ item.last_update }}</li>
+                            <li class="vLastSeen">Last seen: {{ item.last_update }}</li>
                         </ul>
                         <span class="card-error">Land number already exists</span>
                     </div>
