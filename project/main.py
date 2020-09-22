@@ -53,13 +53,13 @@ def sensor():
 @login_required
 def valve():
     if request.method == 'GET':
-        # valves = [valve.as_dict() for valve in Valve.query.all()]
-        valves = [{'id': 2, 'name': 'valve1', 'set_id': 2, 'land_number': 3, 'status': True, 'position': 34, 'battery': 11.4,
-                   'temperature': 65, 'water': 22, 'last_update': datetime.datetime.now().replace(microsecond=0)},
-                  {'id': 2, 'name': 'valve1', 'set_id': 2, 'land_number': 3, 'status': True, 'position': 34, 'battery': 11.4,
-                   'temperature': 65, 'water': 22, 'last_update': datetime.datetime.now().replace(microsecond=0)},
-                  {'id': 2, 'name': 'valve1', 'set_id': 2, 'land_number': 3, 'status': False, 'position': 34, 'battery': 11.4,
-                   'temperature': 65, 'water': 22, 'last_update': datetime.datetime.now().replace(microsecond=0)}, ]
+        valves = [valve.as_dict() for valve in Valve.query.all()]
+        # valves = [{'id': 2, 'name': 'valve1', 'set_id': 2, 'land_number': 3, 'status': True, 'position': 34, 'battery': 11.4,
+        #            'temperature': 65, 'water': 22, 'last_update': datetime.datetime.now().replace(microsecond=0)},
+        #           {'id': 2, 'name': 'valve1', 'set_id': 2, 'land_number': 3, 'status': True, 'position': 34, 'battery': 11.4,
+        #            'temperature': 65, 'water': 22, 'last_update': datetime.datetime.now().replace(microsecond=0)},
+        #           {'id': 2, 'name': 'valve1', 'set_id': 2, 'land_number': 3, 'status': False, 'position': 34, 'battery': 11.4,
+        #            'temperature': 65, 'water': 22, 'last_update': datetime.datetime.now().replace(microsecond=0)}, ]
         token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                            algorithm='HS256').decode()
         return render_template('valves.html', valves=valves, jwt_token=str(token))

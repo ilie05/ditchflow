@@ -96,40 +96,45 @@ def mock_sensors(sensors):
     return sensors
 
 
-def mock_notification_sensor():
-    mocks = [{'address': 'address0', 'name': 'sensor0'}, {'address': 'address1', 'name': 'sensor1'},
-             {'address': 'address2', 'name': 'sensor2'}, {'address': 'address3', 'name': 'sensor3'},
-             {'address': 'address4', 'name': 'sensor4'}, {'address': 'address5', 'name': 'sensor5'}]
+def mock_device_data():
+    sensors_mocks = [{'address': 'address0', 'name': 'sensor0'}, {'address': 'address1', 'name': 'sensor1'},
+                     {'address': 'address2', 'name': 'sensor2'}, {'address': 'address3', 'name': 'sensor3'},
+                     {'address': 'address4', 'name': 'sensor4'}, {'address': 'address5', 'name': 'sensor5'}]
 
-    idx = random.randrange(len(mocks))
+    valves_mocks = [{'address': 'address0', 'name': 'valve0'}, {'address': 'address1', 'name': 'valve1'},
+                    {'address': 'address2', 'name': 'valve2'}, {'address': 'address3', 'name': 'valve3'},
+                    {'address': 'address4', 'name': 'valve4'}, {'address': 'address5', 'name': 'valve5'}]
 
-    battery = random.randrange(90, 130)
-    temperature = random.randrange(800, 1200)
-    water = random.randrange(10, 50)
-    float = random.choice([True, False])
-    float = 'UP' if float else 'DOWN'
-    name = mocks[idx]['name']
-    address = mocks[idx]['address']
+    mess_type = random.choice([True, False])
 
-    return address, f'{name},{float},{battery},{temperature},{water}'
+    if mess_type:
+        # generate sensor data
+        idx = random.randrange(len(sensors_mocks))
 
+        battery = random.randrange(90, 130)
+        temperature = random.randrange(800, 1200)
+        water = random.randrange(10, 50)
+        float = random.choice([True, False])
+        float = 'UP' if float else 'DOWN'
+        name = sensors_mocks[idx]['name']
+        address = sensors_mocks[idx]['address']
 
-def mock_notification_valve():
-    mocks = [{'address': 'address0', 'name': 'valve0'}, {'address': 'address1', 'name': 'valve1'},
-             {'address': 'address2', 'name': 'valve2'}, {'address': 'address3', 'name': 'valve3'},
-             {'address': 'address4', 'name': 'valve4'}, {'address': 'address5', 'name': 'valve5'}]
+        return address, f'S,{name},{float},{battery},{temperature},{water}'
+    else:
+        stats = ['Idle', 'Moving', 'Error']
+        # generate valve data
+        idx = random.randrange(len(valves_mocks))
 
-    idx = random.randrange(len(mocks))
+        name = valves_mocks[idx]['name']
+        actuator_status_idx = random.randrange(len(stats))
+        actuator_status = stats[actuator_status_idx]
+        actuator_position = random.randrange(0, 100)
+        battery = random.randrange(90, 130)
+        temperature = random.randrange(800, 1200)
+        water = random.randrange(10, 50)
+        address = valves_mocks[idx]['address']
 
-    land_number = 1
-    position = random.randrange(1, 100)
-    battery = random.randrange(90, 130)
-    temperature = random.randrange(800, 1200)
-    water = random.randrange(10, 50)
-    name = mocks[idx]['name']
-    address = mocks[idx]['address']
-
-    return address, f'{name},{float},{battery},{temperature},{water}'
+        return address, f'V,{name},{actuator_status},{actuator_position},{battery},{temperature},{water}'
 
 
 def check_email(email):
