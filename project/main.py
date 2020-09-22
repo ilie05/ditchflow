@@ -49,20 +49,37 @@ def sensor():
         return Response(status=200)
 
 
-@main.route('/valves')
+@main.route('/valves', methods=['GET', 'POST', 'DELETE'])
 @login_required
 def valve():
     if request.method == 'GET':
         valves = [valve.as_dict() for valve in Valve.query.all()]
-        # valves = [{'id': 2, 'name': 'valve1', 'set_id': 2, 'land_number': 3, 'status': True, 'position': 34, 'battery': 11.4,
-        #            'temperature': 65, 'water': 22, 'last_update': datetime.datetime.now().replace(microsecond=0)},
-        #           {'id': 2, 'name': 'valve1', 'set_id': 2, 'land_number': 3, 'status': True, 'position': 34, 'battery': 11.4,
-        #            'temperature': 65, 'water': 22, 'last_update': datetime.datetime.now().replace(microsecond=0)},
-        #           {'id': 2, 'name': 'valve1', 'set_id': 2, 'land_number': 3, 'status': False, 'position': 34, 'battery': 11.4,
-        #            'temperature': 65, 'water': 22, 'last_update': datetime.datetime.now().replace(microsecond=0)}, ]
         token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                            algorithm='HS256').decode()
         return render_template('valves.html', valves=valves, jwt_token=str(token))
+    elif request.method == 'POST':
+        # update land number
+        payload = request.get_json()
+        valve_id = payload['valveId'] if 'valveId' in payload else None
+        land_number = payload['landNumber'] if 'landNumber' in payload else None
+
+        valve = Valve.query.filter_by(id=valve_id).first()
+        valve.land_number = land_number
+        try:
+            db.session.commit()
+        except exc.IntegrityError:
+            db.session.rollback()
+            return Response(status=409)
+
+        return Response(status=200)
+    else:
+        payload = request.get_json()
+        valve_id = payload['valveId'] if 'valveId' in payload else None
+
+        Valve.query.filter_by(id=valve_id).delete()
+        db.session.commit()
+
+        return Response(status=200)
 
 
 @main.route('/settings', methods=['GET', 'POST'])

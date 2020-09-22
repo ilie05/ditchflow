@@ -1,7 +1,7 @@
 /*overwrite the style from card-sensors.css*/
 
 .flip-card-container {
-    height: 580px;
+    height: 610px;
 }
 
 .vActuatorSetPosition span button {
@@ -10,6 +10,10 @@
 .vActuatorSetPosition span input {
     background-color: gray;
     width: 60%;
+}
+
+.card-error{
+    margin-top: 575px;
 }
 
 @media only screen
