@@ -176,40 +176,61 @@ def test_callback(socket_io):
             print("\n")
         elif mess_type == 'V':
             data_to_send, valve = create_update_valve(message, address)
-            print("OUT DATA......")
-            print(data_to_send)
             socket_io.emit('valve_notification', data_to_send, namespace='/notification')
         else:
             raise Exception("Invalid data type from XBee Module")
 
 
-def check_status_sensor(socket_io):
+def check_online_status(socket_io):
     notified_sensor_ids = []
-    check_time = current_app.config.get("GO_OFFLINE_TIME")  # 30 min
+    notified_valve_ids = []
     while True:
-        time.sleep(current_app.config.get("CHECK_FOR_STATUS_TIME"))  # every 10 min
-        current_time = datetime.datetime.now().replace(microsecond=0)
+        time.sleep(current_app.config.get("CHECK_FOR_STATUS_TIME"))  # every 10 sec.
         db.session.commit()
-        sensors = Sensor.query.all()
-        for sensor in sensors:
-            last_update = sensor.last_update
-            total_diff = current_time - last_update
-            total_diff_sec = total_diff.total_seconds()
-            if total_diff_sec > check_time:
-                sensor.status = False
-                db.session.add(sensor)
-                db.session.commit()
-                if sensor.id not in notified_sensor_ids:
-                    send_status_notification(sensor, 'status')
-                    notified_sensor_ids.append(sensor.id)
-                socket_io.emit('goOfflineSensor', sensor.id, namespace='/notification')
-            else:
-                if sensor.id in notified_sensor_ids:
-                    notified_sensor_ids.remove(sensor.id)
+        check_status_sensor(socket_io, notified_sensor_ids)
+        check_status_valve(socket_io, notified_valve_ids)
 
 
-def check_status_valve(socket_io):
-    pass
+def check_status_sensor(socket_io, notified_sensor_ids):
+    check_time = current_app.config.get("GO_OFFLINE_SENSOR_TIME")  # 30 min.
+    current_time = datetime.datetime.now().replace(microsecond=0)
+    sensors = Sensor.query.all()
+    for sensor in sensors:
+        last_update = sensor.last_update
+        total_diff = current_time - last_update
+        total_diff_sec = total_diff.total_seconds()
+        if total_diff_sec > check_time:
+            sensor.status = False
+            db.session.add(sensor)
+            db.session.commit()
+            if sensor.id not in notified_sensor_ids:
+                send_status_notification(sensor, 'status')
+                notified_sensor_ids.append(sensor.id)
+            socket_io.emit('goOfflineSensor', sensor.id, namespace='/notification')
+        else:
+            if sensor.id in notified_sensor_ids:
+                notified_sensor_ids.remove(sensor.id)
+
+
+def check_status_valve(socket_io, notified_valve_ids):
+    check_time = current_app.config.get("GO_OFFLINE_VALVE_TIME")  # 10 min.
+    current_time = datetime.datetime.now().replace(microsecond=0)
+    valves = Valve.query.all()
+    for valve in valves:
+        last_update = valve.last_update
+        total_diff = current_time - last_update
+        total_diff_sec = total_diff.total_seconds()
+        if total_diff_sec > check_time:
+            valve.status = False
+            db.session.add(valve)
+            db.session.commit()
+            if valve.id not in notified_valve_ids:
+                # send_status_notification(sensor, 'status')
+                notified_valve_ids.append(valve.id)
+            socket_io.emit('goOfflineValve', valve.id, namespace='/notification')
+        else:
+            if valve.id in notified_valve_ids:
+                notified_valve_ids.remove(valve.id)
 
 
 def listen_sensors_thread(socket_io):
@@ -217,13 +238,9 @@ def listen_sensors_thread(socket_io):
     print("***Listen sensors thread before running***")
     t1.start()
 
-    t2 = AppContextThread(target=check_status_sensor, args=(socket_io,))
-    print("***Check Status Sensor thread before running***")
+    t2 = AppContextThread(target=check_online_status, args=(socket_io,))
+    print("***Check Status Sensor-Valve thread before running***")
     t2.start()
-
-    t3 = AppContextThread(target=check_status_valve, args=(socket_io,))
-    print("***Check Status Valve thread before running***")
-    t3.start()
 
     @socket_io.on('connect', namespace='/notification')
     def test_connect():

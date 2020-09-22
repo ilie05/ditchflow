@@ -7,7 +7,6 @@
     box-sizing: border-box;
 }
 
-
 .flip-card-container {
     --hue: 150;
     --primary: hsl(var(--hue), 50%, 50%);
@@ -17,7 +16,7 @@
     --grey: hsl(0, 0%, 50%);
 
     width: 25%;
-    height: 450px;
+    height: 475px;
     margin: 40px;
 
     perspective: 1000px;
@@ -150,10 +149,10 @@ and (max-device-width: 1024px) {
     cursor: pointer;
 }
 
-.card-error{
+.card-error {
     display: none;
     position: absolute;
-    margin-top: 410px;
+    margin-top: 430px;
     font-size: 11px;
     color: deepskyblue;
 }

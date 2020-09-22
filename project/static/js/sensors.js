@@ -9,6 +9,7 @@ socket.on('sensor_notification', function (data) {
     if (!card.length) return;
 
     $(card).find('li.sName').text(`Sensor Name: ${data.name}`);
+    $(card).find('li.sStatus').text(`Status: ONLINE`);
     $(card).find('li.sWater').text(`Water Level: ${data.water} inches`);
     $(card).find('li.sBattery').text(`Battery Voltage: ${data.battery} V`);
     $(card).find('li.sTemperature').text(`Temperature: ${data.temperature} °F`);

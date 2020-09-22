@@ -9,16 +9,17 @@ socket.on('valve_notification', function (data) {
     if (!card.length) return;
 
     $(card).find('li.vName').text(`Valve Name: ${data.name}`);
-
+    $(card).find('li.vStatus').text(`Status: ONLINE`);
     $(card).find('li.vActuatorStatus').text(`Actuator Status: ${data.actuator_status}`);
+    $(card).find('li.vActuatorSetPosition button').show();
     $(card).find('li.vWater').text(`Water Level: ${data.water} inches`);
     $(card).find('li.vBattery').text(`Battery Voltage: ${data.battery} V`);
     $(card).find('li.vTemperature').text(`Temperature: ${data.temperature} °F`);
     $(card).find('li.vLastSeen').text(`Last seen: ${data.last_update}`);
 
-    if (data.actuator_status === 'Moving'){
+    if (data.actuator_status === 'Moving') {
         $(card).find('li.vActuatorActualPosition').text(`Actuator Actual Position: ---`);
-    }else {
+    } else {
         $(card).find('li.vActuatorActualPosition').text(`Actuator Actual Position: ${data.actuator_position}%`);
     }
 
@@ -26,15 +27,18 @@ socket.on('valve_notification', function (data) {
 });
 
 socket.on('goOfflineValve', function (id) {
-    console.log(`The sensor with id ${id} went offline.`)
+    console.log(`The valve with id ${id} went offline.`)
     let card = $(`.cards-container [itemid=${id}]`);
     if (!card.length) return;
 
-    $(card).find('li.sStatus').text('Status: OFFLINE');
-    $(card).find('li.sWater').text('Water Level: ---');
-    $(card).find('li.sBattery').text('Battery Voltage: ---');
-    $(card).find('li.sTemperature').text('Temperature: ---');
-    $(card).find('li.sFloat').text('Float: ---');
+    $(card).find('li.vStatus').text('Status: OFFLINE');
+    $(card).find('li.vActuatorStatus').text('Actuator Status: ---');
+    $(card).find('li.vActuatorActualPosition').text('Actuator Actual Position: ---');
+    $(card).find('li.vActuatorActualPosition').text('Actuator Actual Position: ---');
+    $(card).find('li.vActuatorSetPosition button').hide();
+    $(card).find('li.vWater').text('Water Level: ---');
+    $(card).find('li.vBattery').text('Battery Voltage: ---');
+    $(card).find('li.vTemperature').text('Temperature: ---');
 
     $(card).find('.card-front').addClass('offline-indicator');
 });

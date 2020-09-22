@@ -17,10 +17,10 @@
                             <li class="vName">Valve Name: {{ item.name }}</li>
                             <li class="vSetNumber">Set Number:</li>
                             <li>
-                            <span>
-                                <label>Land Number: </label> <br/> <input type="number" value="{{ item.land_number }}"
-                                                                          onfocusout="updateLandNumber(this)"/>
-                            </span>
+                                <span>
+                                    <label>Land Number: </label> <br/> <input type="number" value="{{ item.land_number }}"
+                                                                              onfocusout="updateLandNumber(this)"/>
+                                </span>
                             </li>
                             <li class="vStatus">Status: {{ 'ONLINE' if item.status else 'OFFLINE' }}</li>
                             <li class="vActuatorStatus">Actuator Status: {{ item.actuator_status if item.status else '---' }}</li>

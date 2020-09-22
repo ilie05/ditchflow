@@ -14,11 +14,12 @@
                         <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSensor(this)"/>
                         <ul>
                             <li class="sName">Sensor Name: {{ item.name }}</li>
+                            <li class="sSetNumber">Set Number:</li>
                             <li>
-                            <span>
-                                <label>Land Number: </label> <br/> <input type="number" value="{{ item.land_number }}"
-                                                                          onfocusout="updateLandNumber(this)"/>
-                            </span>
+                                <span>
+                                    <label>Land Number: </label> <br/> <input type="number" value="{{ item.land_number }}"
+                                                                              onfocusout="updateLandNumber(this)"/>
+                                </span>
                             </li>
                             <li class="sStatus">Status: {{ 'ONLINE' if item.status else 'OFFLINE' }}</li>
                             <li class="sBattery">Battery
