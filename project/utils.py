@@ -36,17 +36,18 @@ def validate_message(message):
     return labels
 
 
-def validate_labels(labels, messages):
+def validate_labels(labels, mess_labels):
     """
-    :param labels: list of labels from message
-    :param messages: list of messages
+    :param mess_type: message for 'sensor' or 'valve'
+    :param mess_labels: list of labels from message
+    :param labels: list of available labels from database
     :return: True if all labels are valid, False either way
     """
 
-    valid_labels = [message['name'] for message in messages]
+    labels = [label['name'] for label in labels]
 
-    for label in labels:
-        if label not in valid_labels:
+    for mess_label in mess_labels:
+        if mess_label not in labels:
             return False
 
     return True

@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from sqlalchemy import exc
 from database import db
 import datetime
-from models import Sensor, Message, Valve
+from models import Sensor, Message, Valve, LabelMessage
 from utils import validate_message, validate_labels, mock_sensors, write_settings
 
 main = Blueprint('main', __name__)
@@ -97,22 +97,25 @@ def settings():
 @main.route('/messages', methods=["GET", "POST"])
 @login_required
 def messages():
-    msgs = [msg.as_dict() for msg in Message.query.all()]
-    exclude_fields = ['name', 'land_number', 'field_name', 'water', 'temperature']
-    filtered_msgs = filter(lambda label: label['name'] not in exclude_fields, msgs)
+    labels = [label.as_dict() for label in LabelMessage.query.all()]
+    msgs = [message.as_dict() for message in Message.query.all()]
     if request.method == 'GET':
-        return render_template('messages.html', labels=filtered_msgs, lbs=msgs)
+        return render_template('messages.html', labels=labels, messages=msgs)
     else:
-        for message in filtered_msgs:
-            field = request.form.get(message['name'])
-            labels = validate_message(field)
-            if not labels and labels != []:
-                flash(f'Incorrect message format for {message["name"].upper()}')
+        fields = request.form.to_dict()
+        for field in fields:
+            # form field name format: 'status_valve' or 'battery_sensor'
+            message = fields[field]
+            mess_name = field.split('_')[0]
+            mess_type = field.split('_')[1]
+            mess_labels = validate_message(message)
+            if not mess_labels and mess_labels != []:
+                flash(f'Incorrect message format for {mess_name.upper()} {mess_type.upper()}')
             else:
-                if not validate_labels(labels, msgs):
-                    flash(f'Invalid labels for {message["name"].upper()} message')
+                if not validate_labels(labels, mess_labels):
+                    flash(f'Invalid labels for {mess_name.upper()} {mess_type.upper()} message')
                     continue
-                db_message = Message.query.filter_by(name=message["name"]).first()
-                db_message.message = field
+                db_message = Message.query.filter_by(name=mess_name, mess_type=mess_type).first()
+                db_message.message = message
                 db.session.commit()
         return redirect(url_for('main.messages'))

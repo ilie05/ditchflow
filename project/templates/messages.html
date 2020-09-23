@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
     <h5>Available labels</h5>
-    {% for lb in lbs %}
-        <span class="badge badge-pill badge-dark ml-2">{{ lb.name }}</span>
+    {% for label in labels %}
+        <span class="badge badge-pill badge-dark ml-2">{{ label.name }}</span>
     {% endfor %}
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
+    {% with errors = get_flashed_messages() %}
+        {% if errors %}
             <div class="messages-error">
-                {% for message in messages %}
+                {% for error in errors %}
                     <p>
-                        {{ message }}
+                        {{ error }}
                     </p>
                 {% endfor %}
             </div>
@@ -19,13 +19,12 @@
     {% endwith %}
 
     <form method="post">
-        {% for label in labels %}
+        {% for message in messages %}
             <div class="form-group">
-                <label>{{ label.name[0] | upper }}{{ label.name[1:] }} message</label>
-                <input class="form-control" name="{{ label.name }}" value="{{ label.message }}">
+                <label>{{ message.mess_type[0] | upper }}{{ message.mess_type[1:] }} {{ message.name[0] | upper }}{{ message.name[1:] }} Message</label>
+                <input class="form-control" name="{{ '{}_{}'.format(message.name, message.mess_type) }}" value="{{ message.message }}">
             </div>
         {% endfor %}
-
         <button type="submit" class="btn btn-primary">Save</button>
     </form>
 {% endblock %}
