@@ -86,11 +86,11 @@ def valve():
 @login_required
 def settings():
     if request.method == 'GET':
-        return render_template('settings.html', field_name=current_app.config.get("fieldName"))
+        return render_template('settings.html', field_name=current_app.config.get("FIELD_NAME"))
     else:
         field_name = request.form.get('fieldName')
-        current_app.config['fieldName'] = field_name
-        write_settings({'fieldName': field_name})
+        current_app.config['FIELD_NAME'] = field_name
+        write_settings({'FIELD_NAME': field_name})
         return redirect(url_for('main.settings'))
 
 

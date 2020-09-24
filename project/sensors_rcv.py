@@ -90,8 +90,9 @@ def create_update_valve(message, address):
 
 
 def receive_sensor_data(socket_io):
-    notified_battery_ids = []
-    notified_float_ids = []
+    notified_sensor_battery_ids = []
+    notified_sensor_float_ids = []
+    notified_valve_battery_ids = []
 
     port = current_app.config.get("DEVICE_PORT")
     baud_rate = current_app.config.get("BAUD_RATE")
@@ -107,33 +108,52 @@ def receive_sensor_data(socket_io):
                 # DATA FORMAT:  S,Sensor 1,UP,125,901,241
                 # DATA FORMAT:  V,VALVE 1,IDLE,50,121,700,241
                 # DATA FORMAT:  M,121,700
-                rcv_data = xbee_message.data.decode()
-                rcv_data = rcv_data.split(',')
+                message = xbee_message.data.decode()
+                message = message.split(',')
+                mess_type = message[0]
+                message = message[1:]
 
                 dev_address = str(xbee_message.remote_device.get_64bit_addr())
 
-                print(f"From {dev_address} >> {rcv_data}")
+                print(f"From {dev_address} >> {message}")
 
-                data_to_send, sensor = create_update_sensor(rcv_data, dev_address)
+                if mess_type == 'S':
+                    data_to_send, sensor = create_update_sensor(message, address)
 
-                battery = data_to_send['battery']
-                float = data_to_send['float']
-                if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
-                    if sensor.id not in notified_battery_ids:
-                        send_status_notification(sensor, 'battery')
-                        notified_battery_ids.append(sensor.id)
+                    battery = data_to_send['battery']
+                    float = data_to_send['float']
+                    if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
+                        if sensor.id not in notified_sensor_battery_ids:
+                            send_status_notification(sensor, 'battery')
+                            notified_sensor_battery_ids.append(sensor.id)
+                    else:
+                        if sensor.id in notified_sensor_battery_ids:
+                            notified_sensor_battery_ids.remove(sensor.id)
+
+                    if float:
+                        if sensor.id not in notified_sensor_float_ids:
+                            send_status_notification(sensor, 'float')
+                            notified_sensor_float_ids.append(sensor.id)
+                    else:
+                        if sensor.id in notified_sensor_float_ids:
+                            notified_sensor_float_ids.remove(sensor.id)
+                    socket_io.emit('sensor_notification', data_to_send, namespace='/notification')
+                    print("\n")
+                elif mess_type == 'V':
+                    data_to_send, valve = create_update_valve(message, address)
+
+                    battery = data_to_send['battery']
+                    if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
+                        if valve.id not in notified_valve_battery_ids:
+                            send_status_notification(valve, 'battery')
+                            notified_valve_battery_ids.append(valve.id)
+                    else:
+                        if valve.id in notified_valve_battery_ids:
+                            notified_valve_battery_ids.remove(valve.id)
+
+                    socket_io.emit('valve_notification', data_to_send, namespace='/notification')
                 else:
-                    if sensor.id in notified_battery_ids:
-                        notified_battery_ids.remove(sensor.id)
-
-                if float:
-                    if sensor.id not in notified_float_ids:
-                        send_status_notification(sensor, 'float')
-                        notified_float_ids.append(sensor.id)
-                else:
-                    if sensor.id in notified_float_ids:
-                        notified_float_ids.remove(sensor.id)
-                socket_io.emit('sensor_notification', data_to_send, namespace='/notification')
+                    raise Exception("Invalid data type from XBee Module")
     finally:
         if device is not None and device.is_open():
             device.close()
@@ -176,6 +196,16 @@ def test_callback(socket_io):
             print("\n")
         elif mess_type == 'V':
             data_to_send, valve = create_update_valve(message, address)
+
+            battery = data_to_send['battery']
+            if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
+                if valve.id not in notified_valve_battery_ids:
+                    send_status_notification(valve, 'battery')
+                    notified_valve_battery_ids.append(valve.id)
+            else:
+                if valve.id in notified_valve_battery_ids:
+                    notified_valve_battery_ids.remove(valve.id)
+
             socket_io.emit('valve_notification', data_to_send, namespace='/notification')
         else:
             raise Exception("Invalid data type from XBee Module")
@@ -225,7 +255,7 @@ def check_status_valve(socket_io, notified_valve_ids):
             db.session.add(valve)
             db.session.commit()
             if valve.id not in notified_valve_ids:
-                # send_status_notification(sensor, 'status')
+                send_status_notification(valve, 'status')
                 notified_valve_ids.append(valve.id)
             socket_io.emit('goOfflineValve', valve.id, namespace='/notification')
         else:

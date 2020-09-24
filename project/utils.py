@@ -53,19 +53,17 @@ def validate_labels(labels, mess_labels):
     return True
 
 
-def format_message(message, sensor):
-    sensor = sensor.as_dict()
-    sensor['field_name'] = current_app.config.get("FIELD_NAME")
+def format_message(message, dev_obj):
+    dev_obj = dev_obj.as_dict()
+    # add field_name label to the dev-object
+    dev_obj['field_name'] = current_app.config.get("FIELD_NAME")
+    # get labels from the message
     labels = validate_message(message)
     if labels is None:
         return
 
     for label in labels:
-        replace_str = str(sensor[label])
-        if label == 'status':
-            replace_str = 'ONLINE' if sensor[label] else 'OFFLINE'
-        elif label == 'float':
-            replace_str = 'UP' if sensor[label] else 'DOWN'
+        replace_str = str(dev_obj[label])
         message = message.replace('{' + label + '}', replace_str)
 
     return message
