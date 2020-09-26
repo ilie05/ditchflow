@@ -18,3 +18,6 @@ class Config:
     # device settings
     DEVICE_PORT = "/dev/ttyAMA0"
     BAUD_RATE = 9600
+
+    SYSTEM_BATTERY_MIN_VOLTAGE = 11  # value in Volts
+    MAIN_SYSTEM_DEVICE_PORT = "/dev/ttyAMA1"

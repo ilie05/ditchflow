@@ -3,6 +3,11 @@ import random
 import re
 import json
 import os
+try:
+    import RPi.GPIO as GPIO
+except:
+    pass
+import time
 
 
 def validate_message(message):
@@ -155,3 +160,15 @@ def mock_battery_temp():
     temperature = random.randrange(800, 1200)
 
     return f'{battery},{temperature}'
+
+
+def reset_xbee():
+    rst_xbee = 40
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(rst_xbee, GPIO.OUT)
+    GPIO.output(rst_xbee, GPIO.LOW)
+    time.sleep(0.5)
+    GPIO.output(rst_xbee, GPIO.HIGH)
+    time.sleep(0.5)
+    GPIO.cleanup()

@@ -1,14 +1,15 @@
 from flaskthreads import AppContextThread
 from digi.xbee.devices import XBeeDevice
 from models import Message, Sensor, Valve
-from database import db
 import datetime
+import serial
 from flask import current_app
 from flask_login import current_user
 import time
 import threading
-from utils import mock_device_data, mock_battery_temp
-from email_service import send_status_notification
+from database import db
+from utils import mock_device_data, mock_battery_temp, reset_xbee
+from email_service import send_status_notification, send_email
 
 lock = threading.Lock()
 
@@ -310,23 +311,46 @@ def check_status_valve(socket_io, notified_valve_ids):
 
 
 def update_battery_temp(socket_io):
-    pass
+    min_battery_val = current_app.config.get("SYSTEM_BATTERY_MIN_VOLTAGE")
+    while True:
+        with serial.Serial(current_app.config.get("MAIN_SYSTEM_DEVICE_PORT"), 9600, timeout=3) as ser:
+            data = ser.read(7)
+            data = data.decode()
+            if data:
+                message = data.split(',')
+
+                battery = int(message[0]) / 10
+                temperature = int(message[1]) / 10
+
+                if battery < min_battery_val:
+                    send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
+
+                socket_io.emit('batteryTemp', {'battery': battery, 'temperature': temperature},
+                               namespace='/notification')
 
 
 def update_battery_temp_test(socket_io):
+    min_battery_val = current_app.config.get("SYSTEM_BATTERY_MIN_VOLTAGE")
     while True:
         time.sleep(5)
         message = mock_battery_temp()
         message = message.split(',')
 
-        battery = int(message[0])/10
-        temperature = int(message[1])/10
+        battery = int(message[0]) / 10
+        temperature = int(message[1]) / 10
+
+        if battery < min_battery_val:
+            send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
 
         socket_io.emit('batteryTemp', {'battery': battery, 'temperature': temperature}, namespace='/notification')
 
 
 def listen_sensors_thread(socket_io):
-    t1 = AppContextThread(target=test_callback, args=(socket_io,))
+    try:
+        reset_xbee()
+    except:
+        pass
+    t1 = AppContextThread(target=receive_sensor_data, args=(socket_io,))
     print("***Listen sensors thread before running***")
     t1.start()
 
@@ -334,7 +358,7 @@ def listen_sensors_thread(socket_io):
     print("***Check Status Sensor-Valve thread before running***")
     t2.start()
 
-    t3 = AppContextThread(target=update_battery_temp_test, args=(socket_io,))
+    t3 = AppContextThread(target=update_battery_temp, args=(socket_io,))
     print("***Battery-Temperature thread before running***")
     t3.start()
 
