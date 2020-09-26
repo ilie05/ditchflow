@@ -7,7 +7,7 @@ from flask import current_app
 from flask_login import current_user
 import time
 import threading
-from utils import mock_device_data
+from utils import mock_device_data, mock_battery_temp
 from email_service import send_status_notification
 
 lock = threading.Lock()
@@ -309,6 +309,22 @@ def check_status_valve(socket_io, notified_valve_ids):
                 notified_valve_ids.remove(valve.id)
 
 
+def update_battery_temp(socket_io):
+    pass
+
+
+def update_battery_temp_test(socket_io):
+    while True:
+        time.sleep(5)
+        message = mock_battery_temp()
+        message = message.split(',')
+
+        battery = int(message[0])/10
+        temperature = int(message[1])/10
+
+        socket_io.emit('batteryTemp', {'battery': battery, 'temperature': temperature}, namespace='/notification')
+
+
 def listen_sensors_thread(socket_io):
     t1 = AppContextThread(target=test_callback, args=(socket_io,))
     print("***Listen sensors thread before running***")
@@ -317,6 +333,10 @@ def listen_sensors_thread(socket_io):
     t2 = AppContextThread(target=check_online_status, args=(socket_io,))
     print("***Check Status Sensor-Valve thread before running***")
     t2.start()
+
+    t3 = AppContextThread(target=update_battery_temp_test, args=(socket_io,))
+    print("***Battery-Temperature thread before running***")
+    t3.start()
 
     @socket_io.on('connect', namespace='/notification')
     def test_connect():

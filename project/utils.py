@@ -143,3 +143,10 @@ def write_settings(data):
             for key in data:
                 config_data[key] = data[key]
             json.dump(config_data, f)
+
+
+def mock_battery_temp():
+    battery = random.randrange(90, 130)
+    temperature = random.randrange(800, 1200)
+
+    return f'{battery},{temperature}'
