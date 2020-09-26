@@ -8,11 +8,9 @@ flask = "*"
 flask_sqlalchemy = "*"
 flask-login = "*"
 flask-socketio = "*"
-gevent-websocket = "*"
 pyjwt = "*"
 digi-xbee = "*"
 flask-threads = "*"
-eventlet = "*"
 flask-cors = "*"
 
 [dev-packages]
