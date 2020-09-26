@@ -2,6 +2,7 @@ from flask import current_app
 import random
 import re
 import json
+import os
 
 
 def validate_message(message):
@@ -131,15 +132,19 @@ def check_email(email):
 
 
 def load_config_settings(app):
-    with open('settings.json') as config_file:
+    current_folder = os.path.dirname(os.path.abspath(__file__))
+    settings_file = os.path.join(current_folder, 'settings.json')
+    with open(settings_file) as config_file:
         config_data = json.load(config_file)
         app.config.update(config_data)
 
 
 def write_settings(data):
-    with open('settings.json') as config_file:
+    current_folder = os.path.dirname(os.path.abspath(__file__))
+    settings_file = os.path.join(current_folder, 'settings.json')
+    with open(settings_file) as config_file:
         config_data = json.load(config_file)
-        with open('settings.json', 'w') as f:
+        with open(settings_file, 'w') as f:
             for key in data:
                 config_data[key] = data[key]
             json.dump(config_data, f)
