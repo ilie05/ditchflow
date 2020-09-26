@@ -29,7 +29,8 @@ def create_update_sensor(message, address):
 
         if not sensor:
             # does not exist, create one
-            sensor = Sensor(name=name, battery=battery, float=float, temperature=temperature, water=water, address=address, last_update=current_time)
+            sensor = Sensor(name=name, battery=battery, float=float, temperature=temperature, water=water,
+                            address=address, last_update=current_time)
             db.session.add(sensor)
             # we commit the session in order to get an id for the sensor and then save it on land_number
             db.session.commit()
@@ -65,7 +66,8 @@ def create_update_valve(message, address):
 
         if not valve:
             # does not exist, create one
-            valve = Valve(name=name, battery=battery, actuator_status=actuator_status, actuator_position=actuator_position, temperature=temperature, water=water,
+            valve = Valve(name=name, battery=battery, actuator_status=actuator_status,
+                          actuator_position=actuator_position, temperature=temperature, water=water,
                           address=address, last_update=current_time)
             db.session.add(valve)
             # we commit the session in order to get an id for the sensor and then save it on land_number
@@ -82,7 +84,8 @@ def create_update_valve(message, address):
             valve.water = water
             valve.last_update = current_time
         db.session.commit()
-        return {'id': valve.id, 'name': name, 'last_update': str(current_time), 'battery': battery, 'actuator_status': actuator_status, 'actuator_position': actuator_position,
+        return {'id': valve.id, 'name': name, 'last_update': str(current_time), 'battery': battery,
+                'actuator_status': actuator_status, 'actuator_position': actuator_position,
                 'temperature': temperature, 'water': water}, valve
     except Exception as e:
         print(e)
@@ -92,7 +95,9 @@ def create_update_valve(message, address):
 def receive_sensor_data(socket_io):
     notified_sensor_battery_ids = []
     notified_sensor_float_ids = []
+    notified_sensor_water_ids = []
     notified_valve_battery_ids = []
+    notified_valve_water_ids = []
 
     port = current_app.config.get("DEVICE_PORT")
     baud_rate = current_app.config.get("BAUD_RATE")
@@ -121,6 +126,7 @@ def receive_sensor_data(socket_io):
                     data_to_send, sensor = create_update_sensor(message, address)
 
                     battery = data_to_send['battery']
+                    water = data_to_send['water']
                     float = data_to_send['float']
                     if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
                         if sensor.id not in notified_sensor_battery_ids:
@@ -137,12 +143,22 @@ def receive_sensor_data(socket_io):
                     else:
                         if sensor.id in notified_sensor_float_ids:
                             notified_sensor_float_ids.remove(sensor.id)
+
+                    if water > current_app.config.get("WATER_MAX_LEVEL"):
+                        if sensor.id not in notified_sensor_water_ids:
+                            send_status_notification(sensor, 'water')
+                            notified_sensor_water_ids.append(sensor.id)
+                    else:
+                        if sensor.id in notified_sensor_water_ids:
+                            notified_sensor_water_ids.remove(sensor.id)
+
                     socket_io.emit('sensor_notification', data_to_send, namespace='/notification')
                     print("\n")
                 elif mess_type == 'V':
                     data_to_send, valve = create_update_valve(message, address)
 
                     battery = data_to_send['battery']
+                    water = data_to_send['water']
                     if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
                         if valve.id not in notified_valve_battery_ids:
                             send_status_notification(valve, 'battery')
@@ -150,6 +166,14 @@ def receive_sensor_data(socket_io):
                     else:
                         if valve.id in notified_valve_battery_ids:
                             notified_valve_battery_ids.remove(valve.id)
+
+                    if water > current_app.config.get("WATER_MAX_LEVEL"):
+                        if valve.id not in notified_valve_water_ids:
+                            send_status_notification(valve, 'water')
+                            notified_valve_water_ids.append(valve.id)
+                    else:
+                        if valve.id in notified_valve_water_ids:
+                            notified_valve_water_ids.remove(valve.id)
 
                     socket_io.emit('valve_notification', data_to_send, namespace='/notification')
                 else:
@@ -162,7 +186,10 @@ def receive_sensor_data(socket_io):
 def test_callback(socket_io):
     notified_sensor_battery_ids = []
     notified_sensor_float_ids = []
+    notified_sensor_water_ids = []
     notified_valve_battery_ids = []
+    notified_valve_water_ids = []
+
     while True:
         time.sleep(3)
         address, message = mock_device_data()
@@ -177,6 +204,7 @@ def test_callback(socket_io):
 
             battery = data_to_send['battery']
             float = data_to_send['float']
+            water = data_to_send['water']
             if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
                 if sensor.id not in notified_sensor_battery_ids:
                     send_status_notification(sensor, 'battery')
@@ -192,12 +220,22 @@ def test_callback(socket_io):
             else:
                 if sensor.id in notified_sensor_float_ids:
                     notified_sensor_float_ids.remove(sensor.id)
+
+            if water > current_app.config.get("WATER_MAX_LEVEL"):
+                if sensor.id not in notified_sensor_water_ids:
+                    send_status_notification(sensor, 'water')
+                    notified_sensor_water_ids.append(sensor.id)
+            else:
+                if sensor.id in notified_sensor_water_ids:
+                    notified_sensor_water_ids.remove(sensor.id)
+
             socket_io.emit('sensor_notification', data_to_send, namespace='/notification')
             print("\n")
         elif mess_type == 'V':
             data_to_send, valve = create_update_valve(message, address)
 
             battery = data_to_send['battery']
+            water = data_to_send['water']
             if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
                 if valve.id not in notified_valve_battery_ids:
                     send_status_notification(valve, 'battery')
@@ -205,6 +243,14 @@ def test_callback(socket_io):
             else:
                 if valve.id in notified_valve_battery_ids:
                     notified_valve_battery_ids.remove(valve.id)
+
+            if water > current_app.config.get("WATER_MAX_LEVEL"):
+                if valve.id not in notified_valve_water_ids:
+                    send_status_notification(valve, 'water')
+                    notified_valve_water_ids.append(valve.id)
+            else:
+                if valve.id in notified_valve_water_ids:
+                    notified_valve_water_ids.remove(valve.id)
 
             socket_io.emit('valve_notification', data_to_send, namespace='/notification')
         else:

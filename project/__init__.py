@@ -10,7 +10,6 @@ from database import db
 from models import User
 from utils import load_config_settings
 from sensors_rcv import listen_sensors_thread
-from digi.xbee.devices import XBeeDevice
 from flask_cors import CORS
 
 app = Flask(__name__)

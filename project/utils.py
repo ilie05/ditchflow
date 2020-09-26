@@ -84,17 +84,6 @@ def remove_tags(text):
     return text.strip()
 
 
-def mock_sensors(sensors):
-    for sensor in sensors:
-        sensor['status'] = random.choice([True, False])
-        sensor['battery'] = 12.5
-        sensor['temp'] = 84.7
-        sensor['water'] = 23
-        sensor['float'] = random.choice([True, False])
-
-    return sensors
-
-
 def mock_device_data():
     sensors_mocks = [{'address': 'address0', 'name': 'sensor0'}, {'address': 'address1', 'name': 'sensor1'},
                      {'address': 'address2', 'name': 'sensor2'}, {'address': 'address3', 'name': 'sensor3'},
@@ -112,7 +101,7 @@ def mock_device_data():
 
         battery = random.randrange(90, 130)
         temperature = random.randrange(800, 1200)
-        water = random.randrange(10, 50)
+        water = random.randrange(100, 300)
         float = random.choice([True, False])
         float = 'UP' if float else 'DOWN'
         name = sensors_mocks[idx]['name']
@@ -130,7 +119,7 @@ def mock_device_data():
         actuator_position = random.randrange(0, 100)
         battery = random.randrange(90, 130)
         temperature = random.randrange(800, 1200)
-        water = random.randrange(10, 50)
+        water = random.randrange(100, 300)
         address = valves_mocks[idx]['address']
 
         return address, f'V,{name},{actuator_status},{actuator_position},{battery},{temperature},{water}'

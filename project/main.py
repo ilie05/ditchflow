@@ -3,9 +3,8 @@ from flask import Blueprint, render_template, request, url_for, redirect, flash,
 from flask_login import login_required, current_user
 from sqlalchemy import exc
 from database import db
-import datetime
 from models import Sensor, Message, Valve, LabelMessage
-from utils import validate_message, validate_labels, mock_sensors, write_settings
+from utils import validate_message, validate_labels, write_settings
 
 main = Blueprint('main', __name__)
 
