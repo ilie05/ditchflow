@@ -3,10 +3,6 @@ import random
 import re
 import json
 import os
-try:
-    import RPi.GPIO as GPIO
-except:
-    pass
 import time
 
 
@@ -163,6 +159,12 @@ def mock_battery_temp():
 
 
 def reset_xbee():
+    try:
+        import RPi.GPIO as GPIO
+    except Exception as e:
+        print(str(e))
+        print("COULD NOT IMPORT RPi.GPIO package")
+
     rst_xbee = 40
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BOARD)

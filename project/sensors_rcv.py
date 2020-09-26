@@ -124,7 +124,7 @@ def receive_sensor_data(socket_io):
                 print(f"From {dev_address} >> {message}")
 
                 if mess_type == 'S':
-                    data_to_send, sensor = create_update_sensor(message, address)
+                    data_to_send, sensor = create_update_sensor(message, dev_address)
 
                     battery = data_to_send['battery']
                     water = data_to_send['water']
@@ -156,7 +156,7 @@ def receive_sensor_data(socket_io):
                     socket_io.emit('sensor_notification', data_to_send, namespace='/notification')
                     print("\n")
                 elif mess_type == 'V':
-                    data_to_send, valve = create_update_valve(message, address)
+                    data_to_send, valve = create_update_valve(message, dev_address)
 
                     battery = data_to_send['battery']
                     water = data_to_send['water']
@@ -193,15 +193,15 @@ def test_callback(socket_io):
 
     while True:
         time.sleep(3)
-        address, message = mock_device_data()
+        dev_address, message = mock_device_data()
         print("Generated data...")
-        print(address, message)
+        print(dev_address, message)
         message = message.split(',')
         mess_type = message[0]
         message = message[1:]
 
         if mess_type == 'S':
-            data_to_send, sensor = create_update_sensor(message, address)
+            data_to_send, sensor = create_update_sensor(message, dev_address)
 
             battery = data_to_send['battery']
             float = data_to_send['float']
@@ -233,7 +233,7 @@ def test_callback(socket_io):
             socket_io.emit('sensor_notification', data_to_send, namespace='/notification')
             print("\n")
         elif mess_type == 'V':
-            data_to_send, valve = create_update_valve(message, address)
+            data_to_send, valve = create_update_valve(message, dev_address)
 
             battery = data_to_send['battery']
             water = data_to_send['water']
@@ -348,8 +348,10 @@ def update_battery_temp_test(socket_io):
 def listen_sensors_thread(socket_io):
     try:
         reset_xbee()
-    except:
-        pass
+    except Exception as e:
+        print(str(e))
+        print("COULD NOT RESET THE XBEE!")
+
     t1 = AppContextThread(target=receive_sensor_data, args=(socket_io,))
     print("***Listen sensors thread before running***")
     t1.start()

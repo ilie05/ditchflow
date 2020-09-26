@@ -31,6 +31,7 @@
         });
 
         socket.on('batteryTemp', function (data) {
+            console.log(data);
             $('#battery').text(data.battery + ' V');
             $('#temperature').text(data.temperature + ' °F');
         })
