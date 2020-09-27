@@ -11,6 +11,8 @@ from models import User
 from utils import load_config_settings
 from sensors_rcv import listen_sensors_thread
 from flask_cors import CORS
+from waitress import serve
+
 
 app = Flask(__name__)
 
@@ -64,4 +66,5 @@ if __name__ == '__main__':
         with context:
             listen_sensors_thread(socket_io)
 
-    socket_io.run(app, host='0.0.0.0', debug=True, port=3000)
+    # socket_io.run(app, host='0.0.0.0', debug=True, port=3000)
+    serve(app, host='0.0.0.0', port=3000, threads=6)
