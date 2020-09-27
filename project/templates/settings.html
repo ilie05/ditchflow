@@ -2,6 +2,7 @@
 {% block content %}
     <script src="../static/js/socket.io.js"></script>
     <div class="holder">
+        <h3>System Status</h3>
         <p>
             Battery: <span id="battery"></span>
         </p>
@@ -37,6 +38,9 @@
         })
     </script>
     <style>
+        h3{
+            margin-bottom: 80px;
+        }
         .holder {
             margin: -100px 0 100px 15px;
         }
