@@ -1,5 +1,10 @@
 body {
     overflow: scroll !important;
+    background-color: #004DE3;
+}
+
+.hero.is-primary{
+    background-color: #004DE3;
 }
 
 .box {

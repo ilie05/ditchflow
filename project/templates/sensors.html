@@ -27,7 +27,7 @@
                             <li class="sTemperature">
                                 Temperature: {{ '{0} °F'.format(item.temperature) if item.status else '---' }} </li>
                             <li class="sWater">Water
-                                Level: {{ '{0} inches'.format(item.water) if item.status else '---' }} </li>
+                                Level: {{ '{0} inches'.format(item.water) if item.status and item.water else '---' }} </li>
                             <li class="sFloat">Float: {{ 'UP' if item.float else 'DOWN' }}</li>
                             <li class="sLastSeen">Last seen: {{ item.last_update }}</li>
                         </ul>
