@@ -28,6 +28,9 @@ def create_update_sensor(message, address):
         temperature = int(message[3]) / 10
         water = int(message[4]) / 10
 
+        if water < 0 or water > 99.9:
+            water = None
+
         if not sensor:
             # does not exist, create one
             sensor = Sensor(name=name, battery=battery, float=float, temperature=temperature, water=water,
@@ -64,6 +67,9 @@ def create_update_valve(message, address):
         battery = int(message[3]) / 10
         temperature = int(message[4]) / 10
         water = int(message[5]) / 10
+
+        if water < 0 or water > 99.9:
+            water = None
 
         if not valve:
             # does not exist, create one
@@ -145,7 +151,7 @@ def receive_sensor_data(socket_io):
                         if sensor.id in notified_sensor_float_ids:
                             notified_sensor_float_ids.remove(sensor.id)
 
-                    if water > current_app.config.get("WATER_MAX_LEVEL"):
+                    if water is not None and water > current_app.config.get("WATER_MAX_LEVEL"):
                         if sensor.id not in notified_sensor_water_ids:
                             send_status_notification(sensor, 'water')
                             notified_sensor_water_ids.append(sensor.id)
@@ -168,7 +174,7 @@ def receive_sensor_data(socket_io):
                         if valve.id in notified_valve_battery_ids:
                             notified_valve_battery_ids.remove(valve.id)
 
-                    if water > current_app.config.get("WATER_MAX_LEVEL"):
+                    if water is not None and water > current_app.config.get("WATER_MAX_LEVEL"):
                         if valve.id not in notified_valve_water_ids:
                             send_status_notification(valve, 'water')
                             notified_valve_water_ids.append(valve.id)
@@ -222,7 +228,7 @@ def test_callback(socket_io):
                 if sensor.id in notified_sensor_float_ids:
                     notified_sensor_float_ids.remove(sensor.id)
 
-            if water > current_app.config.get("WATER_MAX_LEVEL"):
+            if water is not None and water > current_app.config.get("WATER_MAX_LEVEL"):
                 if sensor.id not in notified_sensor_water_ids:
                     send_status_notification(sensor, 'water')
                     notified_sensor_water_ids.append(sensor.id)
@@ -245,7 +251,7 @@ def test_callback(socket_io):
                 if valve.id in notified_valve_battery_ids:
                     notified_valve_battery_ids.remove(valve.id)
 
-            if water > current_app.config.get("WATER_MAX_LEVEL"):
+            if water is not None and water > current_app.config.get("WATER_MAX_LEVEL"):
                 if valve.id not in notified_valve_water_ids:
                     send_status_notification(valve, 'water')
                     notified_valve_water_ids.append(valve.id)

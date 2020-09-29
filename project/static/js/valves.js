@@ -12,7 +12,6 @@ socket.on('valve_notification', function (data) {
     $(card).find('li.vStatus').text(`Status: ONLINE`);
     $(card).find('li.vActuatorStatus').text(`Actuator Status: ${data.actuator_status}`);
     $(card).find('li.vActuatorSetPosition button').show();
-    $(card).find('li.vWater').text(`Water Level: ${data.water} inches`);
     $(card).find('li.vBattery').text(`Battery Voltage: ${data.battery} V`);
     $(card).find('li.vTemperature').text(`Temperature: ${data.temperature} °F`);
     $(card).find('li.vLastSeen').text(`Last seen: ${data.last_update}`);
@@ -21,6 +20,12 @@ socket.on('valve_notification', function (data) {
         $(card).find('li.vActuatorActualPosition').text(`Actuator Actual Position: ---`);
     } else {
         $(card).find('li.vActuatorActualPosition').text(`Actuator Actual Position: ${data.actuator_position}%`);
+    }
+
+    if (data.water === null) {
+        $(card).find('li.vWater').text(`Water Level: ---`);
+    } else {
+        $(card).find('li.vWater').text(`Water Level: ${data.water} inches`);
     }
 
     $(card).find('.card-front').removeClass('offline-indicator');
