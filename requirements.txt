@@ -7,7 +7,6 @@ Flask-Login==0.5.0
 Flask-SocketIO==4.3.1
 Flask-SQLAlchemy==2.4.4
 Flask-Threads==0.0.1a0
-gevent==20.9.0
 greenlet==0.4.16
 itsdangerous==1.1.0
 Jinja2==2.11.2
