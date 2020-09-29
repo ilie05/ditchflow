@@ -358,15 +358,15 @@ def listen_sensors_thread(socket_io):
         print(str(e))
         print("COULD NOT RESET THE XBEE!")
 
-    t1 = AppContextThread(target=receive_sensor_data, args=(socket_io,))
+    t1 = AppContextThread(target=thread_wrap(receive_sensor_data), args=(socket_io,))
     print("***Listen sensors thread before running***")
     t1.start()
 
-    t2 = AppContextThread(target=check_online_status, args=(socket_io,))
+    t2 = AppContextThread(target=thread_wrap(check_online_status), args=(socket_io,))
     print("***Check Status Sensor-Valve thread before running***")
     t2.start()
 
-    t3 = AppContextThread(target=update_battery_temp, args=(socket_io,))
+    t3 = AppContextThread(target=thread_wrap(update_battery_temp), args=(socket_io,))
     print("***Battery-Temperature thread before running***")
     t3.start()
 
@@ -376,3 +376,16 @@ def listen_sensors_thread(socket_io):
             print("NOT AUTHENTICATED!")
             return False
         print("CONNECTED")
+
+
+def thread_wrap(thread_func):
+    def wrapper(*args, **kwargs):
+        while True:
+            try:
+                thread_func(*args, **kwargs)
+            except BaseException as e:
+                print(f'{str(e)}; restarting thread')
+            else:
+                print('Exited normally, bad thread; restarting')
+
+    return wrapper
