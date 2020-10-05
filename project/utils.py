@@ -103,7 +103,7 @@ def mock_device_data():
 
         battery = random.randrange(90, 130)
         temperature = random.randrange(800, 1200)
-        water = random.randrange(100, 300)
+        water = random.randrange(0, 1200)
         float = random.choice([True, False])
         float = 'UP' if float else 'DOWN'
         name = sensors_mocks[idx]['name']
@@ -121,7 +121,7 @@ def mock_device_data():
         actuator_position = random.randrange(0, 100)
         battery = random.randrange(90, 130)
         temperature = random.randrange(800, 1200)
-        water = random.randrange(100, 300)
+        water = random.randrange(0, 1200)
         address = valves_mocks[idx]['address']
 
         return address, f'V,{name},{actuator_status},{actuator_position},{battery},{temperature},{water}'
