@@ -1,3 +1,3 @@
 .idea
-project/db.sqlite
-project/__pycache__/
+/__pycache__/
+/venv/
