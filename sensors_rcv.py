@@ -317,6 +317,7 @@ def check_status_valve(socket_io, notified_valve_ids):
 
 
 def update_battery_temp(socket_io):
+    notified = False
     min_battery_val = current_app.config.get("SYSTEM_BATTERY_MIN_VOLTAGE")
     while True:
         with serial.Serial(current_app.config.get("MAIN_SYSTEM_DEVICE_PORT"), 9600, timeout=3) as ser:
@@ -328,14 +329,18 @@ def update_battery_temp(socket_io):
                 battery = int(message[0]) / 10
                 temperature = int(message[1]) / 10
 
-                if battery < min_battery_val:
+                if battery < min_battery_val and not notified:
                     send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
+                    notified = True
+                else:
+                    notified = False
 
                 socket_io.emit('batteryTemp', {'battery': battery, 'temperature': temperature},
                                namespace='/notification')
 
 
 def update_battery_temp_test(socket_io):
+    notified = False
     min_battery_val = current_app.config.get("SYSTEM_BATTERY_MIN_VOLTAGE")
     while True:
         time.sleep(5)
@@ -345,8 +350,11 @@ def update_battery_temp_test(socket_io):
         battery = int(message[0]) / 10
         temperature = int(message[1]) / 10
 
-        if battery < min_battery_val:
+        if battery < min_battery_val and not notified:
             send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
+            notified = True
+        else:
+            notified = False
 
         socket_io.emit('batteryTemp', {'battery': battery, 'temperature': temperature}, namespace='/notification')
 
