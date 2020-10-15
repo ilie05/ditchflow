@@ -1,9 +1,8 @@
 import jwt
-from flask import Blueprint, render_template, request, url_for, redirect, flash, current_app, jsonify, Response
+from flask import Blueprint, render_template, request, url_for, redirect, flash, current_app, Response
 from flask_login import login_required, current_user
-from sqlalchemy import exc
 from database import db
-from models import Sensor, Message, Valve, LabelMessage
+from models import Sensor, Message, Valve, LabelMessage, Land
 from utils import validate_message, validate_labels, write_settings
 
 main = Blueprint('main', __name__)
@@ -29,8 +28,14 @@ def sensor():
         sensor_id = payload['sensorId'] if 'sensorId' in payload else None
         land_number = payload['landNumber'] if 'landNumber' in payload else None
 
+        land = Land.query.filter_by(number=land_number).first()
+        if not land:
+            land = Land(number=land_number)
+            db.session.add(land)
+            db.session.commit()
+
         sensor = Sensor.query.filter_by(id=sensor_id).first()
-        sensor.land_number = land_number
+        sensor.land_id = land.id
         db.session.commit()
         return Response(status=200)
     else:
@@ -57,8 +62,14 @@ def valve():
         valve_id = payload['valveId'] if 'valveId' in payload else None
         land_number = payload['landNumber'] if 'landNumber' in payload else None
 
+        land = Land.query.filter_by(number=land_number).first()
+        if not land:
+            land = Land(number=land_number)
+            db.session.add(land)
+            db.session.commit()
+
         valve = Valve.query.filter_by(id=valve_id).first()
-        valve.land_number = land_number
+        valve.land_id = land.id
         db.session.commit()
         return Response(status=200)
     else:

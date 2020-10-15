@@ -4,6 +4,8 @@ import re
 import json
 import os
 import time
+from models import Land
+from database import db
 
 
 def validate_message(message):
@@ -65,7 +67,10 @@ def format_message(message, dev_obj):
         return
 
     for label in labels:
-        replace_str = str(dev_obj[label])
+        if label == 'land_number':
+            replace_str = str(dev_obj['land']['number'])
+        else:
+            replace_str = str(dev_obj[label])
         message = message.replace('{' + label + '}', replace_str)
 
     return message
@@ -174,3 +179,11 @@ def reset_xbee():
     GPIO.output(rst_xbee, GPIO.HIGH)
     time.sleep(0.5)
     GPIO.cleanup()
+
+
+def prepopulate_db():
+    land = Land.query.filter_by(number=1).first()
+    if not land:
+        land = Land(number=1)
+        db.session.add(land)
+        db.session.commit()

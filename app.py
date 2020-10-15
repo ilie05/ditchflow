@@ -8,7 +8,7 @@ from main import main as main_blueprint
 from contact import contact as contact_blueprint
 from database import db
 from models import User
-from utils import load_config_settings
+from utils import load_config_settings, prepopulate_db
 from sensors_rcv import listen_sensors_thread
 from flask_cors import CORS
 
@@ -54,11 +54,12 @@ app.register_blueprint(contact_blueprint)
 
 socket_io = SocketIO(app, async_mode='threading')
 
+context = app.app_context()
+context.push()
+
+prepopulate_db()
+
 if __name__ == '__main__':
-    context = app.app_context()
-    context.push()
-
-
     @app.before_first_request
     def activate_job():
         with context:
