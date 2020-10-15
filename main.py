@@ -31,12 +31,7 @@ def sensor():
 
         sensor = Sensor.query.filter_by(id=sensor_id).first()
         sensor.land_number = land_number
-        try:
-            db.session.commit()
-        except exc.IntegrityError:
-            db.session.rollback()
-            return Response(status=409)
-
+        db.session.commit()
         return Response(status=200)
     else:
         payload = request.get_json()
@@ -64,12 +59,7 @@ def valve():
 
         valve = Valve.query.filter_by(id=valve_id).first()
         valve.land_number = land_number
-        try:
-            db.session.commit()
-        except exc.IntegrityError:
-            db.session.rollback()
-            return Response(status=409)
-
+        db.session.commit()
         return Response(status=200)
     else:
         payload = request.get_json()

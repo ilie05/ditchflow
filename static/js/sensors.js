@@ -74,12 +74,8 @@ const updateLandNumber = (context) => {
     })
         .then(res => {
             if (res.ok) {
-                $(card).find('.card-error').hide();
-            } else {
-                if (res.status === 409) {
-                    // land number already exists
-                    $(card).find('.card-error').show();
-                }
+                $(card).find('.card-info').show();
+                setInterval(() => $(card).find('.card-info').hide(),3000);
             }
         });
 }

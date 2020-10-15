@@ -149,7 +149,7 @@ and (max-device-width: 1024px) {
     cursor: pointer;
 }
 
-.card-error {
+.card-info {
     display: none;
     position: absolute;
     margin-top: 430px;

@@ -190,7 +190,7 @@ def receive_sensor_data(socket_io):
             device.close()
 
 
-def test_callback(socket_io):
+def receive_sensor_data_test(socket_io):
     notified_sensor_battery_ids = []
     notified_sensor_float_ids = []
     notified_sensor_water_ids = []
@@ -329,9 +329,10 @@ def update_battery_temp(socket_io):
                 battery = int(message[0]) / 10
                 temperature = int(message[1]) / 10
 
-                if battery < min_battery_val and not notified:
-                    send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
-                    notified = True
+                if battery < min_battery_val:
+                    if not notified:
+                        send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
+                        notified = True
                 else:
                     notified = False
 
@@ -350,9 +351,10 @@ def update_battery_temp_test(socket_io):
         battery = int(message[0]) / 10
         temperature = int(message[1]) / 10
 
-        if battery < min_battery_val and not notified:
-            send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
-            notified = True
+        if battery < min_battery_val:
+            if not notified:
+                send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
+                notified = True
         else:
             notified = False
 

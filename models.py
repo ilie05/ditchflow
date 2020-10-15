@@ -37,7 +37,7 @@ class Sensor(db.Model):
     __tablename__ = 'sensor'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
-    land_number = db.Column(db.Integer, unique=True)
+    land_number = db.Column(db.Integer)
     status = db.Column(db.Boolean, default=True)
     battery = db.Column(db.Float)
     temperature = db.Column(db.Float)
@@ -81,7 +81,7 @@ class Valve(db.Model):
     __tablename__ = 'valve'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
-    land_number = db.Column(db.Integer, unique=True)
+    land_number = db.Column(db.Integer)
     status = db.Column(db.Boolean, default=True)
     actuator_status = db.Column(db.String(100))
     actuator_position = db.Column(db.Integer)
