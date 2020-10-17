@@ -1,5 +1,6 @@
 import jwt
 from flask import Flask, current_app
+from flask_migrate import Migrate
 from flask_socketio import SocketIO
 from auth import auth as auth_blueprint
 from flask_login import LoginManager
@@ -24,9 +25,8 @@ app.config['JWT_SECRET'] = 'mkFOcbEeBGBHLKiMxM6m'
 
 app.permanent_session_lifetime = timedelta(days=app.config.get("SESSION_DURATION"))
 
+migrate = Migrate(app, db)
 db.init_app(app)
-with app.app_context():
-    db.create_all()
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
