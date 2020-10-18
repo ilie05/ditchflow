@@ -58,7 +58,7 @@ def validate_labels(labels, mess_labels):
 
 
 def format_message(message, dev_obj):
-    dev_obj = dev_obj.as_dict()
+    dev_obj = dev_obj.to_dict()
     # add field_name label to the dev-object
     dev_obj['field_name'] = current_app.config.get("FIELD_NAME")
     # get labels from the message

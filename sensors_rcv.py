@@ -1,6 +1,6 @@
 from flaskthreads import AppContextThread
 from digi.xbee.devices import XBeeDevice
-from models import Sensor, Valve
+from models import Sensor, Valve, Land
 import datetime
 import serial
 from flask import current_app
@@ -33,8 +33,9 @@ def create_update_sensor(message, address):
 
         if not sensor:
             # does not exist, create one
+            land = Land.query.filter_by(number=1).first()
             sensor = Sensor(name=name, battery=battery, float=float, temperature=temperature, water=water,
-                            address=address, last_update=current_time)
+                            land_id=land.id, address=address, last_update=current_time)
             db.session.add(sensor)
         else:
             # exists, update the name and the date
@@ -70,8 +71,9 @@ def create_update_valve(message, address):
 
         if not valve:
             # does not exist, create one
+            land = Land.query.filter_by(number=1).first()
             valve = Valve(name=name, battery=battery, actuator_status=actuator_status,
-                          actuator_position=actuator_position, temperature=temperature, water=water,
+                          actuator_position=actuator_position, temperature=temperature, water=water, land_id=land.id,
                           address=address, last_update=current_time)
             db.session.add(valve)
         else:

@@ -42,8 +42,8 @@ def create():
 @login_required
 def contacts():
     if request.method == 'GET':
-        carriers = [carrier.as_dict() for carrier in Carrier.query.all()]
-        contacts = [contact.as_dict() for contact in Contact.query.all()]
+        carriers = [carrier.to_dict() for carrier in Carrier.query.all()]
+        contacts = [contact.to_dict() for contact in Contact.query.all()]
         return render_template('contacts.html', contacts=contacts, carriers=carriers)
 
     else:

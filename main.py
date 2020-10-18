@@ -18,7 +18,7 @@ def index():
 @login_required
 def sensor():
     if request.method == 'GET':
-        sensors = [sensor.as_dict() for sensor in Sensor.query.all()]
+        sensors = Sensor.query.all()
         token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                            algorithm='HS256').decode()
         return render_template('sensors.html', sensors=sensors, jwt_token=str(token))
@@ -52,7 +52,7 @@ def sensor():
 @login_required
 def valve():
     if request.method == 'GET':
-        valves = [valve.as_dict() for valve in Valve.query.all()]
+        valves = Valve.query.all()
         token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                            algorithm='HS256').decode()
         return render_template('valves.html', valves=valves, jwt_token=str(token))
@@ -97,8 +97,8 @@ def settings():
 @main.route('/messages', methods=["GET", "POST"])
 @login_required
 def messages():
-    labels = [label.as_dict() for label in LabelMessage.query.all()]
-    msgs = [message.as_dict() for message in Message.query.all()]
+    labels = [label.to_dict() for label in LabelMessage.query.all()]
+    msgs = [message.to_dict() for message in Message.query.all()]
     if request.method == 'GET':
         return render_template('messages.html', labels=labels, messages=msgs)
     else:
