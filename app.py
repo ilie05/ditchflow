@@ -7,6 +7,7 @@ from flask_login import LoginManager
 from datetime import timedelta
 from main import main as main_blueprint
 from contact import contact as contact_blueprint
+from sets import sets as sets_blueprint
 from database import db
 from models import User
 from utils import load_config_settings, prepopulate_db
@@ -51,6 +52,7 @@ def load_user(request):
 app.register_blueprint(auth_blueprint)
 app.register_blueprint(main_blueprint)
 app.register_blueprint(contact_blueprint)
+app.register_blueprint(sets_blueprint)
 
 socket_io = SocketIO(app, async_mode='threading')
 

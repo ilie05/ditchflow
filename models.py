@@ -54,7 +54,7 @@ class Sensor(db.Model, SerializerMixin):
     temperature = db.Column(db.Float)
     water = db.Column(db.Float)
     float = db.Column(db.Boolean)
-    delay = db.Column(db.Integer)
+    delay = db.Column(db.Integer, default=5)
     address = db.Column(db.String(100), unique=True)
     last_update = db.Column(db.DateTime)
 
@@ -71,8 +71,8 @@ class Valve(db.Model, SerializerMixin):
     battery = db.Column(db.Float)
     temperature = db.Column(db.Float)
     water = db.Column(db.Float)
-    preflow = db.Column(db.Integer)
-    run = db.Column(db.Integer)
+    preflow = db.Column(db.Integer, default=10)
+    run = db.Column(db.Integer, default=90)
     address = db.Column(db.String(100), unique=True)
     last_update = db.Column(db.DateTime)
 

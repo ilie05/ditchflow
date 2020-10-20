@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+    <script type="text/javascript">
+        const jwtToken = "{{ jwt_token }}";
+    </script>
+    <script src="../static/js/sets.js"></script>
+    <link rel="stylesheet" href="../static/css/sets.css"/>
+    <form method="post" style="display: block">
+        <div class="add-set-container">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Set number</span>
+                </div>
+                <input type="number" class="form-control" name="set_number" min="1" max="100" required>
+            </div>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <label class="input-group-text">Lands</label>
+                </div>
+                <select class="custom-select" name="land_id" required>
+                    <option value="">Choose land</option>
+                    {% for item in lands %}
+                        <option value="{{ item.id }}">{{ item.number }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success btn-sm">Add set</button>
+        </div>
+    </form>
+
+    <div class="set-container-header">
+        <span>Set</span>
+        <span>Land</span>
+        <span>Autorun</span>
+        <span>Valve</span>
+        <span>Preflow %</span>
+        <span>Run %</span>
+        <span>Sensors</span>
+        <span>Delay</span>
+    </div>
+    {% for set in sets %}
+        {% for land in set.lands %}
+            <div class="set-container">
+                <span>{{ set.number }}</span>
+                <span>{{ land.number }}</span>
+                <span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </span>
+                <span>
+                {% for valve in land.valves %}
+                    <p>{{ valve.name }}</p>
+                {% endfor %}
+                </span>
+                <span>
+                {% for valve in land.valves %}
+                    <span valve-id="{{ valve.id }}">
+                        <input type="number" min="0" max="100" value="{{ valve.preflow }}"
+                               onfocusout="updateValvePreflow(this)"/>
+                    </span>
+                {% endfor %}
+                </span>
+                <span>
+                {% for valve in land.valves %}
+                    <span valve-id="{{ valve.id }}">
+                        <input type="number" min="0" max="100" value="{{ valve.run }}"
+                               onfocusout="updateValveRun(this)"/>
+                    </span>
+                {% endfor %}
+                </span>
+                <span>
+                {% for sensor in land.sensors %}
+                    <p>{{ sensor.name }}</p>
+                {% endfor %}
+                </span>
+                <span>
+                {% for sensor in land.sensors %}
+                    <span sensor-id="{{ sensor.id }}">
+                        <input type="number" min="0" value="{{ sensor.delay }}" onfocusout="updateSensorDelay(this)"/>
+                    </span>
+                {% endfor %}
+                </span>
+            </div>
+        {% endfor %}
+    {% endfor %}
+{% endblock %}
