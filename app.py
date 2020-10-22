@@ -28,6 +28,8 @@ app.permanent_session_lifetime = timedelta(days=app.config.get("SESSION_DURATION
 
 migrate = Migrate(app, db)
 db.init_app(app)
+with app.app_context():
+    db.create_all()
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'

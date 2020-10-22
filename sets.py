@@ -36,7 +36,20 @@ def configuration():
         db.session.commit()
         return redirect(url_for('sets.configuration'))
     else:
-        pass
+        payload = request.get_json()
+        set_id = payload['setId'] if 'setId' in payload else None
+        land_id = payload['landId'] if 'landId' in payload else None
+
+        land = Land.query.filter_by(id=land_id).first()
+        land.set_id = None
+        db.session.add(land)
+
+        lands = Land.query.filter_by(set_id=set_id).all()
+        if len(lands) < 1:
+            Set.query.filter_by(id=set_id).delete()
+
+        db.session.commit()
+        return Response(status=200)
 
 
 @sets.route('/preflow', methods=["POST"])
@@ -82,6 +95,22 @@ def delay():
     sensor.delay = sensor_delay
 
     db.session.add(sensor)
+    db.session.commit()
+
+    return Response(status=200)
+
+
+@sets.route('/autorun', methods=["POST"])
+@login_required
+def autorun():
+    payload = request.get_json()
+    land_id = payload['landId'] if 'landId' in payload else None
+    is_checked = payload['isChecked'] if 'isChecked' in payload else None
+
+    land = Land.query.filter_by(id=land_id).first()
+    land.autorun = is_checked
+
+    db.session.add(land)
     db.session.commit()
 
     return Response(status=200)

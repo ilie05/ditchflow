@@ -60,3 +60,41 @@ const updateSensorDelay = (context) => {
         });
 }
 
+const updateLandAutorun = (context) => {
+    const landId = $(context).closest('.set-container').attr('land-id');
+    const isChecked = $(context).is(":checked");
+
+    fetch(`${MAIN_URL}/autorun`, {
+        method: 'POST',
+        headers: {
+            'Authorization': jwtToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({landId, isChecked})
+    })
+        .then(res => {
+            if (res.ok) {
+                console.log("BUN");
+            }
+        });
+}
+
+const deleteSet = (context) => {
+    const setId = $(context).closest('.set-container').attr('set-id');
+    const landId = $(context).closest('.set-container').attr('land-id');
+
+    fetch(`${MAIN_URL}/configuration`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': jwtToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({setId, landId})
+    })
+        .then(res => {
+            if (res.ok) {
+                location.reload();
+            }
+        });
+}
+

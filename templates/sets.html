@@ -40,12 +40,13 @@
     </div>
     {% for set in sets %}
         {% for land in set.lands %}
-            <div class="set-container">
+            <div class="set-container" land-id="{{ land.id }}" set-id="{{ set.id }}">
                 <span>{{ set.number }}</span>
                 <span>{{ land.number }}</span>
                 <span>
                     <label class="switch">
-                        <input type="checkbox" checked>
+                        <input type="checkbox" {{ "checked" if land.autorun else '' }}
+                               onchange="updateLandAutorun(this)">
                         <span class="slider round"></span>
                     </label>
                 </span>
@@ -76,11 +77,12 @@
                 {% endfor %}
                 </span>
                 <span>
-                {% for sensor in land.sensors %}
-                    <span sensor-id="{{ sensor.id }}">
+                    <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSet(this)"/>
+                    {% for sensor in land.sensors %}
+                        <span sensor-id="{{ sensor.id }}">
                         <input type="number" min="0" value="{{ sensor.delay }}" onfocusout="updateSensorDelay(this)"/>
                     </span>
-                {% endfor %}
+                    {% endfor %}
                 </span>
             </div>
         {% endfor %}
