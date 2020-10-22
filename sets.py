@@ -60,12 +60,13 @@ def preflow():
     preflow = payload['preflow'] if 'preflow' in payload else None
 
     valve = Valve.query.filter_by(id=valve_id).first()
-    valve.preflow = preflow
+    if str(valve.preflow) != preflow:
+        valve.preflow = preflow
+        db.session.add(valve)
+        db.session.commit()
+        return Response(status=200)
 
-    db.session.add(valve)
-    db.session.commit()
-
-    return Response(status=200)
+    return Response(status=201)
 
 
 @sets.route('/valveRun', methods=["POST"])
@@ -76,12 +77,13 @@ def valveRun():
     valve_run = payload['valveRun'] if 'valveRun' in payload else None
 
     valve = Valve.query.filter_by(id=valve_id).first()
-    valve.run = valve_run
+    if str(valve.run) != valve_run:
+        valve.run = valve_run
+        db.session.add(valve)
+        db.session.commit()
+        return Response(status=200)
 
-    db.session.add(valve)
-    db.session.commit()
-
-    return Response(status=200)
+    return Response(status=201)
 
 
 @sets.route('/delay', methods=["POST"])
@@ -92,12 +94,13 @@ def delay():
     sensor_delay = payload['delay'] if 'delay' in payload else None
 
     sensor = Sensor.query.filter_by(id=sensor_id).first()
-    sensor.delay = sensor_delay
+    if str(sensor.delay) != sensor_delay:
+        sensor.delay = sensor_delay
+        db.session.add(sensor)
+        db.session.commit()
+        return Response(status=200)
 
-    db.session.add(sensor)
-    db.session.commit()
-
-    return Response(status=200)
+    return Response(status=201)
 
 
 @sets.route('/autorun', methods=["POST"])
@@ -109,7 +112,6 @@ def autorun():
 
     land = Land.query.filter_by(id=land_id).first()
     land.autorun = is_checked
-
     db.session.add(land)
     db.session.commit()
 

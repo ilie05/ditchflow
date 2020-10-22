@@ -1,6 +1,9 @@
 const MAIN_URL = `http://${document.domain}:${location.port}`;
+const TIME_INTERVAL = 3000;
+let INTERVAL;
 
-const updateValvePreflow = (context) => {
+
+const updateValvePreflow = (context, vName) => {
     const valveId = $(context).parent().attr('valve-id');
     const preflow = $(context).val();
     if (preflow === '' || Number(preflow) < 0 || Number(preflow) > 100) return;
@@ -14,13 +17,12 @@ const updateValvePreflow = (context) => {
         body: JSON.stringify({valveId, preflow})
     })
         .then(res => {
-            if (res.ok) {
-                console.log("BUN");
-            }
+            const message = `Preflow for valve ${vName} has been updated!`;
+            updateMessageCallback(res, message);
         });
 }
 
-const updateValveRun = (context) => {
+const updateValveRun = (context, vName) => {
     const valveId = $(context).parent().attr('valve-id');
     const valveRun = $(context).val();
     if (valveRun === '' || Number(valveRun) < 0 || Number(valveRun) > 100) return;
@@ -34,13 +36,12 @@ const updateValveRun = (context) => {
         body: JSON.stringify({valveId, valveRun})
     })
         .then(res => {
-            if (res.ok) {
-                console.log("BUN");
-            }
+            const message = `Run for valve ${vName} has been updated!`;
+            updateMessageCallback(res, message);
         });
 }
 
-const updateSensorDelay = (context) => {
+const updateSensorDelay = (context, sName) => {
     const sensorId = $(context).parent().attr('sensor-id');
     const delay = $(context).val();
     if (delay === '' || Number(delay) < 0) return;
@@ -54,13 +55,12 @@ const updateSensorDelay = (context) => {
         body: JSON.stringify({sensorId, delay})
     })
         .then(res => {
-            if (res.ok) {
-                console.log("BUN");
-            }
+            const message = `Delay for sensor ${sName} has been updated!`;
+            updateMessageCallback(res, message);
         });
 }
 
-const updateLandAutorun = (context) => {
+const updateLandAutorun = (context, lNumber) => {
     const landId = $(context).closest('.set-container').attr('land-id');
     const isChecked = $(context).is(":checked");
 
@@ -73,9 +73,8 @@ const updateLandAutorun = (context) => {
         body: JSON.stringify({landId, isChecked})
     })
         .then(res => {
-            if (res.ok) {
-                console.log("BUN");
-            }
+            const message = `Autorun for land ${lNumber} is ${isChecked ? 'ON' : 'OFF'}!`;
+            updateMessageCallback(res, message);
         });
 }
 
@@ -98,3 +97,12 @@ const deleteSet = (context) => {
         });
 }
 
+const updateMessageCallback = (res, message) => {
+    const updateMessage = $('#update-message');
+    if (res.status === 200) {
+        updateMessage.text(message);
+        updateMessage.show();
+        clearInterval(INTERVAL);
+        INTERVAL = setInterval(() => updateMessage.hide(), TIME_INTERVAL);
+    }
+}

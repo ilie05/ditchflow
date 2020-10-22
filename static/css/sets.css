@@ -14,7 +14,11 @@ input[type=number] {
 
 .add-set-container > div {
     width: 20%;
-    margin: 0 20px;
+    margin-right: 20px;
+}
+
+.add-set-container button {
+    width: 10%;
 }
 
 .add-set-container button {
@@ -24,8 +28,8 @@ input[type=number] {
 .set-container-header {
     display: flex;
     justify-content: space-between;
-    padding: 10px;
-    margin: 10px 5px;
+    padding: 10px 45px 10px 10px;
+    margin: 10px 0;
     color: #adb5bd;
 }
 
@@ -85,11 +89,11 @@ input[type=number] {
 }
 
 input:checked + .slider {
-    background-color: #2196F3;
+    background-color: black;
 }
 
 input:focus + .slider {
-    box-shadow: 0 0 1px #2196F3;
+    box-shadow: 0 0 1px black;
 }
 
 input:checked + .slider:before {
@@ -117,4 +121,24 @@ input:checked + .slider:before {
 
 .delete-card:hover {
     cursor: pointer;
+}
+
+@media only screen
+and (min-device-width: 768px)
+and (max-device-width: 1024px) {
+    .add-set-container > div {
+        width: 100%;
+        margin-right: 20px;
+    }
+
+    .add-set-container button {
+        width: 50%;
+    }
+}
+
+#update-message {
+    margin: -7px 0 0 10px;
+    color: greenyellow;
+    position: absolute;
+    display: none;
 }

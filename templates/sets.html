@@ -5,7 +5,7 @@
     </script>
     <script src="../static/js/sets.js"></script>
     <link rel="stylesheet" href="../static/css/sets.css"/>
-    <form method="post" style="display: block">
+    <form method="post">
         <div class="add-set-container">
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
@@ -18,7 +18,7 @@
                     <label class="input-group-text">Lands</label>
                 </div>
                 <select class="custom-select" name="land_id" required>
-                    <option value="">Choose land</option>
+                    <option value="">Choose</option>
                     {% for item in lands %}
                         <option value="{{ item.id }}">{{ item.number }}</option>
                     {% endfor %}
@@ -27,6 +27,8 @@
             <button type="submit" class="btn btn-success btn-sm">Add set</button>
         </div>
     </form>
+
+    <div id="update-message">asdasdasd asdasd asd</div>
 
     <div class="set-container-header">
         <span>Set</span>
@@ -46,7 +48,7 @@
                 <span>
                     <label class="switch">
                         <input type="checkbox" {{ "checked" if land.autorun else '' }}
-                               onchange="updateLandAutorun(this)">
+                               onchange="updateLandAutorun(this, '{{ land.number }}')">
                         <span class="slider round"></span>
                     </label>
                 </span>
@@ -59,7 +61,7 @@
                 {% for valve in land.valves %}
                     <span valve-id="{{ valve.id }}">
                         <input type="number" min="0" max="100" value="{{ valve.preflow }}"
-                               onfocusout="updateValvePreflow(this)"/>
+                               onfocusout="updateValvePreflow(this, '{{ valve.name }}')"/>
                     </span>
                 {% endfor %}
                 </span>
@@ -67,7 +69,7 @@
                 {% for valve in land.valves %}
                     <span valve-id="{{ valve.id }}">
                         <input type="number" min="0" max="100" value="{{ valve.run }}"
-                               onfocusout="updateValveRun(this)"/>
+                               onfocusout="updateValveRun(this, '{{ valve.name }}')"/>
                     </span>
                 {% endfor %}
                 </span>
@@ -80,7 +82,8 @@
                     <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSet(this)"/>
                     {% for sensor in land.sensors %}
                         <span sensor-id="{{ sensor.id }}">
-                        <input type="number" min="0" value="{{ sensor.delay }}" onfocusout="updateSensorDelay(this)"/>
+                        <input type="number" min="0" value="{{ sensor.delay }}"
+                               onfocusout="updateSensorDelay(this, '{{ sensor.name }}')"/>
                     </span>
                     {% endfor %}
                 </span>
