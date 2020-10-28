@@ -106,3 +106,21 @@ const updateMessageCallback = (res, message) => {
         INTERVAL = setInterval(() => updateMessage.hide(), TIME_INTERVAL);
     }
 }
+
+const updateLandDelay = (context, landId) => {
+    const delay = $(context).val();
+    if (delay === '' || Number(delay) < 0) return;
+
+    fetch(`${MAIN_URL}/landdelay`, {
+        method: 'POST',
+        headers: {
+            'Authorization': jwtToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({landId, delay})
+    })
+        .then(res => {
+            const message = `Land delay has been updated!`;
+            updateMessageCallback(res, message);
+        });
+}

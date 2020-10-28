@@ -82,6 +82,7 @@ class Land(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     number = db.Column(db.Integer, unique=True)
     autorun = db.Column(db.Boolean, default=True)
+    delay = db.Column(db.Integer, default=5)
     set_id = db.Column(db.Integer, db.ForeignKey('set.id'))
 
     serialize_rules = ('-sensors.land', '-valves.land',)

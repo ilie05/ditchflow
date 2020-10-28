@@ -116,3 +116,18 @@ def autorun():
     db.session.commit()
 
     return Response(status=200)
+
+
+@sets.route('/landdelay', methods=["POST"])
+@login_required
+def landdelay():
+    payload = request.get_json()
+    land_id = payload['landId'] if 'landId' in payload else None
+    land_delay = payload['delay'] if 'delay' in payload else None
+
+    land = Land.query.filter_by(id=land_id).first()
+    land.delay = land_delay
+    db.session.add(land)
+    db.session.commit()
+
+    return Response(status=200)

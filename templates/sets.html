@@ -35,10 +35,10 @@
         <span>Land</span>
         <span>Autorun</span>
         <span>Valve</span>
-        <span>Preflow %</span>
-        <span>Run %</span>
+        <span>Preflow (%)</span>
+        <span>Run (%)</span>
         <span>Sensors</span>
-        <span>Delay</span>
+        <span>Delay (min)</span>
     </div>
     {% for set in sets %}
         {% for land in set.lands %}
@@ -66,20 +66,30 @@
                 {% endfor %}
                 </span>
                 <span>
-                {% for valve in land.valves %}
-                    <span valve-id="{{ valve.id }}">
+                    {% if not land.valves %}
+                        -------
+                    {% endif %}
+                    {% for valve in land.valves %}
+                        <span valve-id="{{ valve.id }}">
                         <input type="number" min="0" max="100" value="{{ valve.run }}"
                                onfocusout="updateValveRun(this, '{{ valve.name }}')"/>
                     </span>
-                {% endfor %}
+                    {% endfor %}
                 </span>
                 <span>
-                {% for sensor in land.sensors %}
-                    <p>{{ sensor.name }}</p>
-                {% endfor %}
+                    {% if not land.sensors %}
+                        -------
+                    {% endif %}
+                    {% for sensor in land.sensors %}
+                        <p>{{ sensor.name }}</p>
+                    {% endfor %}
                 </span>
                 <span>
                     <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSet(this)"/>
+                    {% if not land.sensors %}
+                        <input type="number" min="0" value="{{ land.delay }}"
+                               onfocusout="updateLandDelay(this, '{{ land.id }}')"/>
+                    {% endif %}
                     {% for sensor in land.sensors %}
                         <span sensor-id="{{ sensor.id }}">
                         <input type="number" min="0" value="{{ sensor.delay }}"
