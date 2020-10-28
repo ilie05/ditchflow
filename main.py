@@ -119,3 +119,9 @@ def messages():
                 db_message.message = message
                 db.session.commit()
         return redirect(url_for('main.messages'))
+
+
+@main.route('/calibrate', methods=['POST'])
+@login_required
+def calibrate():
+    return Response(status=200)

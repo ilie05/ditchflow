@@ -7,13 +7,31 @@
 .vActuatorSetPosition span button {
     margin-bottom: 5px;
 }
+
 .vActuatorSetPosition span input {
     background-color: gray;
     width: 60%;
 }
 
-.card-info{
+.card-info {
     margin-top: 575px;
+}
+
+.calibrate {
+    display: flex;
+}
+
+.calibrate button {
+    margin-left: 40px;
+    background-image: linear-gradient(-90deg, #4c4c4c, #2F4F4F);
+}
+
+.calibrate .calib-message {
+    display: none;
+    padding-top: 7px;
+    margin-left: 20px;
+    font-size: 14px;
+    color: chartreuse;
 }
 
 @media only screen
@@ -21,5 +39,13 @@ and (min-device-width: 768px)
 and (max-device-width: 1024px) {
     .flip-card-container {
         width: 600px;
+    }
+
+    .calibrate {
+        margin-top: 10px;
+    }
+
+    .calibrate button {
+        margin-left: 120px;
     }
 }

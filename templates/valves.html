@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="../static/css/card-valves.css"/>
     <script src="../static/js/socket.io.js"></script>
     <script src="../static/js/valves.js"></script>
+    <div class="calibrate">
+        <button type="button" class="btn btn-secondary" onclick="calibrateValves()">Calibrate valves</button>
+        <span class="calib-message"></span>
+    </div>
     <div class="cards-container">
         {% for item in valves %}
             <div class="flip-card-container" itemid={{ item.id }}>
@@ -18,19 +22,22 @@
                             <li class="vSetNumber">Set Number:</li>
                             <li>
                                 <span>
-                                    <label>Land Number: </label> <br/> <input type="number" value="{{ item.land.number }}"
+                                    <label>Land Number: </label> <br/> <input type="number"
+                                                                              value="{{ item.land.number }}"
                                                                               onfocusout="updateLandNumber(this)"/>
                                 </span>
                             </li>
                             <li class="vStatus">Status: {{ 'ONLINE' if item.status else 'OFFLINE' }}</li>
-                            <li class="vActuatorStatus">Actuator Status: {{ item.actuator_status if item.status else '---' }}</li>
+                            <li class="vActuatorStatus">Actuator
+                                Status: {{ item.actuator_status if item.status else '---' }}</li>
                             <li class="vActuatorActualPosition">Actuator Actual
                                 Position: {{ '---' if not item.status or item.actuator_status == 'Moving' else '{}%'.format(item.actuator_position) }}</li>
                             <li class="vActuatorSetPosition">
                                 <span>
                                     <label>Actuator Set Position: </label>
                                     <input type="number" min="0" max="100"/>
-                                    <button style="display: {{ '' if item.status else 'none' }}" class="btn btn-link" onclick="sendPosition(this)">Send</button>
+                                    <button style="display: {{ '' if item.status else 'none' }}" class="btn btn-link"
+                                            onclick="sendPosition(this)">Send</button>
                                 </span>
                             </li>
                             <li class="vBattery">Battery

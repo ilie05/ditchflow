@@ -99,3 +99,27 @@ const sendPosition = (context) => {
     }
     console.log((position));
 }
+
+let INTERVAL;
+const calibrateValves = () => {
+    const message = $('.calibrate .calib-message');
+
+    message.text('Calibration started!');
+    message.show();
+    fetch(`${MAIN_URL}/calibrate`, {
+        method: 'POST',
+        headers: {
+            'Authorization': jwtToken,
+        },
+    }).then(res => {
+        if (res.ok) message.text('Calibration finished successful!');
+        else message.text('Calibration failed!');
+
+        clearInterval(INTERVAL);
+        INTERVAL = setInterval(() => message.hide(), 3000);
+    }).catch(err => {
+        message.text('Calibration failed!');
+        clearInterval(INTERVAL);
+        INTERVAL = setInterval(() => message.hide(), 3000);
+    })
+}
