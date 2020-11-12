@@ -14,7 +14,7 @@
                         <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSensor(this)"/>
                         <ul>
                             <li class="sName">Sensor Name: {{ item.name }}</li>
-                            <li class="sSetNumber">Set Number:</li>
+                            <li class="sSetNumber">Set Number: {{ item.land.set.number }}</li>
                             <li>
                                 <span>
                                     <label>Land Number: </label> <br/> <input type="number" value="{{ item.land.number }}"

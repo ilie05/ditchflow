@@ -2,7 +2,7 @@ import jwt
 from flask import Blueprint, render_template, request, url_for, redirect, flash, current_app, Response
 from flask_login import login_required, current_user
 from database import db
-from models import Sensor, Message, Valve, LabelMessage, Land
+from models import Sensor, Message, Valve, LabelMessage, Land, Check
 from utils import validate_message, validate_labels, write_settings
 
 main = Blueprint('main', __name__)
@@ -77,6 +77,24 @@ def valve():
         valve_id = payload['valveId'] if 'valveId' in payload else None
 
         Valve.query.filter_by(id=valve_id).delete()
+        db.session.commit()
+
+        return Response(status=200)
+
+
+@main.route('/checks', methods=['GET', 'DELETE'])
+@login_required
+def check():
+    if request.method == 'GET':
+        checks = Check.query.all()
+        token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
+                           algorithm='HS256').decode()
+        return render_template('checks.html', checks=checks, jwt_token=str(token))
+    else:
+        payload = request.get_json()
+        check_id = payload['checkId'] if 'checkId' in payload else None
+
+        Check.query.filter_by(id=check_id).delete()
         db.session.commit()
 
         return Response(status=200)

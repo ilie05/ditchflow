@@ -100,9 +100,14 @@ def mock_device_data():
                     {'address': 'address2', 'name': 'valve2'}, {'address': 'address3', 'name': 'valve3'},
                     {'address': 'address4', 'name': 'valve4'}, {'address': 'address5', 'name': 'valve5'}]
 
-    mess_type = random.choice([True, False])
+    checks_mocks = [{'address': 'address0', 'name': 'check0'}, {'address': 'address1', 'name': 'check1'},
+                    {'address': 'address2', 'name': 'check2'}, {'address': 'address3', 'name': 'check3'},
+                    {'address': 'address4', 'name': 'check4'}, {'address': 'address5', 'name': 'check5'}]
 
-    if mess_type:
+    stats = ['Idle', 'Moving', 'Error']
+    mess_type = random.choice(['s', 'v', 'c'])
+
+    if mess_type == 's':
         # generate sensor data
         idx = random.randrange(len(sensors_mocks))
 
@@ -115,8 +120,7 @@ def mock_device_data():
         address = sensors_mocks[idx]['address']
 
         return address, f'S,{name},{float},{battery},{temperature},{water}'
-    else:
-        stats = ['Idle', 'Moving', 'Error']
+    elif mess_type == 'v':
         # generate valve data
         idx = random.randrange(len(valves_mocks))
 
@@ -130,6 +134,20 @@ def mock_device_data():
         address = valves_mocks[idx]['address']
 
         return address, f'V,{name},{actuator_status},{actuator_position},{battery},{temperature},{water}'
+    elif mess_type == 'c':
+        # generate check data
+        idx = random.randrange(len(checks_mocks))
+
+        name = checks_mocks[idx]['name']
+        actuator_status_idx = random.randrange(len(stats))
+        actuator_status = stats[actuator_status_idx]
+        actuator_position = random.randrange(0, 100)
+        battery = random.randrange(90, 130)
+        temperature = random.randrange(800, 1200)
+        water = random.randrange(0, 1200)
+        address = checks_mocks[idx]['address']
+
+        return address, f'C,{name},{actuator_status},{actuator_position},{battery},{temperature},{water}'
 
 
 def check_email(email):

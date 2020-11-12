@@ -14,7 +14,9 @@ def configuration():
         token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                            algorithm='HS256').decode()
         lands = Land.query.filter_by(set_id=None).order_by(Land.number).all()
+        lands = list(filter(lambda l: len(l.sensors) > 0 or len(l.valves) > 0, lands))
         sets = [s.to_dict() for s in Set.query.all()]
+
         return render_template('sets.html', lands=lands, sets=sets, jwt_token=str(token))
     elif request.method == 'POST':
         try:

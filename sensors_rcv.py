@@ -1,6 +1,6 @@
 from flaskthreads import AppContextThread
 from digi.xbee.devices import XBeeDevice
-from models import Sensor, Valve, Land
+from models import Sensor, Valve, Land, Check
 import datetime
 import serial
 from flask import current_app
@@ -90,6 +90,46 @@ def create_update_valve(message, address):
         return {'id': valve.id, 'name': name, 'last_update': str(current_time), 'battery': battery,
                 'actuator_status': actuator_status, 'actuator_position': actuator_position,
                 'temperature': temperature, 'water': water}, valve
+    except Exception as e:
+        print(e)
+        print("INVALID DATA FROM VALVES")
+
+
+def create_update_check(message, address):
+    check = Check.query.filter_by(address=address).first()
+    current_time = datetime.datetime.now().replace(microsecond=0)
+
+    try:
+        name = message[0]
+        actuator_status = message[1]
+        actuator_position = int(message[2])
+        battery = int(message[3]) / 10
+        temperature = int(message[4]) / 10
+        water = int(message[5]) / 10
+
+        if water < 0 or water > 99.9:
+            water = None
+
+        if not check:
+            # does not exist, create one
+            check = Check(name=name, battery=battery, actuator_status=actuator_status,
+                          actuator_position=actuator_position, temperature=temperature, water=water, address=address,
+                          last_update=current_time)
+            db.session.add(check)
+        else:
+            # exists, update the name and the date
+            check.name = name
+            check.status = True
+            check.actuator_status = actuator_status
+            check.actuator_position = actuator_position
+            check.battery = battery
+            check.temperature = temperature
+            check.water = water
+            check.last_update = current_time
+        db.session.commit()
+        return {'id': check.id, 'name': name, 'last_update': str(current_time), 'battery': battery,
+                'actuator_status': actuator_status, 'actuator_position': actuator_position,
+                'temperature': temperature, 'water': water}, check
     except Exception as e:
         print(e)
         print("INVALID DATA FROM VALVES")
@@ -256,6 +296,8 @@ def receive_sensor_data_test(socket_io):
                     notified_valve_water_ids.remove(valve.id)
 
             socket_io.emit('valve_notification', data_to_send, namespace='/notification')
+        elif mess_type == 'C':
+            data_to_send, check = create_update_check(message, dev_address)
         else:
             raise Exception("Invalid data type from XBee Module")
 

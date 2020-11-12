@@ -97,6 +97,31 @@ class Set(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     number = db.Column(db.Integer, unique=True)
 
-    serialize_rules = ('-lands.set',)
+    serialize_rules = ('-lands.set', '-checks.set',)
 
     lands = db.relationship("Land", backref='set')
+    checks = db.relationship("Check", backref='set')
+
+
+class Check(db.Model, SerializerMixin):
+    __tablename__ = 'check'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True)
+    set_id = db.Column(db.Integer, db.ForeignKey('set.id'))
+    status = db.Column(db.Boolean, default=True)
+    actuator_status = db.Column(db.String(100))
+    actuator_position = db.Column(db.Integer)
+    battery = db.Column(db.Float)
+    temperature = db.Column(db.Float)
+    water = db.Column(db.Float)
+    start = db.Column(db.Integer, default=10)
+    run = db.Column(db.Integer, default=90)
+    before_after = db.Column(db.Boolean, default=True)
+    address = db.Column(db.String(100), unique=True)
+    last_update = db.Column(db.DateTime)
+
+# open time for valve: set, land, valve , time
+# tripping time for sensor: set, land, sensor, time_
+
+# set, autorun, check, start(%), run(%), before/after

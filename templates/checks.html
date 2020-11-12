@@ -6,33 +6,26 @@
     <link rel="stylesheet" href="../static/css/card-sensors.css"/>
     <link rel="stylesheet" href="../static/css/card-valves.css"/>
     <script src="../static/js/socket.io.js"></script>
-    <script src="../static/js/valves.js"></script>
+    <script src="../static/js/checks.js"></script>
     <div class="calibrate">
-        <button type="button" class="btn btn-secondary" onclick="calibrateValves()">Calibrate valves</button>
+        <button type="button" class="btn btn-secondary" onclick="calibrateChecks()">Calibrate checks</button>
         <span class="calib-message"></span>
     </div>
     <div class="cards-container">
-        {% for item in valves %}
+        {% for item in checks %}
             <div class="flip-card-container" itemid={{ item.id }}>
                 <div class="flip-card">
                     <div class="card-front {{ 'offline-indicator' if not item.status }}">
                         <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSensor(this)"/>
                         <ul>
-                            <li class="vName">Valve Name: {{ item.name }}</li>
-                            <li class="vSetNumber">Set Number: {{ item.land.set.number }}</li>
-                            <li>
-                                <span>
-                                    <label>Land Number: </label> <br/> <input type="number"
-                                                                              value="{{ item.land.number }}"
-                                                                              onfocusout="updateLandNumber(this)"/>
-                                </span>
-                            </li>
-                            <li class="vStatus">Status: {{ 'ONLINE' if item.status else 'OFFLINE' }}</li>
-                            <li class="vActuatorStatus">Actuator
+                            <li class="cName">Check Name: {{ item.name }}</li>
+                            <li class="cSetNumber">Set Number: {{ item.set.number }}</li>
+                            <li class="cStatus">Status: {{ 'ONLINE' if item.status else 'OFFLINE' }}</li>
+                            <li class="cActuatorStatus">Actuator
                                 Status: {{ item.actuator_status if item.status else '---' }}</li>
-                            <li class="vActuatorActualPosition">Actuator Actual
+                            <li class="cActuatorActualPosition">Actuator Actual
                                 Position: {{ '---' if not item.status or item.actuator_status == 'Moving' else '{}%'.format(item.actuator_position) }}</li>
-                            <li class="vActuatorSetPosition">
+                            <li class="cActuatorSetPosition">
                                 <span>
                                     <label>Actuator Set Position: </label>
                                     <input type="number" min="0" max="100"/>
@@ -40,15 +33,15 @@
                                             onclick="sendPosition(this)">Send</button>
                                 </span>
                             </li>
-                            <li class="vBattery">Battery
+                            <li class="cBattery">Battery
                                 Voltage: {{ '{0} V'.format(item.battery) if item.status else '---' }}</li>
-                            <li class="vTemperature">
+                            <li class="cTemperature">
                                 Temperature: {{ '{0} °F'.format(item.temperature) if item.status else '---' }} </li>
-                            <li class="vWater">Water
+                            <li class="cWater">Water
                                 Level: {{ '{0} inches'.format(item.water) if item.status and item.water else '---' }} </li>
-                            <li class="vLastSeen">Last seen: {{ item.last_update }}</li>
+                            <li class="cLastSeen">Last seen: {{ item.last_update }}</li>
                         </ul>
-                        <span class="card-info">Land number updated</span>
+                        <span class="card-info">Set number updated</span>
                     </div>
                 </div>
             </div>
