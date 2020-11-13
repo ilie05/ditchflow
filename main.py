@@ -2,7 +2,7 @@ import jwt
 from flask import Blueprint, render_template, request, url_for, redirect, flash, current_app, Response
 from flask_login import login_required, current_user
 from database import db
-from models import Sensor, Message, Valve, LabelMessage, Land, Check
+from models import Sensor, Message, Valve, LabelMessage, Land, Check, Set
 from utils import validate_message, validate_labels, write_settings
 
 main = Blueprint('main', __name__)
@@ -82,14 +82,25 @@ def valve():
         return Response(status=200)
 
 
-@main.route('/checks', methods=['GET', 'DELETE'])
+@main.route('/checks', methods=['GET', 'POST', 'DELETE'])
 @login_required
 def check():
     if request.method == 'GET':
         checks = Check.query.all()
+        sets = Set.query.all()
         token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                            algorithm='HS256').decode()
-        return render_template('checks.html', checks=checks, jwt_token=str(token))
+        return render_template('checks.html', checks=checks, sets=sets, jwt_token=str(token))
+    elif request.method == 'POST':
+        # update land number
+        payload = request.get_json()
+        check_id = payload['checkId'] if 'checkId' in payload else None
+        set_id = payload['setId'] if 'setId' in payload else None
+
+        check = Check.query.filter_by(id=check_id).first()
+        check.set_id = set_id
+        db.session.commit()
+        return Response(status=200)
     else:
         payload = request.get_json()
         check_id = payload['checkId'] if 'checkId' in payload else None

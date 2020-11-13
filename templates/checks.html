@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
+    <link rel="stylesheet" href="../static/bootstrap4/css/bootstrap-select.min.css">
+    <script src="../static/bootstrap4/js/bootstrap-select.min.js"></script>
     <script type="text/javascript">
         const jwtToken = "{{ jwt_token }}";
     </script>
@@ -16,10 +18,21 @@
             <div class="flip-card-container" itemid={{ item.id }}>
                 <div class="flip-card">
                     <div class="card-front {{ 'offline-indicator' if not item.status }}">
-                        <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSensor(this)"/>
+                        <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteCheck(this)"/>
                         <ul>
                             <li class="cName">Check Name: {{ item.name }}</li>
-                            <li class="cSetNumber">Set Number: {{ item.set.number }}</li>
+                            <li class="cSetNumber"><span>Set Number:</span>
+                                <select class="selectpicker show-tick" data-style="btn-info" onchange="updateSetNumber(this)">
+                                    <option value=""> {{ "Select" }}</option>
+                                    {% for s in sets %}
+                                        {% if s.id == item.set_id %}
+                                            <option value="{{ s.id }}" selected>{{ s.number }}</option>
+                                        {% else %}
+                                            <option value="{{ s.id }}">{{ s.number }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </li>
                             <li class="cStatus">Status: {{ 'ONLINE' if item.status else 'OFFLINE' }}</li>
                             <li class="cActuatorStatus">Actuator
                                 Status: {{ item.actuator_status if item.status else '---' }}</li>

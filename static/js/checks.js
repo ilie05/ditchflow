@@ -50,7 +50,7 @@ socket.on('goOfflineCheck', function (id) {
 
 const MAIN_URL = `http://${document.domain}:${location.port}`;
 
-const deleteSensor = (context) => {
+const deleteCheck = (context) => {
     const card = $(context).closest(".flip-card-container");
     const checkId = card.attr('itemid');
     fetch(`${MAIN_URL}/checks`, {
@@ -68,19 +68,18 @@ const deleteSensor = (context) => {
         });
 }
 
-const updateLandNumber = (context) => {
+const updateSetNumber = (context) => {
     const card = $(context).closest(".flip-card-container");
-    const valveId = card.attr('itemid');
-    const landNumber = $(context).val();
-    if (!landNumber) return
+    const checkId = card.attr('itemid');
+    const setId = $(context).val();
 
-    fetch(`${MAIN_URL}/valves`, {
+    fetch(`${MAIN_URL}/checks`, {
         method: 'POST',
         headers: {
             'Authorization': jwtToken,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({valveId, landNumber})
+        body: JSON.stringify({checkId, setId})
     })
         .then(res => {
             if (res.ok) {

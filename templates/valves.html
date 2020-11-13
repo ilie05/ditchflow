@@ -16,7 +16,7 @@
             <div class="flip-card-container" itemid={{ item.id }}>
                 <div class="flip-card">
                     <div class="card-front {{ 'offline-indicator' if not item.status }}">
-                        <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSensor(this)"/>
+                        <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteValve(this)"/>
                         <ul>
                             <li class="vName">Valve Name: {{ item.name }}</li>
                             <li class="vSetNumber">Set Number: {{ item.land.set.number }}</li>

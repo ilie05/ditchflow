@@ -8,7 +8,7 @@
     margin-bottom: 5px;
 }
 
-.vActuatorSetPosition span input {
+.vActuatorSetPosition span input, .cActuatorSetPosition span input {
     background-color: gray;
     width: 60%;
 }
@@ -48,4 +48,12 @@ and (max-device-width: 1024px) {
     .calibrate button {
         margin-left: 120px;
     }
+}
+
+.cSetNumber > div {
+    width: 120px !important;
+}
+
+.cSetNumber > span {
+    padding-top: 8px;
 }

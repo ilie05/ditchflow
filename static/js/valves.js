@@ -50,7 +50,7 @@ socket.on('goOfflineValve', function (id) {
 
 const MAIN_URL = `http://${document.domain}:${location.port}`;
 
-const deleteSensor = (context) => {
+const deleteValve = (context) => {
     const card = $(context).closest(".flip-card-container");
     const valveId = card.attr('itemid');
     fetch(`${MAIN_URL}/valves`, {
