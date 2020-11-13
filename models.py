@@ -96,6 +96,7 @@ class Set(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     number = db.Column(db.Integer, unique=True)
+    autorun = db.Column(db.Boolean, default=True)
 
     serialize_rules = ('-lands.set', '-checks.set',)
 

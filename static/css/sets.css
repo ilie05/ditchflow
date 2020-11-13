@@ -64,6 +64,16 @@ input[type=number] {
     margin-bottom: 1rem;
 }
 
+.set-container.checks > span:last-child{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.set-container-header.checks{
+    margin-top: 60px;
+}
+
 .switch {
     position: relative;
     display: inline-block;
@@ -130,6 +140,10 @@ input:checked + .slider:before {
     position: absolute;
     margin-left: 70px;
     margin-top: -10px;
+}
+
+.checks .delete-card{
+    margin-left: 215px;
 }
 
 .delete-card:hover {

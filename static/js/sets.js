@@ -3,40 +3,44 @@ const TIME_INTERVAL = 3000;
 let INTERVAL;
 
 
-const updateValvePreflow = (context, vName) => {
-    const valveId = $(context).parent().attr('valve-id');
-    const preflow = $(context).val();
-    if (preflow === '' || Number(preflow) < 0 || Number(preflow) > 100) return;
+const updateStartPreflow = (context, Name, t) => {
+    let fieldVal = $(context).val(), objId;
 
-    fetch(`${MAIN_URL}/preflow`, {
+    if (t === 'v') objId = $(context).parent().attr('valve-id');
+    else if (t === 'c') objId = $(context).parent().attr('check-id');
+
+    if (fieldVal === '' || Number(fieldVal) < 0 || Number(fieldVal) > 100) return;
+
+    fetch(`${MAIN_URL}/startpreflow`, {
         method: 'POST',
         headers: {
             'Authorization': jwtToken,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({valveId, preflow})
+        body: JSON.stringify({objId, fieldVal, t})
     })
         .then(res => {
-            const message = `Preflow for valve ${vName} has been updated!`;
+            const message = ` ${t === 'v' ? 'Preflow for valve' : 'Start for check'} ${Name} has been updated!`;
             updateMessageCallback(res, message);
         });
 }
 
-const updateValveRun = (context, vName) => {
-    const valveId = $(context).parent().attr('valve-id');
-    const valveRun = $(context).val();
-    if (valveRun === '' || Number(valveRun) < 0 || Number(valveRun) > 100) return;
+const updateRun = (context, Name, t) => {
+    let run = $(context).val(), objId;
+    if (t === 'v') objId = $(context).parent().attr('valve-id');
+    else if (t === 'c') objId = $(context).parent().attr('check-id');
+    if (run === '' || Number(run) < 0 || Number(run) > 100) return;
 
-    fetch(`${MAIN_URL}/valveRun`, {
+    fetch(`${MAIN_URL}/run`, {
         method: 'POST',
         headers: {
             'Authorization': jwtToken,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({valveId, valveRun})
+        body: JSON.stringify({objId, run, t})
     })
         .then(res => {
-            const message = `Run for valve ${vName} has been updated!`;
+            const message = `Run for ${t === 'v' ? 'valve' : 'check'} ${Name} has been updated!`;
             updateMessageCallback(res, message);
         });
 }
@@ -60,9 +64,10 @@ const updateSensorDelay = (context, sName) => {
         });
 }
 
-const updateLandAutorun = (context, lNumber) => {
-    const landId = $(context).closest('.set-container').attr('land-id');
-    const isChecked = $(context).is(":checked");
+const updateAutorun = (context, Number, t) => {
+    let isChecked = $(context).is(":checked"), objId;
+    if (t === 'v') objId = $(context).closest('.set-container').attr('land-id');
+    else if (t === 'c') objId = $(context).closest('.set-container').attr('set-id');
 
     fetch(`${MAIN_URL}/autorun`, {
         method: 'POST',
@@ -70,10 +75,10 @@ const updateLandAutorun = (context, lNumber) => {
             'Authorization': jwtToken,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({landId, isChecked})
+        body: JSON.stringify({objId, isChecked, t})
     })
         .then(res => {
-            const message = `Autorun for land ${lNumber} is ${isChecked ? 'ON' : 'OFF'}!`;
+            const message = `Autorun for ${t === 'v' ? 'land' : 'set'} ${Number} is ${isChecked ? 'ON' : 'OFF'}!`;
             updateMessageCallback(res, message);
         });
 }
@@ -121,6 +126,23 @@ const updateLandDelay = (context, landId) => {
     })
         .then(res => {
             const message = `Land delay has been updated!`;
+            updateMessageCallback(res, message);
+        });
+}
+
+const updateBeforeAfter = (context, objId, Name) => {
+    let isChecked = $(context).is(":checked");
+
+    fetch(`${MAIN_URL}/beforeafter`, {
+        method: 'POST',
+        headers: {
+            'Authorization': jwtToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({objId, isChecked})
+    })
+        .then(res => {
+            const message = `Before/After for check ${Name} is ${isChecked ? 'ON' : 'OFF'}!`;
             updateMessageCallback(res, message);
         });
 }

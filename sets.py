@@ -2,7 +2,7 @@ import jwt
 from flask import Blueprint, render_template, request, url_for, redirect, current_app, Response
 from flask_login import login_required, current_user
 from database import db
-from models import Land, Set, Valve, Sensor
+from models import Land, Set, Valve, Sensor, Check
 
 sets = Blueprint('sets', __name__)
 
@@ -54,34 +54,51 @@ def configuration():
         return Response(status=200)
 
 
-@sets.route('/preflow', methods=["POST"])
+@sets.route('/startpreflow', methods=["POST"])
 @login_required
-def preflow():
+def startpreflow():
     payload = request.get_json()
-    valve_id = payload['valveId'] if 'valveId' in payload else None
-    preflow = payload['preflow'] if 'preflow' in payload else None
+    t = payload['t'] if 't' in payload else None
+    obj_id = payload['objId'] if 'objId' in payload else None
+    field_val = payload['fieldVal'] if 'fieldVal' in payload else None
 
-    valve = Valve.query.filter_by(id=valve_id).first()
-    if str(valve.preflow) != preflow:
-        valve.preflow = preflow
-        db.session.add(valve)
-        db.session.commit()
-        return Response(status=200)
+    if t == 'v':
+        obj = Valve.query.filter_by(id=obj_id).first()
+        if str(obj.preflow) != field_val:
+            obj.preflow = field_val
+            db.session.add(obj)
+            db.session.commit()
+            return Response(status=200)
+    elif t == 'c':
+        obj = Check.query.filter_by(id=obj_id).first()
+        if str(obj.start) != field_val:
+            obj.start = field_val
+            db.session.add(obj)
+            db.session.commit()
+            return Response(status=200)
+    else:
+        return Response(status=404)
 
     return Response(status=201)
 
 
-@sets.route('/valveRun', methods=["POST"])
+@sets.route('/run', methods=["POST"])
 @login_required
-def valveRun():
+def run():
     payload = request.get_json()
-    valve_id = payload['valveId'] if 'valveId' in payload else None
-    valve_run = payload['valveRun'] if 'valveRun' in payload else None
+    t = payload['t'] if 't' in payload else None
+    obj_id = payload['objId'] if 'objId' in payload else None
+    run = payload['run'] if 'run' in payload else None
 
-    valve = Valve.query.filter_by(id=valve_id).first()
-    if str(valve.run) != valve_run:
-        valve.run = valve_run
-        db.session.add(valve)
+    if t == 'v':
+        obj = Valve.query.filter_by(id=obj_id).first()
+    elif t == 'c':
+        obj = Check.query.filter_by(id=obj_id).first()
+    else:
+        return Response(status=404)
+    if str(obj.run) != run:
+        obj.run = run
+        db.session.add(obj)
         db.session.commit()
         return Response(status=200)
 
@@ -109,12 +126,34 @@ def delay():
 @login_required
 def autorun():
     payload = request.get_json()
-    land_id = payload['landId'] if 'landId' in payload else None
+    t = payload['t'] if 't' in payload else None
+    obj_id = payload['objId'] if 'objId' in payload else None
     is_checked = payload['isChecked'] if 'isChecked' in payload else None
 
-    land = Land.query.filter_by(id=land_id).first()
-    land.autorun = is_checked
-    db.session.add(land)
+    if t == 'v':
+        obj = Land.query.filter_by(id=obj_id).first()
+    elif t == 'c':
+        obj = Set.query.filter_by(id=obj_id).first()
+    else:
+        return Response(status=404)
+
+    obj.autorun = is_checked
+    db.session.add(obj)
+    db.session.commit()
+
+    return Response(status=200)
+
+
+@sets.route('/beforeafter', methods=["POST"])
+@login_required
+def beforeafter():
+    payload = request.get_json()
+    obj_id = payload['objId'] if 'objId' in payload else None
+    is_checked = payload['isChecked'] if 'isChecked' in payload else None
+
+    check = Check.query.filter_by(id=obj_id).first()
+    check.before_after = is_checked
+    db.session.add(check)
     db.session.commit()
 
     return Response(status=200)
