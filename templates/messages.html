@@ -21,8 +21,11 @@
     <form method="post">
         {% for message in messages %}
             <div class="form-group">
-                <label>{{ message.mess_type[0] | upper }}{{ message.mess_type[1:] }} {{ message.name[0] | upper }}{{ message.name[1:] }} Message</label>
-                <input class="form-control" name="{{ '{}_{}'.format(message.name, message.mess_type) }}" value="{{ message.message }}">
+                <label>
+                    {{ message.mess_type[0] | upper }}{{ message.mess_type[1:] }}{{ '/Check' if message.mess_type == 'valve' }}
+                    {{ message.name[0] | upper }}{{ message.name[1:] }} Message</label>
+                <input class="form-control" name="{{ '{}_{}'.format(message.name, message.mess_type) }}"
+                       value="{{ message.message }}">
             </div>
         {% endfor %}
         <button type="submit" class="btn btn-primary">Save</button>

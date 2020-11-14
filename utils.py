@@ -4,7 +4,7 @@ import re
 import json
 import os
 import time
-from models import Land
+from models import Land, Check
 from database import db
 
 
@@ -58,20 +58,27 @@ def validate_labels(labels, mess_labels):
 
 
 def format_message(message, dev_obj):
+    is_check = False
+    if isinstance(dev_obj, Check):
+        is_check = True
+
     dev_obj = dev_obj.to_dict()
+
     # add field_name label to the dev-object
     dev_obj['field_name'] = current_app.config.get("FIELD_NAME")
+
+    if is_check:
+        dev_obj['land_number'] = '---'
+    else:
+        dev_obj['land_number'] = dev_obj['land']['number']
+
     # get labels from the message
     labels = validate_message(message)
     if labels is None:
         return
 
     for label in labels:
-        if label == 'land_number':
-            replace_str = str(dev_obj['land']['number'])
-        else:
-            replace_str = str(dev_obj[label])
-        message = message.replace('{' + label + '}', replace_str)
+        message = message.replace('{' + label + '}', str(dev_obj[label]))
 
     return message
 

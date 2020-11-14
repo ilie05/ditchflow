@@ -2,6 +2,7 @@ from flaskthreads import AppContextThread
 from digi.xbee.devices import XBeeDevice
 from models import Sensor, Valve, Land, Check
 import datetime
+import traceback
 import serial
 from flask import current_app
 from flask_login import current_user
@@ -141,6 +142,8 @@ def receive_sensor_data(socket_io):
     notified_sensor_water_ids = []
     notified_valve_battery_ids = []
     notified_valve_water_ids = []
+    notified_check_battery_ids = []
+    notified_check_water_ids = []
 
     port = current_app.config.get("DEVICE_PORT")
     baud_rate = current_app.config.get("BAUD_RATE")
@@ -219,6 +222,28 @@ def receive_sensor_data(socket_io):
                             notified_valve_water_ids.remove(valve.id)
 
                     socket_io.emit('valve_notification', data_to_send, namespace='/notification')
+                elif mess_type == 'C':
+                    data_to_send, check = create_update_check(message, dev_address)
+
+                    battery = data_to_send['battery']
+                    water = data_to_send['water']
+                    if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
+                        if check.id not in notified_check_battery_ids:
+                            send_status_notification(check, 'battery')
+                            notified_check_battery_ids.append(check.id)
+                    else:
+                        if check.id in notified_check_battery_ids:
+                            notified_check_battery_ids.remove(check.id)
+
+                    if water is not None and water > current_app.config.get("WATER_MAX_LEVEL"):
+                        if check.id not in notified_check_water_ids:
+                            send_status_notification(check, 'water')
+                            notified_check_water_ids.append(check.id)
+                    else:
+                        if check.id in notified_check_water_ids:
+                            notified_check_water_ids.remove(check.id)
+
+                    socket_io.emit('check_notification', data_to_send, namespace='/notification')
                 else:
                     raise Exception("Invalid data type from XBee Module")
     finally:
@@ -305,7 +330,7 @@ def receive_sensor_data_test(socket_io):
             water = data_to_send['water']
             if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
                 if check.id not in notified_check_battery_ids:
-                    # send_status_notification(check, 'battery')
+                    send_status_notification(check, 'battery')
                     notified_check_battery_ids.append(check.id)
             else:
                 if check.id in notified_check_battery_ids:
@@ -313,7 +338,7 @@ def receive_sensor_data_test(socket_io):
 
             if water is not None and water > current_app.config.get("WATER_MAX_LEVEL"):
                 if check.id not in notified_check_water_ids:
-                    # send_status_notification(check, 'water')
+                    send_status_notification(check, 'water')
                     notified_check_water_ids.append(check.id)
             else:
                 if check.id in notified_check_water_ids:
@@ -331,72 +356,38 @@ def check_online_status(socket_io):
     while True:
         time.sleep(current_app.config.get("CHECK_FOR_STATUS_TIME"))  # every 10 sec.
         db.session.commit()
-        check_status_sensor(socket_io, notified_sensor_ids)
-        check_status_valve(socket_io, notified_valve_ids)
-        check_status_check(socket_io, notified_check_ids)
+        sensors = Sensor.query.all()
+        valves = Valve.query.all()
+        checks = Check.query.all()
+        check_status_device(socket_io, sensors, notified_sensor_ids)
+        check_status_device(socket_io, valves, notified_valve_ids)
+        check_status_device(socket_io, checks, notified_check_ids)
 
 
-def check_status_sensor(socket_io, notified_sensor_ids):
+def check_status_device(socket_io, devices, notified_ids):
     check_time = current_app.config.get("GO_OFFLINE_SENSOR_TIME")  # 30 min.
     current_time = datetime.datetime.now().replace(microsecond=0)
-    sensors = Sensor.query.all()
-    for sensor in sensors:
-        last_update = sensor.last_update
+    for device in devices:
+        last_update = device.last_update
         total_diff = current_time - last_update
         total_diff_sec = total_diff.total_seconds()
         if total_diff_sec > check_time:
-            sensor.status = False
-            db.session.add(sensor)
+            device.status = False
+            db.session.add(device)
             db.session.commit()
-            if sensor.id not in notified_sensor_ids:
-                send_status_notification(sensor, 'status')
-                notified_sensor_ids.append(sensor.id)
-            socket_io.emit('goOfflineSensor', sensor.id, namespace='/notification')
+            if device.id not in notified_ids:
+                send_status_notification(device, 'status')
+                notified_ids.append(device.id)
+            if isinstance(device, Sensor):
+                socket_io.emit('goOfflineSensor', device.id, namespace='/notification')
+            elif isinstance(device, Valve):
+                socket_io.emit('goOfflineValve', device.id, namespace='/notification')
+            elif isinstance(device, Check):
+                socket_io.emit('goOfflineCheck', device.id, namespace='/notification')
+
         else:
-            if sensor.id in notified_sensor_ids:
-                notified_sensor_ids.remove(sensor.id)
-
-
-def check_status_valve(socket_io, notified_valve_ids):
-    check_time = current_app.config.get("GO_OFFLINE_VALVE_TIME")  # 10 min.
-    current_time = datetime.datetime.now().replace(microsecond=0)
-    valves = Valve.query.all()
-    for valve in valves:
-        last_update = valve.last_update
-        total_diff = current_time - last_update
-        total_diff_sec = total_diff.total_seconds()
-        if total_diff_sec > check_time:
-            valve.status = False
-            db.session.add(valve)
-            db.session.commit()
-            if valve.id not in notified_valve_ids:
-                send_status_notification(valve, 'status')
-                notified_valve_ids.append(valve.id)
-            socket_io.emit('goOfflineValve', valve.id, namespace='/notification')
-        else:
-            if valve.id in notified_valve_ids:
-                notified_valve_ids.remove(valve.id)
-
-
-def check_status_check(socket_io, notified_check_ids):
-    check_time = current_app.config.get("GO_OFFLINE_VALVE_TIME")  # 10 min.
-    current_time = datetime.datetime.now().replace(microsecond=0)
-    checks = Check.query.all()
-    for check in checks:
-        last_update = check.last_update
-        total_diff = current_time - last_update
-        total_diff_sec = total_diff.total_seconds()
-        if total_diff_sec > check_time:
-            check.status = False
-            db.session.add(check)
-            db.session.commit()
-            if check.id not in notified_check_ids:
-                # send_status_notification(check, 'status')
-                notified_check_ids.append(check.id)
-            socket_io.emit('goOfflineCheck', check.id, namespace='/notification')
-        else:
-            if check.id in notified_check_ids:
-                notified_check_ids.remove(check.id)
+            if device.id in notified_ids:
+                notified_ids.remove(device.id)
 
 
 def update_battery_temp(socket_io):
@@ -477,8 +468,10 @@ def thread_wrap(thread_func):
             try:
                 thread_func(*args, **kwargs)
             except BaseException as e:
+                traceback.print_exc()
                 print(f'{str(e)}; restarting thread')
             else:
+                traceback.print_exc()
                 print('Exited normally, bad thread; restarting')
 
     return wrapper
