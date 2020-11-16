@@ -1,4 +1,55 @@
 {% extends "base.html" %}
 {% block content %}
-    <h6>HOME</h6>
+    <link rel="stylesheet" href="../static/bootstrap4/css/bootstrap-select.min.css">
+    <script src="../static/bootstrap4/js/bootstrap-select.min.js"></script>
+    <link href="../static/css/dashboard.css" rel="stylesheet">
+    <script>
+        {#let contacts = {{ contacts | tojson }};#}
+        {#let carriers = {{ carriers | tojson }};#}
+    </script>
+    <script src="../static/js/dashboard.js"></script>
+
+    <table class="table table-bordered table-dark">
+        <tbody>
+        <tr style="font-weight: bold">
+            <td>SET</td>
+            <td>LAND</td>
+            <td>VALVE #</td>
+            <td>TYPE</td>
+            <td>SETTINGS</td>
+            <td>SET POINT</td>
+            <td>PREFLOW POINT</td>
+            <td>VOLTAGE</td>
+            <td>TEMPERATURE</td>
+            <td>POSITION</td>
+            <td>STATUS</td>
+        </tr>
+        {% for set in sets %}
+            {% for land in set.lands %}
+                {% for valve in land.valves %}
+                    <tr>
+                        <td>{{ set.number }}</td>
+                        <td>{{ land.number }}</td>
+                        <td>{{ valve.name }}</td>
+                        <td>{{ valve.__class__.__name__ }}</td>
+                        <td>[PUSH]</td>
+                        <td>{{ valve.run }}</td>
+                        <td>{{ valve.preflow }}</td>
+                        <td>{{ valve.battery }}</td>
+                        <td>{{ valve.temperature }}</td>
+                        <td>{{ valve.actuator_position }}</td>
+                        <td>{{ valve.actuator_status }}</td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td>{{ set.number }}</td>
+                    <td>{{ land.number }}</td>
+                    {% for sensor in land.sensors %}
+                        <td>{{ sensor.name }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

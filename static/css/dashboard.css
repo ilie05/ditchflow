@@ -1,0 +1,27 @@
+table {
+    width: auto !important;
+}
+
+tbody {
+    display: block;
+    width: max-content;
+}
+
+tr {
+    display: block;
+    float: left;
+    width: 200px;
+}
+
+th, td {
+    display: block;
+    text-align: center !important;
+}
+
+.table tbody tr:last-child td {
+    border-bottom-width: thin;
+}
+
+.hero-body .container {
+    max-width: 100%;
+}

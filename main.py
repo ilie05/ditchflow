@@ -11,7 +11,8 @@ main = Blueprint('main', __name__)
 @main.route('/', )
 @login_required
 def index():
-    return render_template('index.html')
+    sets = Set.query.all()
+    return render_template('index.html', sets=sets)
 
 
 @main.route('/sensors', methods=["GET", "POST", "DELETE"])
