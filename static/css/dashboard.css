@@ -2,26 +2,80 @@ table {
     width: auto !important;
 }
 
-tbody {
+#main-table {
+    margin-top: 90px;
+}
+
+#main-table tbody {
     display: block;
     width: max-content;
 }
 
-tr {
+#main-table tr {
     display: block;
     float: left;
     width: 200px;
 }
 
-th, td {
+#slider-table td, #slider-table th {
+    width: 190px;
+    text-align: center;
+}
+
+#main-table th, #main-table td {
     display: block;
     text-align: center !important;
 }
 
-.table tbody tr:last-child td {
+#main-table tbody tr:last-child td {
     border-bottom-width: thin;
 }
 
 .hero-body .container {
     max-width: 100%;
+}
+
+.sensors {
+    border: 2px solid seagreen;
+    border-top: none;
+    background-color: dimgray;
+}
+
+td.set-land {
+    background-color: forestgreen;
+}
+
+.slidecontainer {
+    width: 100%;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 25px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: #4CAF50;
+    cursor: pointer;
 }

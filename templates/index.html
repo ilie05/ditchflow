@@ -3,20 +3,20 @@
     <link rel="stylesheet" href="../static/bootstrap4/css/bootstrap-select.min.css">
     <script src="../static/bootstrap4/js/bootstrap-select.min.js"></script>
     <link href="../static/css/dashboard.css" rel="stylesheet">
+    <script src="../static/js/socket.io.js"></script>
     <script>
         {#let contacts = {{ contacts | tojson }};#}
         {#let carriers = {{ carriers | tojson }};#}
     </script>
     <script src="../static/js/dashboard.js"></script>
 
-    <table class="table table-bordered table-dark">
+    <table class="table table-bordered table-dark" id="main-table">
         <tbody>
         <tr style="font-weight: bold">
             <td>SET</td>
             <td>LAND</td>
             <td>VALVE #</td>
             <td>TYPE</td>
-            <td>SETTINGS</td>
             <td>SET POINT</td>
             <td>PREFLOW POINT</td>
             <td>VOLTAGE</td>
@@ -27,27 +27,69 @@
         {% for set in sets %}
             {% for land in set.lands %}
                 {% for valve in land.valves %}
+                    <tr valve-id="{{ valve.id }}">
+                        <td class="set-land">{{ set.number }}</td>
+                        <td class="set-land">{{ land.number }}</td>
+                        <td class="vName">{{ valve.name }}</td>
+                        <td>Valve</td>
+                        <td>{{ valve.run }}%</td>
+                        <td>{{ valve.preflow }}%</td>
+                        <td class="vBattery">{{ valve.battery }} V</td>
+                        <td class="vTemperature">{{ valve.temperature }} °F</td>
+                        <td class="vActuatorActualPosition">{{ valve.actuator_position }}%</td>
+                        <td class="vActuatorStatus">{{ valve.actuator_status }}</td>
+                    </tr>
+                {% endfor %}
+                {% for check in set.checks %}
+                    <tr check-id="{{ check.id }}">
+                        <td class="set-land">{{ set.number }}</td>
+                        <td class="set-land">---</td>
+                        <td class="cName">{{ check.name }}</td>
+                        <td>Check</td>
+                        <td>{{ check.run }}%</td>
+                        <td>{{ check.start }}%</td>
+                        <td class="cBattery">{{ check.battery }} V</td>
+                        <td class="cTemperature">{{ check.temperature }} °F</td>
+                        <td class="cActuatorActualPosition">{{ check.actuator_position }}%</td>
+                        <td class="cActuatorStatus">{{ check.actuator_status }}</td>
+                    </tr>
+                {% endfor %}
+                <tr class="sensors">
+                    <td>{{ set.number }}</td>
+                    <td>{{ land.number }}</td>
+                    {% for sensor in land.sensors %}
+                        <td sensor-id="{{ sensor.id }}">{{ sensor.name }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="table table-striped table-dark" id="slider-table">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">Set</th>
+            <th scope="col">Land</th>
+            <th scope="col">Valve</th>
+            <th scope="col">Position</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for set in sets %}
+            {% for land in set.lands %}
+                {% for valve in land.valves %}
                     <tr>
                         <td>{{ set.number }}</td>
                         <td>{{ land.number }}</td>
                         <td>{{ valve.name }}</td>
-                        <td>{{ valve.__class__.__name__ }}</td>
-                        <td>[PUSH]</td>
-                        <td>{{ valve.run }}</td>
-                        <td>{{ valve.preflow }}</td>
-                        <td>{{ valve.battery }}</td>
-                        <td>{{ valve.temperature }}</td>
-                        <td>{{ valve.actuator_position }}</td>
-                        <td>{{ valve.actuator_status }}</td>
+                        <td>
+                            <span class="slider-position">{{ valve.actuator_position }}</span>
+                            <input type="range" min="0" max="100" value="{{ valve.actuator_position }}" class="slider"
+                                   onchange="sendPosition(this)" oninput="displayPosition(this)">
+                        </td>
                     </tr>
                 {% endfor %}
-                <tr>
-                    <td>{{ set.number }}</td>
-                    <td>{{ land.number }}</td>
-                    {% for sensor in land.sensors %}
-                        <td>{{ sensor.name }}</td>
-                    {% endfor %}
-                </tr>
             {% endfor %}
         {% endfor %}
         </tbody>
