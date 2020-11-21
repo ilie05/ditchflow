@@ -41,7 +41,7 @@ table {
     background-color: dimgray;
 }
 
-td.set-land {
+.set-land {
     background-color: forestgreen;
 }
 
@@ -78,4 +78,41 @@ td.set-land {
     height: 25px;
     background: #4CAF50;
     cursor: pointer;
+}
+
+.wrp {
+    width: 1600px;
+    display: flex;
+}
+
+#run-time {
+    margin: 0 0 20px 50px;
+    font-size: 28px;
+}
+
+.btns {
+    width: 800px;
+    height: max-content;
+}
+
+.btns button {
+    margin-left: 50px;
+    width: 20%;
+}
+
+@media only screen
+and (min-device-width: 768px)
+and (max-device-width: 1024px) {
+    .wrp {
+        width: 800px;
+        flex-wrap: wrap;
+    }
+
+    #run-time {
+        margin-left: 0;
+    }
+
+    .btns button:first-child {
+        margin-left: 0;
+    }
 }

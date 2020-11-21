@@ -27,7 +27,7 @@
         {% for set in sets %}
             {% for land in set.lands %}
                 {% for valve in land.valves %}
-                    <tr valve-id="{{ valve.id }}">
+                    <tr valve-id="{{ valve.id }}" class="colored">
                         <td class="set-land">{{ set.number }}</td>
                         <td class="set-land">{{ land.number }}</td>
                         <td class="vName">{{ valve.name }}</td>
@@ -66,32 +66,45 @@
         </tbody>
     </table>
 
-    <table class="table table-striped table-dark" id="slider-table">
-        <thead class="thead-dark">
-        <tr>
-            <th scope="col">Set</th>
-            <th scope="col">Land</th>
-            <th scope="col">Valve</th>
-            <th scope="col">Position</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for set in sets %}
-            {% for land in set.lands %}
-                {% for valve in land.valves %}
-                    <tr>
-                        <td>{{ set.number }}</td>
-                        <td>{{ land.number }}</td>
-                        <td>{{ valve.name }}</td>
-                        <td>
-                            <span class="slider-position">{{ valve.actuator_position }}</span>
-                            <input type="range" min="0" max="100" value="{{ valve.actuator_position }}" class="slider"
-                                   onchange="sendPosition(this)" oninput="displayPosition(this)">
-                        </td>
-                    </tr>
+    <div class="wrp">
+        <table class="table table-striped table-dark" id="slider-table">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col">Set</th>
+                <th scope="col">Land</th>
+                <th scope="col">Valve</th>
+                <th scope="col">Position</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for set in sets %}
+                {% for land in set.lands %}
+                    {% for valve in land.valves %}
+                        <tr>
+                            <td>{{ set.number }}</td>
+                            <td>{{ land.number }}</td>
+                            <td>{{ valve.name }}</td>
+                            <td>
+                                <span class="slider-position">{{ valve.actuator_position }}</span>
+                                <input type="range" min="0" max="100" value="{{ valve.actuator_position }}"
+                                       class="slider"
+                                       onchange="sendPosition(this)" oninput="displayPosition(this)">
+                            </td>
+                        </tr>
+                    {% endfor %}
                 {% endfor %}
             {% endfor %}
-        {% endfor %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+
+        <div>
+            <div id="run-time">Total run time: 3h 29min</div>
+            <div class="btns">
+                <button type="button" class="btn btn-dark btn-lg">Star</button>
+                <button type="button" class="btn btn-dark btn-lg">Stop</button>
+                <button type="button" class="btn btn-dark btn-lg">Pause</button>
+            </div>
+        </div>
+
+    </div>
 {% endblock %}
