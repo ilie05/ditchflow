@@ -14,7 +14,11 @@ table {
 #main-table tr {
     display: block;
     float: left;
-    width: 200px;
+    width: 120px;
+}
+
+#main-table tr:first-child {
+    width: 150px;
 }
 
 #slider-table td, #slider-table th {

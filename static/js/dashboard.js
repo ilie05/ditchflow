@@ -55,3 +55,18 @@ socket.on('sensor_notification', function (data) {
     if (data.float) card.css('background-color', 'forestgreen');
     else card.css('background-color', 'dimgray')
 });
+
+function startSystem() {
+    if (confirm("Are you sure you want to start?")) console.log("da")
+    else console.log("no")
+}
+
+function stopSystem() {
+    if (confirm("Are you sure you want to stop?")) console.log("da")
+    else console.log("no")
+}
+
+function pauseSystem() {
+    if (confirm("Are you sure you want to pause?")) console.log("da")
+    else console.log("no")
+}
