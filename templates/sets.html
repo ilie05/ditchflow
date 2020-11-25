@@ -5,59 +5,99 @@
     </script>
     <script src="../static/js/sets.js"></script>
     <link rel="stylesheet" href="../static/css/sets.css"/>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="notification is-danger" style="width: 40%">
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <div class="input-group mb-3">
+        <div class="add-set-container">
+            <div class="input-group-prepend" style="width: 40%">
+                <label class="input-group-text">Configurations</label>
+            </div>
+            <select class="custom-select" id="config_select" required onchange="changeConfig(this)">
+                <option value="">Choose</option>
+                {% for config in configs %}
+                    {% if config.name == config_name %}
+                        <option value="{{ config.name }}" selected>{{ config.name }}</option>
+                    {% else %}
+                        <option value="{{ config.name }}">{{ config.name }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <button class="btn btn-danger btn-sm" style="margin-left: 20px" onclick="deleteConfig()">Delete current config
+        </button>
+    </div>
+
     <form method="post">
         <div class="add-set-container">
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">Set number</span>
+                    <span class="input-group-text" id="basic-addon1">New configuration name</span>
                 </div>
-                <input type="number" class="form-control" name="set_number" min="1" max="100" required>
+                <input class="form-control" name="config_name" required>
             </div>
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <label class="input-group-text">Lands</label>
-                </div>
-                <select class="custom-select" name="land_id" required>
-                    <option value="">Choose</option>
-                    {% for item in lands %}
-                        <option value="{{ item.id }}">{{ item.number }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <button type="submit" class="btn btn-success btn-sm">Add set</button>
+            <button type="submit" class="btn btn-success btn-sm">Add configuration</button>
         </div>
     </form>
+    {% if config_name %}
+        <form method="post" action="/config_set">
+            <div class="add-set-container">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Set number</span>
+                    </div>
+                    <input type="number" class="form-control" name="set_number" min="1" max="100" required>
+                </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text">Lands</label>
+                    </div>
+                    <select class="custom-select" name="land_id" required>
+                        <option value="">Choose</option>
+                        {% for item in lands %}
+                            <option value="{{ item.id }}">{{ item.number }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success btn-sm">Add set</button>
+            </div>
+        </form>
 
-    <div id="update-message"></div>
-    <div>
-        <div class="set-container-header">
-            <span>Set</span>
-            <span>Land</span>
-            <span>Autorun</span>
-            <span>Valve</span>
-            <span>Preflow (%)</span>
-            <span>Run (%)</span>
-            <span>Sensors</span>
-            <span>Delay (min)</span>
-        </div>
-        {% for set in sets %}
-            {% for land in set.lands %}
-                <div class="set-container" land-id="{{ land.id }}" set-id="{{ set.id }}">
-                    <span>{{ set.number }}</span>
-                    <span>{{ land.number }}</span>
-                    <span>
+        <div id="update-message"></div>
+        <div>
+            <div class="set-container-header">
+                <span>Set</span>
+                <span>Land</span>
+                <span>Autorun</span>
+                <span>Valve</span>
+                <span>Preflow (%)</span>
+                <span>Run (%)</span>
+                <span>Sensors</span>
+                <span>Delay (min)</span>
+            </div>
+            {% for set in sets %}
+                {% for land in set.lands %}
+                    <div class="set-container" land-id="{{ land.id }}" set-id="{{ set.id }}">
+                        <span>{{ set.number }}</span>
+                        <span>{{ land.number }}</span>
+                        <span>
                         <label class="switch">
                             <input type="checkbox" {{ "checked" if land.autorun else '' }}
                                    onchange="updateAutorun(this, '{{ land.number }}', 'v')">
                             <span class="slider round"></span>
                         </label>
                     </span>
-                    <span>
+                        <span>
                 {% for valve in land.valves %}
                     <p>{{ valve.name }}</p>
                 {% endfor %}
                 </span>
-                    <span>
+                        <span>
                 {% for valve in land.valves %}
                     <span valve-id="{{ valve.id }}">
                         <input type="number" min="0" max="100" value="{{ valve.preflow }}"
@@ -65,68 +105,68 @@
                     </span>
                 {% endfor %}
                 </span>
-                    <span>
+                        <span>
                     {% if not land.valves %}
                         -------
                     {% endif %}
-                        {% for valve in land.valves %}
-                            <span valve-id="{{ valve.id }}">
+                            {% for valve in land.valves %}
+                                <span valve-id="{{ valve.id }}">
                         <input type="number" min="0" max="100" value="{{ valve.run }}"
                                onfocusout="updateRun(this, '{{ valve.name }}', 'v')"/>
                     </span>
-                        {% endfor %}
+                            {% endfor %}
                 </span>
-                    <span>
+                        <span>
                     {% if not land.sensors %}
                         -------
                     {% endif %}
-                        {% for sensor in land.sensors %}
-                            <p>{{ sensor.name }}</p>
-                        {% endfor %}
+                            {% for sensor in land.sensors %}
+                                <p>{{ sensor.name }}</p>
+                            {% endfor %}
                 </span>
-                    <span>
+                        <span>
                     <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSet(this)"/>
-                        {% if not land.sensors %}
-                            <input type="number" min="0" value="{{ land.delay }}"
-                                   onfocusout="updateLandDelay(this, '{{ land.id }}')"/>
-                        {% endif %}
-                        {% for sensor in land.sensors %}
-                            <span sensor-id="{{ sensor.id }}">
+                            {% if not land.sensors %}
+                                <input type="number" min="0" value="{{ land.delay }}"
+                                       onfocusout="updateLandDelay(this, '{{ land.id }}')"/>
+                            {% endif %}
+                            {% for sensor in land.sensors %}
+                                <span sensor-id="{{ sensor.id }}">
                         <input type="number" min="0" value="{{ sensor.delay }}"
                                onfocusout="updateSensorDelay(this, '{{ sensor.name }}')"/>
                     </span>
-                        {% endfor %}
+                            {% endfor %}
                 </span>
-                </div>
+                    </div>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </div>
-
-    <div>
-        <div class="set-container-header checks">
-            <span>Set</span>
-            <span>Autorun</span>
-            <span>Check</span>
-            <span>Start (%)</span>
-            <span>Run (%)</span>
-            <span>Before / After</span>
         </div>
-        {% for set in sets %}
-            <div class="set-container checks" set-id="{{ set.id }}">
-                <span>{{ set.number }}</span>
-                <span>
+
+        <div>
+            <div class="set-container-header checks">
+                <span>Set</span>
+                <span>Autorun</span>
+                <span>Check</span>
+                <span>Start (%)</span>
+                <span>Run (%)</span>
+                <span>Before / After</span>
+            </div>
+            {% for set in sets %}
+                <div class="set-container checks" set-id="{{ set.id }}">
+                    <span>{{ set.number }}</span>
+                    <span>
                     <label class="switch">
                         <input type="checkbox" {{ "checked" if set.autorun else '' }}
                                onchange="updateAutorun(this, '{{ set.number }}', 'c')">
                         <span class="slider round"></span>
                     </label>
                 </span>
-                <span>
+                    <span>
                 {% for check in set.checks %}
                     <p>{{ check.name }}</p>
                 {% endfor %}
                 </span>
-                <span>
+                    <span>
                 {% for check in set.checks %}
                     <span check-id="{{ check.id }}">
                         <input type="number" min="0" max="100" value="{{ check.start }}"
@@ -134,7 +174,7 @@
                     </span>
                 {% endfor %}
                 </span>
-                <span>
+                    <span>
                 {% for check in set.checks %}
                     <span check-id="{{ check.id }}">
                         <input type="number" min="0" max="100" value="{{ check.run }}"
@@ -142,7 +182,7 @@
                     </span>
                 {% endfor %}
                 </span>
-                <span>
+                    <span>
                 {% for check in set.checks %}
                     <span>
                         <label class="switch">
@@ -153,7 +193,8 @@
                     </span>
                 {% endfor %}
                 </span>
-            </div>
-        {% endfor %}
-    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 {% endblock %}

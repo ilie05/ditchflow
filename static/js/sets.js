@@ -87,7 +87,7 @@ const deleteSet = (context) => {
     const setId = $(context).closest('.set-container').attr('set-id');
     const landId = $(context).closest('.set-container').attr('land-id');
 
-    fetch(`${MAIN_URL}/configuration`, {
+    fetch(`${MAIN_URL}/config_set`, {
         method: 'DELETE',
         headers: {
             'Authorization': jwtToken,
@@ -144,5 +144,28 @@ const updateBeforeAfter = (context, objId, Name) => {
         .then(res => {
             const message = `Before/After for check ${Name} is ${isChecked ? 'ON' : 'OFF'}!`;
             updateMessageCallback(res, message);
+        });
+}
+
+const changeConfig = (context) => {
+    const config_name = $(context).val();
+    window.location = `${MAIN_URL}/configuration?config_name=${config_name}`
+}
+
+const deleteConfig = () => {
+    const config_name = $('#config_select').val();
+    if (!config_name) return;
+    fetch(`${MAIN_URL}/configuration`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': jwtToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({config_name})
+    })
+        .then(res => {
+            if (res.ok) {
+                window.location = `${MAIN_URL}/configuration`
+            }
         });
 }

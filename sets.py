@@ -1,8 +1,8 @@
 import jwt
-from flask import Blueprint, render_template, request, url_for, redirect, current_app, Response
+from flask import Blueprint, render_template, request, url_for, redirect, current_app, Response, flash
 from flask_login import login_required, current_user
 from database import db
-from models import Land, Set, Valve, Sensor, Check
+from models import Land, Set, Valve, Sensor, Check, Config
 
 sets = Blueprint('sets', __name__)
 
@@ -11,13 +11,72 @@ sets = Blueprint('sets', __name__)
 @login_required
 def configuration():
     if request.method == 'GET':
+        config_name = request.args.get("config_name")
+        configs = Config.query.all()
+
+        if config_name is None:
+            config_page = Config.query.filter_by(active=True).first()
+            if config_page:
+                return render_template('sets.html', configs=configs, config_name=config_page.name)
+            else:
+                config_page = Config.query.first()
+                if config_page:
+                    config_page.active = True
+                    db.session.commit()
+                    return redirect(url_for('sets.configuration', config_name=config_page.name))
+                else:
+                    return render_template('sets.html', configs=configs)
+
+        config_page = Config.query.filter_by(name=config_name).first()
+        if not config_page:
+            return render_template('not_found.html')
+
+        config_pages = Config.query.filter_by(active=True).all()
+        for page in config_pages:
+            page.active = False
+        config_page.active = True
+        db.session.commit()
+
         token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                            algorithm='HS256').decode()
         lands = Land.query.filter_by(set_id=None).order_by(Land.number).all()
         lands = list(filter(lambda l: len(l.sensors) > 0 or len(l.valves) > 0, lands))
         sets = Set.query.all()
-        return render_template('sets.html', lands=lands, sets=sets, jwt_token=str(token))
+        return render_template('sets.html', lands=lands, sets=sets, jwt_token=str(token), configs=configs,
+                               config_name=config_name)
     elif request.method == 'POST':
+        config_name = request.form.get('config_name')
+        if not config_name:
+            return redirect(url_for('sets.configuration'))
+
+        config_page = Config.query.filter_by(name=config_name).first()
+        if config_page:
+            flash('Configuration {} already exists'.format(config_name))
+            return redirect(url_for('sets.configuration', config_name=config_name))
+
+        config_pages = Config.query.filter_by(active=True).all()
+        for page in config_pages:
+            page.active = False
+
+        config_page = Config(name=config_name)
+        db.session.add(config_page)
+        db.session.commit()
+        return redirect(url_for('sets.configuration', config_name=config_name))
+    else:
+        payload = request.get_json()
+        config_name = payload['config_name'] if 'config_name' in payload else None
+
+        config_page = Config.query.filter_by(name=config_name).first()
+        if config_page:
+            Config.query.filter_by(name=config_name).delete()
+            db.session.commit()
+        return Response(status=200)
+
+
+@sets.route('/config_set', methods=["POST", "DELETE"])
+@login_required
+def config_set():
+    if request.method == 'POST':
         try:
             set_number = int(request.form.get('set_number'))
             land_id = int(request.form.get('land_id'))

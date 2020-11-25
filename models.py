@@ -122,7 +122,13 @@ class Check(db.Model, SerializerMixin):
     address = db.Column(db.String(100), unique=True)
     last_update = db.Column(db.DateTime)
 
+
+class Config(db.Model, SerializerMixin):
+    __tablename__ = 'config'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True)
+    active = db.Column(db.Boolean, default=True)
+
 # open time for valve: set, land, valve , time
 # tripping time for sensor: set, land, sensor, time_
-
-# set, autorun, check, start(%), run(%), before/after

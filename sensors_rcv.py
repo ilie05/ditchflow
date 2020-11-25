@@ -442,7 +442,7 @@ def listen_sensors_thread(socket_io):
         print(str(e))
         print("COULD NOT RESET THE XBEE!")
 
-    t1 = AppContextThread(target=thread_wrap(receive_sensor_data), args=(socket_io,))
+    t1 = AppContextThread(target=thread_wrap(receive_sensor_data_test), args=(socket_io,))
     print("***Listen sensors thread before running***")
     t1.start()
 
@@ -450,7 +450,7 @@ def listen_sensors_thread(socket_io):
     print("***Check Status Sensor-Valve-Check thread before running***")
     t2.start()
 
-    t3 = AppContextThread(target=thread_wrap(update_battery_temp), args=(socket_io,))
+    t3 = AppContextThread(target=thread_wrap(update_battery_temp_test), args=(socket_io,))
     print("***Battery-Temperature thread before running***")
     t3.start()
 
