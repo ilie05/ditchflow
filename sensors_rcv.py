@@ -7,12 +7,9 @@ import serial
 from flask import current_app
 from flask_login import current_user
 import time
-import threading
 from database import db
-from utils import mock_device_data, mock_battery_temp, reset_xbee
+from utils import mock_device_data, mock_battery_temp, reset_xbee, ping_outside
 from email_service import send_status_notification, send_email
-
-lock = threading.Lock()
 
 
 # local_xbee = XBeeDevice("COM1", 9600)
@@ -475,6 +472,10 @@ def listen_sensors_thread(socket_io):
     t3 = AppContextThread(target=thread_wrap(update_battery_temp), args=(socket_io,))
     print("***Battery-Temperature thread before running***")
     t3.start()
+
+    t4 = AppContextThread(target=thread_wrap(ping_outside))
+    print("***PING thread before running***")
+    t4.start()
 
     @socket_io.on('connect', namespace='/notification')
     def test_connect():

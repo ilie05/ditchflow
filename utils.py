@@ -1,6 +1,7 @@
 from flask import current_app
 import random
 import re
+from pythonping import ping
 import json
 import os
 import time
@@ -212,3 +213,10 @@ def prepopulate_db():
         land = Land(number=1)
         db.session.add(land)
         db.session.commit()
+
+
+def ping_outside():
+    interval = current_app.config.get("PING_INTERVAL") * 60
+    while True:
+        time.sleep(interval)
+        ping('8.8.8.8')

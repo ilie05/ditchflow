@@ -21,3 +21,5 @@ class Config:
 
     SYSTEM_BATTERY_MIN_VOLTAGE = 11  # value in Volts
     MAIN_SYSTEM_DEVICE_PORT = "/dev/ttyAMA1"
+
+    PING_INTERVAL = 15  # min
