@@ -112,7 +112,7 @@ const updateMessageCallback = (res, message) => {
     }
 }
 
-const updateLandDelay = (context, landId) => {
+const updateLandDelay = (context, landConfigId) => {
     const delay = $(context).val();
     if (delay === '' || Number(delay) < 0) return;
 
@@ -122,7 +122,7 @@ const updateLandDelay = (context, landId) => {
             'Authorization': jwtToken,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({landId, delay})
+        body: JSON.stringify({landConfigId, delay})
     })
         .then(res => {
             const message = `Land delay has been updated!`;

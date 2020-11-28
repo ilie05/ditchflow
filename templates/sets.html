@@ -135,8 +135,12 @@
                         <span>
                             <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSet(this)"/>
                             {% if not land.sensors %}
-                                <input type="number" min="0" value="{{ land.delay }}"
-                                       onfocusout="updateLandDelay(this, '{{ land.id }}')"/>
+                                {% for land_config in land.land_configs %}
+                                    {% if land_config.config.name == config_name %}
+                                        <input type="number" min="0" value="{{ land_config.delay }}"
+                                               onfocusout="updateLandDelay(this, '{{ land_config.id }}')"/>
+                                    {% endif %}
+                                {% endfor %}
                             {% endif %}
                             {% for sensor in land.sensors %}
                                 {% for sensor_config in sensor.sensor_configs %}

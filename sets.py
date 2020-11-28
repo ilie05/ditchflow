@@ -2,7 +2,7 @@ import jwt
 from flask import Blueprint, render_template, request, url_for, redirect, current_app, Response, flash
 from flask_login import login_required, current_user
 from database import db
-from models import Land, Set, Valve, Sensor, Check, Config, SensorConfig, ValveConfig, CheckConfig
+from models import Land, Set, Valve, Sensor, Check, Config, SensorConfig, ValveConfig, CheckConfig, LandConfig
 import traceback
 
 sets = Blueprint('sets', __name__)
@@ -74,6 +74,10 @@ def configuration():
         for check in Check.query.all():
             check_config = CheckConfig(check_id=check.id, config_id=config_page.id)
             db.session.add(check_config)
+
+        for land in Land.query.all():
+            land_config = LandConfig(land_id=land.id, config_id=config_page.id)
+            db.session.add(land_config)
 
         db.session.commit()
         return redirect(url_for('sets.configuration', config_name=config_name))
@@ -240,12 +244,41 @@ def beforeafter():
 @login_required
 def landdelay():
     payload = request.get_json()
-    land_id = payload['landId'] if 'landId' in payload else None
+    land_id = payload['landConfigId'] if 'landConfigId' in payload else None
     land_delay = payload['delay'] if 'delay' in payload else None
 
-    land = Land.query.filter_by(id=land_id).first()
+    land = LandConfig.query.filter_by(id=land_id).first()
     land.delay = land_delay
     db.session.add(land)
     db.session.commit()
 
     return Response(status=200)
+
+
+@sets.route('/sendPosition', methods=["POST"])
+@login_required
+def sendPosition():
+    payload = request.get_json()
+    t = payload['t'] if 't' in payload else None
+    obj_id = payload['objId'] if 'objId' in payload else None
+    position = payload['position'] if 'position' in payload else None
+
+    config_page = Config.query.filter_by(active=True).first()
+    if t == 'v':
+        valve_config = ValveConfig.query.filter_by(valve_id=obj_id, config_id=config_page.id).first()
+        if str(valve_config.run) != position:
+            valve_config.run = position
+            db.session.add(valve_config)
+            db.session.commit()
+            return Response(status=200)
+    elif t == 'c':
+        check_config = CheckConfig.query.filter_by(check_id=obj_id, config_id=config_page.id).first()
+        if str(check_config.run) != position:
+            check_config.run = position
+            db.session.add(check_config)
+            db.session.commit()
+            return Response(status=200)
+    else:
+        return Response(status=404)
+
+    return Response(status=201)

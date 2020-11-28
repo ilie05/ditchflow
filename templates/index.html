@@ -5,8 +5,7 @@
     <link href="../static/css/dashboard.css" rel="stylesheet">
     <script src="../static/js/socket.io.js"></script>
     <script>
-        {#let contacts = {{ contacts | tojson }};#}
-        {#let carriers = {{ carriers | tojson }};#}
+        const jwtToken = "{{ jwt_token }}";
     </script>
     <script src="../static/js/dashboard.js"></script>
 
@@ -32,8 +31,12 @@
                         <td class="set-land">{{ land.number }}</td>
                         <td class="vName">{{ valve.name }}</td>
                         <td>Valve</td>
-                        <td>{{ valve.run }}%</td>
-                        <td>{{ valve.preflow }}%</td>
+                        {% for valve_config in valve.valve_configs %}
+                            {% if valve_config.config.name == config_name %}
+                                <td>{{ valve_config.run }}%</td>
+                                <td>{{ valve_config.preflow }}%</td>
+                            {% endif %}
+                        {% endfor %}
                         <td class="vBattery">{{ valve.battery }} V</td>
                         <td class="vTemperature">{{ valve.temperature }} °F</td>
                         <td class="vActuatorActualPosition">{{ valve.actuator_position }}%</td>
@@ -46,8 +49,12 @@
                         <td class="set-land">---</td>
                         <td class="cName">{{ check.name }}</td>
                         <td>Check</td>
-                        <td>{{ check.run }}%</td>
-                        <td>{{ check.start }}%</td>
+                        {% for check_config in check.check_configs %}
+                            {% if check_config.config.name == config_name %}
+                                <td>{{ check_config.run }}%</td>
+                                <td>{{ check_config.start }}%</td>
+                            {% endif %}
+                        {% endfor %}
                         <td class="cBattery">{{ check.battery }} V</td>
                         <td class="cTemperature">{{ check.temperature }} °F</td>
                         <td class="cActuatorActualPosition">{{ check.actuator_position }}%</td>
@@ -67,35 +74,65 @@
     </table>
 
     <div class="wrp">
-        <table class="table table-striped table-dark" id="slider-table">
-            <thead class="thead-dark">
-            <tr>
-                <th scope="col">Set</th>
-                <th scope="col">Land</th>
-                <th scope="col">Valve</th>
-                <th scope="col">Position</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for set in sets %}
-                {% for land in set.lands %}
-                    {% for valve in land.valves %}
+        <div>
+            <table class="table table-striped table-dark" id="slider-table">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Set</th>
+                    <th scope="col">Land</th>
+                    <th scope="col">Valve</th>
+                    <th scope="col">Position</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for set in sets %}
+                    {% for land in set.lands %}
+                        {% for valve in land.valves %}
+                            <tr>
+                                <td>{{ set.number }}</td>
+                                <td>{{ land.number }}</td>
+                                <td>{{ valve.name }}</td>
+                                <td>
+                                    <span class="slider-position">{{ valve.actuator_position }}</span>
+                                    <input valve_config-id="{{ valve.id }}" type="range" min="0" max="100"
+                                           value="{{ valve.actuator_position }}"
+                                           class="slider"
+                                           onchange="sendPosition(this, 'v')" oninput="displayPosition(this)">
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <table class="table table-striped table-dark" id="slider-table">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Set</th>
+                    <th scope="col">Check</th>
+                    <th scope="col">Position</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for set in sets %}
+                    {% for check in set.checks %}
                         <tr>
                             <td>{{ set.number }}</td>
-                            <td>{{ land.number }}</td>
-                            <td>{{ valve.name }}</td>
+                            <td>{{ check.name }}</td>
                             <td>
-                                <span class="slider-position">{{ valve.actuator_position }}</span>
-                                <input type="range" min="0" max="100" value="{{ valve.actuator_position }}"
+                                <span class="slider-position">{{ check.actuator_position }}</span>
+                                <input check_config-id="{{ check.id }}" type="range" min="0" max="100"
+                                       value="{{ check.actuator_position }}"
                                        class="slider"
-                                       onchange="sendPosition(this)" oninput="displayPosition(this)">
+                                       onchange="sendPosition(this, 'c')" oninput="displayPosition(this)">
                             </td>
                         </tr>
                     {% endfor %}
                 {% endfor %}
-            {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
 
         <div>
             <div id="run-time">Total run time: 3h 29min</div>

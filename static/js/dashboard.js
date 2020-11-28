@@ -1,6 +1,24 @@
-function sendPosition(select) {
-    const position = $(select).val();
+const MAIN_URL = `http://${document.domain}:${location.port}`;
+
+function sendPosition(select, t) {
+    let position = $(select).val(), objId;
     console.log("Option Chosen by you is " + position);
+
+    if (t === 'v') objId = $(select).attr('valve-id')
+    else if (t === 'c') objId = $(select).attr('check-id')
+
+
+    fetch(`${MAIN_URL}/sendPosition`, {
+        method: 'POST',
+        headers: {
+            'Authorization': jwtToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({objId, position, t})
+    })
+        .then(res => {
+            if (res.ok) console.log("position sent")
+        });
 }
 
 function displayPosition(select) {
@@ -27,6 +45,7 @@ socket.on('valve_notification', function (data) {
         $(card).find('td.vActuatorActualPosition').text(`---`);
     } else {
         $(card).find('td.vActuatorActualPosition').text(`${data.actuator_position}%`);
+        $(`[valve_config-id=${data.id}]`).val(data.actuator_position);
     }
 });
 
@@ -44,6 +63,7 @@ socket.on('check_notification', function (data) {
         $(card).find('td.cActuatorActualPosition').text(`---`);
     } else {
         $(card).find('td.cActuatorActualPosition').text(`${data.actuator_position}%`);
+        $(`[check_config-id=${data.id}]`).val(data.actuator_position);
     }
 });
 

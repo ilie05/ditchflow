@@ -2,7 +2,7 @@ import jwt
 from flask import Blueprint, render_template, request, url_for, redirect, flash, current_app, Response
 from flask_login import login_required, current_user
 from database import db
-from models import Sensor, Message, Valve, LabelMessage, Land, Check, Set
+from models import Sensor, Message, Valve, LabelMessage, Land, Check, Set, Config, LandConfig
 from utils import validate_message, validate_labels, write_settings
 import traceback
 
@@ -12,8 +12,12 @@ main = Blueprint('main', __name__)
 @main.route('/', )
 @login_required
 def index():
+    token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
+                       algorithm='HS256').decode()
+    config_page = Config.query.filter_by(active=True).first()
+    config_name = config_page.name if config_page else None
     sets = Set.query.all()
-    return render_template('index.html', sets=sets)
+    return render_template('index.html', jwt_token=str(token), sets=sets, config_name=config_name)
 
 
 @main.route('/sensors', methods=["GET", "POST", "DELETE"])
@@ -30,12 +34,7 @@ def sensor():
         sensor_id = payload['sensorId'] if 'sensorId' in payload else None
         land_number = payload['landNumber'] if 'landNumber' in payload else None
 
-        land = Land.query.filter_by(number=land_number).first()
-        if not land:
-            land = Land(number=land_number)
-            db.session.add(land)
-            db.session.commit()
-
+        land = create_land(land_number)
         sensor = Sensor.query.filter_by(id=sensor_id).first()
         sensor.land_id = land.id
         db.session.commit()
@@ -68,12 +67,7 @@ def valve():
         valve_id = payload['valveId'] if 'valveId' in payload else None
         land_number = payload['landNumber'] if 'landNumber' in payload else None
 
-        land = Land.query.filter_by(number=land_number).first()
-        if not land:
-            land = Land(number=land_number)
-            db.session.add(land)
-            db.session.commit()
-
+        land = create_land(land_number)
         valve = Valve.query.filter_by(id=valve_id).first()
         valve.land_id = land.id
         db.session.commit()
@@ -168,3 +162,19 @@ def messages():
 @login_required
 def calibrate():
     return Response(status=200)
+
+
+def create_land(land_number):
+    land = Land.query.filter_by(number=land_number).first()
+    if not land:
+        land = Land(number=land_number)
+        db.session.add(land)
+
+        # add land configs for each config page
+        config_pages = Config.query.all()
+        for config_page in config_pages:
+            land_config = LandConfig(land_id=land.id, config_id=config_page.id)
+            db.session.add(land_config)
+        db.session.commit()
+
+    return land
