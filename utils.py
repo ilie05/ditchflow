@@ -1,7 +1,7 @@
 from flask import current_app
 import random
 import re
-from pythonping import ping
+import urllib.request
 import json
 import os
 import time
@@ -219,4 +219,5 @@ def ping_outside():
     interval = current_app.config.get("PING_INTERVAL") * 60
     while True:
         time.sleep(interval)
-        ping('8.8.8.8')
+        urllib.request.urlopen('http://google.com/')
+
