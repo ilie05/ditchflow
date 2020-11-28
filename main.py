@@ -50,7 +50,7 @@ def sensor():
             db.session.commit()
         except Exception as e:
             traceback.print_exc()
-
+            return Response(status=404)
         return Response(status=200)
 
 
@@ -82,9 +82,13 @@ def valve():
         payload = request.get_json()
         valve_id = payload['valveId'] if 'valveId' in payload else None
 
-        Valve.query.filter_by(id=valve_id).delete()
-        db.session.commit()
-
+        try:
+            valve = Valve.query.filter_by(id=valve_id).first()
+            db.session.delete(valve)
+            db.session.commit()
+        except Exception as e:
+            traceback.print_exc()
+            return Response(status=404)
         return Response(status=200)
 
 
@@ -111,9 +115,13 @@ def check():
         payload = request.get_json()
         check_id = payload['checkId'] if 'checkId' in payload else None
 
-        Check.query.filter_by(id=check_id).delete()
-        db.session.commit()
-
+        try:
+            check = Check.query.filter_by(id=check_id).first()
+            db.session.delete(check)
+            db.session.commit()
+        except Exception as e:
+            traceback.print_exc()
+            return Response(status=404)
         return Response(status=200)
 
 

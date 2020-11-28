@@ -58,7 +58,6 @@ class Sensor(db.Model, SerializerMixin):
     last_update = db.Column(db.DateTime)
 
     serialize_rules = ('-sensor_configs.sensor',)
-
     sensor_configs = db.relationship("SensorConfig", backref='sensor', cascade='all,delete')
 
 
@@ -83,10 +82,21 @@ class Valve(db.Model, SerializerMixin):
     battery = db.Column(db.Float)
     temperature = db.Column(db.Float)
     water = db.Column(db.Float)
-    preflow = db.Column(db.Integer, default=10)
-    run = db.Column(db.Integer, default=90)
     address = db.Column(db.String(100), unique=True)
     last_update = db.Column(db.DateTime)
+
+    serialize_rules = ('-valve_configs.valve',)
+    valve_configs = db.relationship("ValveConfig", backref='valve', cascade='all,delete')
+
+
+class ValveConfig(db.Model, SerializerMixin):
+    __tablename__ = 'valve_config'
+
+    id = db.Column(db.Integer, primary_key=True)
+    valve_id = db.Column(db.Integer, db.ForeignKey('valve.id'))
+    config_id = db.Column(db.Integer, db.ForeignKey('config.id'))
+    preflow = db.Column(db.Integer, default=10)
+    run = db.Column(db.Integer, default=90)
 
 
 class Land(db.Model, SerializerMixin):
@@ -98,7 +108,6 @@ class Land(db.Model, SerializerMixin):
     set_id = db.Column(db.Integer, db.ForeignKey('set.id'))
 
     serialize_rules = ('-sensors.land', '-valves.land',)
-
     sensors = db.relationship("Sensor", backref='land')
     valves = db.relationship("Valve", backref='land')
 
@@ -111,7 +120,6 @@ class Set(db.Model, SerializerMixin):
     autorun = db.Column(db.Boolean, default=True)
 
     serialize_rules = ('-lands.set', '-checks.set',)
-
     lands = db.relationship("Land", backref='set')
     checks = db.relationship("Check", backref='set')
 
@@ -128,11 +136,22 @@ class Check(db.Model, SerializerMixin):
     battery = db.Column(db.Float)
     temperature = db.Column(db.Float)
     water = db.Column(db.Float)
+    address = db.Column(db.String(100), unique=True)
+    last_update = db.Column(db.DateTime)
+
+    serialize_rules = ('-check_configs.check',)
+    check_configs = db.relationship("CheckConfig", backref='check', cascade='all,delete')
+
+
+class CheckConfig(db.Model, SerializerMixin):
+    __tablename__ = 'check_config'
+
+    id = db.Column(db.Integer, primary_key=True)
+    check_id = db.Column(db.Integer, db.ForeignKey('check.id'))
+    config_id = db.Column(db.Integer, db.ForeignKey('config.id'))
     start = db.Column(db.Integer, default=10)
     run = db.Column(db.Integer, default=90)
     before_after = db.Column(db.Boolean, default=True)
-    address = db.Column(db.String(100), unique=True)
-    last_update = db.Column(db.DateTime)
 
 
 class Config(db.Model, SerializerMixin):
@@ -142,9 +161,10 @@ class Config(db.Model, SerializerMixin):
     name = db.Column(db.String(100), unique=True)
     active = db.Column(db.Boolean, default=True)
 
-    serialize_rules = ('-sensor_configs',)
-
+    serialize_rules = ('-sensor_configs', '-valve_configs', '-check_configs',)
     sensor_configs = db.relationship("SensorConfig", backref='config', cascade='all,delete')
+    valve_configs = db.relationship("ValveConfig", backref='config', cascade='all,delete')
+    check_configs = db.relationship("CheckConfig", backref='config', cascade='all,delete')
 
 # open time for valve: set, land, valve , time
 # tripping time for sensor: set, land, sensor, time_

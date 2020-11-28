@@ -64,7 +64,6 @@
                         {% endfor %}
                     </select>
                 </div>
-                <input name="config_name" value="{{ config_name }}" hidden>
                 <button type="submit" class="btn btn-success btn-sm">Add set</button>
             </div>
         </form>
@@ -87,46 +86,54 @@
                         <span>{{ set.number }}</span>
                         <span>{{ land.number }}</span>
                         <span>
-                        <label class="switch">
-                            <input type="checkbox" {{ "checked" if land.autorun else '' }}
-                                   onchange="updateAutorun(this, '{{ land.number }}', 'v')">
-                            <span class="slider round"></span>
-                        </label>
-                    </span>
+                            <label class="switch">
+                                <input type="checkbox" {{ "checked" if land.autorun else '' }}
+                                       onchange="updateAutorun(this, '{{ land.number }}', 'v')">
+                                <span class="slider round"></span>
+                            </label>
+                        </span>
                         <span>
-                {% for valve in land.valves %}
-                    <p>{{ valve.name }}</p>
-                {% endfor %}
-                </span>
-                        <span>
-                {% for valve in land.valves %}
-                    <span valve-id="{{ valve.id }}">
-                        <input type="number" min="0" max="100" value="{{ valve.preflow }}"
-                               onfocusout="updateStartPreflow(this, '{{ valve.name }}', 'v')"/>
-                    </span>
-                {% endfor %}
-                </span>
-                        <span>
-                    {% if not land.valves %}
-                        -------
-                    {% endif %}
                             {% for valve in land.valves %}
-                                <span valve-id="{{ valve.id }}">
-                        <input type="number" min="0" max="100" value="{{ valve.run }}"
-                               onfocusout="updateRun(this, '{{ valve.name }}', 'v')"/>
-                    </span>
+                                <p>{{ valve.name }}</p>
                             {% endfor %}
-                </span>
+                        </span>
                         <span>
-                    {% if not land.sensors %}
-                        -------
-                    {% endif %}
+                            {% for valve in land.valves %}
+                                {% for valve_config in valve.valve_configs %}
+                                    {% if valve_config.config.name == config_name %}
+                                        <span valve_config-id="{{ valve_config.id }}">
+                                            <input type="number" min="0" max="100" value="{{ valve_config.preflow }}"
+                                                   onfocusout="updateStartPreflow(this, '{{ valve.name }}', 'v')"/>
+                                        </span>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        </span>
+                        <span>
+                            {% if not land.valves %}
+                                -------
+                            {% endif %}
+                            {% for valve in land.valves %}
+                                {% for valve_config in valve.valve_configs %}
+                                    {% if valve_config.config.name == config_name %}
+                                        <span valve_config-id="{{ valve_config.id }}">
+                                            <input type="number" min="0" max="100" value="{{ valve_config.run }}"
+                                                   onfocusout="updateRun(this, '{{ valve.name }}', 'v')"/>
+                                        </span>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        </span>
+                        <span>
+                            {% if not land.sensors %}
+                                -------
+                            {% endif %}
                             {% for sensor in land.sensors %}
                                 <p>{{ sensor.name }}</p>
                             {% endfor %}
-                </span>
+                        </span>
                         <span>
-                    <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSet(this)"/>
+                            <img class="delete-card" src="../static/images/delete.jpeg" onclick="deleteSet(this)"/>
                             {% if not land.sensors %}
                                 <input type="number" min="0" value="{{ land.delay }}"
                                        onfocusout="updateLandDelay(this, '{{ land.id }}')"/>
@@ -136,12 +143,12 @@
                                     {% if sensor_config.config.name == config_name %}
                                         <span sensor_config-id="{{ sensor_config.id }}">
                                         <input type="number" min="0" value="{{ sensor_config.delay }}"
-                                               onfocusout="updateSensorDelay(this, '{{ sensor_config.sensor.name }}')"/>
+                                               onfocusout="updateSensorDelay(this, '{{ sensor.name }}')"/>
                                     </span>
                                     {% endif %}
                                 {% endfor %}
                             {% endfor %}
-                </span>
+                        </span>
                     </div>
                 {% endfor %}
             {% endfor %}
@@ -160,44 +167,56 @@
                 <div class="set-container checks" set-id="{{ set.id }}">
                     <span>{{ set.number }}</span>
                     <span>
-                    <label class="switch">
-                        <input type="checkbox" {{ "checked" if set.autorun else '' }}
-                               onchange="updateAutorun(this, '{{ set.number }}', 'c')">
-                        <span class="slider round"></span>
-                    </label>
-                </span>
-                    <span>
-                {% for check in set.checks %}
-                    <p>{{ check.name }}</p>
-                {% endfor %}
-                </span>
-                    <span>
-                {% for check in set.checks %}
-                    <span check-id="{{ check.id }}">
-                        <input type="number" min="0" max="100" value="{{ check.start }}"
-                               onfocusout="updateStartPreflow(this, '{{ check.name }}', 'c')"/>
-                    </span>
-                {% endfor %}
-                </span>
-                    <span>
-                {% for check in set.checks %}
-                    <span check-id="{{ check.id }}">
-                        <input type="number" min="0" max="100" value="{{ check.run }}"
-                               onfocusout="updateRun(this, '{{ check.name }}', 'c')"/>
-                    </span>
-                {% endfor %}
-                </span>
-                    <span>
-                {% for check in set.checks %}
-                    <span>
                         <label class="switch">
-                            <input type="checkbox" {{ "checked" if check.before_after else '' }}
-                                   onchange="updateBeforeAfter(this, {{ check.id }}, '{{ check.name }}')">
+                            <input type="checkbox" {{ "checked" if set.autorun else '' }}
+                                   onchange="updateAutorun(this, '{{ set.number }}', 'c')">
                             <span class="slider round"></span>
                         </label>
                     </span>
-                {% endfor %}
-                </span>
+                    <span>
+                        {% for check in set.checks %}
+                            <p>{{ check.name }}</p>
+                        {% endfor %}
+                    </span>
+                    <span>
+                        {% for check in set.checks %}
+                            {% for check_config in check.check_configs %}
+                                {% if check_config.config.name == config_name %}
+                                    <span check_config-id="{{ check_config.id }}">
+                                        <input type="number" min="0" max="100" value="{{ check_config.start }}"
+                                               onfocusout="updateStartPreflow(this, '{{ check.name }}', 'c')"/>
+                                    </span>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </span>
+                    <span>
+                        {% for check in set.checks %}
+                            {% for check_config in check.check_configs %}
+                                {% if check_config.config.name == config_name %}
+                                    <span check_config-id="{{ check_config.id }}">
+                                        <input type="number" min="0" max="100" value="{{ check_config.run }}"
+                                               onfocusout="updateRun(this, '{{ check.name }}', 'c')"/>
+                                    </span>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </span>
+                    <span>
+                        {% for check in set.checks %}
+                            {% for check_config in check.check_configs %}
+                                {% if check_config.config.name == config_name %}
+                                    <span>
+                                        <label class="switch">
+                                            <input type="checkbox" {{ "checked" if check_config.before_after else '' }}
+                                                   onchange="updateBeforeAfter(this, {{ check_config.id }}, '{{ check.name }}')">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </span>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </span>
                 </div>
             {% endfor %}
         </div>

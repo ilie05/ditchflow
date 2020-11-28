@@ -1,6 +1,6 @@
 from flaskthreads import AppContextThread
 from digi.xbee.devices import XBeeDevice
-from models import Sensor, Valve, Land, Check, Config, SensorConfig
+from models import Sensor, Valve, Land, Check, Config, SensorConfig, ValveConfig, CheckConfig
 import datetime
 import traceback
 import serial
@@ -45,7 +45,6 @@ def create_update_sensor(message, address):
             for config_page in config_pages:
                 sensor_config = SensorConfig(sensor_id=sensor.id, config_id=config_page.id)
                 db.session.add(sensor_config)
-            db.session.commit()
         else:
             # exists, update the name and the date
             sensor.name = name
@@ -55,7 +54,7 @@ def create_update_sensor(message, address):
             sensor.temperature = temperature
             sensor.water = water
             sensor.last_update = current_time
-            db.session.commit()
+        db.session.commit()
 
         return {'id': sensor.id, 'name': name, 'last_update': str(current_time), 'battery': battery,
                 'float': float, 'temperature': temperature, 'water': water}, sensor
@@ -86,6 +85,13 @@ def create_update_valve(message, address):
                           actuator_position=actuator_position, temperature=temperature, water=water, land_id=land.id,
                           address=address, last_update=current_time)
             db.session.add(valve)
+            db.session.commit()
+
+            # add sensor configs for each config page
+            config_pages = Config.query.all()
+            for config_page in config_pages:
+                valve_config = ValveConfig(valve_id=valve.id, config_id=config_page.id)
+                db.session.add(valve_config)
         else:
             # exists, update the name and the date
             valve.name = name
@@ -126,6 +132,13 @@ def create_update_check(message, address):
                           actuator_position=actuator_position, temperature=temperature, water=water, address=address,
                           last_update=current_time)
             db.session.add(check)
+            db.session.commit()
+
+            # add check configs for each config page
+            config_pages = Config.query.all()
+            for config_page in config_pages:
+                check_config = CheckConfig(check_id=check.id, config_id=config_page.id)
+                db.session.add(check_config)
         else:
             # exists, update the name and the date
             check.name = name

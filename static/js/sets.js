@@ -6,8 +6,8 @@ let INTERVAL;
 const updateStartPreflow = (context, Name, t) => {
     let fieldVal = $(context).val(), objId;
 
-    if (t === 'v') objId = $(context).parent().attr('valve-id');
-    else if (t === 'c') objId = $(context).parent().attr('check-id');
+    if (t === 'v') objId = $(context).parent().attr('valve_config-id');
+    else if (t === 'c') objId = $(context).parent().attr('check_config-id');
 
     if (fieldVal === '' || Number(fieldVal) < 0 || Number(fieldVal) > 100) return;
 
@@ -27,8 +27,8 @@ const updateStartPreflow = (context, Name, t) => {
 
 const updateRun = (context, Name, t) => {
     let run = $(context).val(), objId;
-    if (t === 'v') objId = $(context).parent().attr('valve-id');
-    else if (t === 'c') objId = $(context).parent().attr('check-id');
+    if (t === 'v') objId = $(context).parent().attr('valve_config-id');
+    else if (t === 'c') objId = $(context).parent().attr('check_config-id');
     if (run === '' || Number(run) < 0 || Number(run) > 100) return;
 
     fetch(`${MAIN_URL}/run`, {

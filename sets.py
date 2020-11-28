@@ -2,7 +2,7 @@ import jwt
 from flask import Blueprint, render_template, request, url_for, redirect, current_app, Response, flash
 from flask_login import login_required, current_user
 from database import db
-from models import Land, Set, Valve, Sensor, Check, Config, SensorConfig
+from models import Land, Set, Valve, Sensor, Check, Config, SensorConfig, ValveConfig, CheckConfig
 import traceback
 
 sets = Blueprint('sets', __name__)
@@ -66,8 +66,16 @@ def configuration():
         for sensor in Sensor.query.all():
             sensor_config = SensorConfig(sensor_id=sensor.id, config_id=config_page.id)
             db.session.add(sensor_config)
-        db.session.commit()
 
+        for valve in Valve.query.all():
+            valve_config = ValveConfig(valve_id=valve.id, config_id=config_page.id)
+            db.session.add(valve_config)
+
+        for check in Check.query.all():
+            check_config = CheckConfig(check_id=check.id, config_id=config_page.id)
+            db.session.add(check_config)
+
+        db.session.commit()
         return redirect(url_for('sets.configuration', config_name=config_name))
     else:
         payload = request.get_json()
@@ -90,13 +98,10 @@ def config_set():
         try:
             set_number = int(request.form.get('set_number'))
             land_id = int(request.form.get('land_id'))
-            config_name = request.form.get('config_name')
         except ValueError as e:
             print("Wrong set_number or land_id")
             traceback.print_exc()
             return redirect(url_for('sets.configuration'))
-
-        config_page = Config.query.filter_by(name=config_name).first()
 
         set_obj = Set.query.filter_by(number=set_number).first()
         if not set_obj:
@@ -107,12 +112,6 @@ def config_set():
         land = Land.query.filter_by(id=land_id).first()
         land.set_id = set_obj.id
         db.session.add(land)
-
-        # create new sensor configuration
-        for sensor in land.sensors:
-            sensor_config = SensorConfig(sensor_id=sensor.id, config_id=config_page.id)
-            db.session.add(sensor_config)
-
         db.session.commit()
         return redirect(url_for('sets.configuration'))
     else:
@@ -141,14 +140,14 @@ def startpreflow():
     field_val = payload['fieldVal'] if 'fieldVal' in payload else None
 
     if t == 'v':
-        obj = Valve.query.filter_by(id=obj_id).first()
+        obj = ValveConfig.query.filter_by(id=obj_id).first()
         if str(obj.preflow) != field_val:
             obj.preflow = field_val
             db.session.add(obj)
             db.session.commit()
             return Response(status=200)
     elif t == 'c':
-        obj = Check.query.filter_by(id=obj_id).first()
+        obj = CheckConfig.query.filter_by(id=obj_id).first()
         if str(obj.start) != field_val:
             obj.start = field_val
             db.session.add(obj)
@@ -169,9 +168,9 @@ def run():
     run = payload['run'] if 'run' in payload else None
 
     if t == 'v':
-        obj = Valve.query.filter_by(id=obj_id).first()
+        obj = ValveConfig.query.filter_by(id=obj_id).first()
     elif t == 'c':
-        obj = Check.query.filter_by(id=obj_id).first()
+        obj = CheckConfig.query.filter_by(id=obj_id).first()
     else:
         return Response(status=404)
     if str(obj.run) != run:
@@ -229,7 +228,7 @@ def beforeafter():
     obj_id = payload['objId'] if 'objId' in payload else None
     is_checked = payload['isChecked'] if 'isChecked' in payload else None
 
-    check = Check.query.filter_by(id=obj_id).first()
+    check = CheckConfig.query.filter_by(id=obj_id).first()
     check.before_after = is_checked
     db.session.add(check)
     db.session.commit()
