@@ -2,7 +2,8 @@ import jwt
 from flask import Blueprint, render_template, request, url_for, redirect, current_app, Response, flash
 from flask_login import login_required, current_user
 from database import db
-from models import Land, Set, Valve, Sensor, Check, Config
+from models import Land, Set, Valve, Sensor, Check, Config, SensorConfig
+import traceback
 
 sets = Blueprint('sets', __name__)
 
@@ -17,7 +18,7 @@ def configuration():
         if config_name is None:
             config_page = Config.query.filter_by(active=True).first()
             if config_page:
-                return render_template('sets.html', configs=configs, config_name=config_page.name)
+                return redirect(url_for('sets.configuration', config_name=config_page.name))
             else:
                 config_page = Config.query.first()
                 if config_page:
@@ -61,15 +62,24 @@ def configuration():
         config_page = Config(name=config_name)
         db.session.add(config_page)
         db.session.commit()
+
+        for sensor in Sensor.query.all():
+            sensor_config = SensorConfig(sensor_id=sensor.id, config_id=config_page.id)
+            db.session.add(sensor_config)
+        db.session.commit()
+
         return redirect(url_for('sets.configuration', config_name=config_name))
     else:
         payload = request.get_json()
         config_name = payload['config_name'] if 'config_name' in payload else None
 
-        config_page = Config.query.filter_by(name=config_name).first()
-        if config_page:
-            Config.query.filter_by(name=config_name).delete()
+        try:
+            config_page = Config.query.filter_by(name=config_name).first()
+            db.session.delete(config_page)
             db.session.commit()
+        except Exception as e:
+            traceback.print_exc()
+            return Response(status=404)
         return Response(status=200)
 
 
@@ -80,9 +90,13 @@ def config_set():
         try:
             set_number = int(request.form.get('set_number'))
             land_id = int(request.form.get('land_id'))
+            config_name = request.form.get('config_name')
         except ValueError as e:
             print("Wrong set_number or land_id")
+            traceback.print_exc()
             return redirect(url_for('sets.configuration'))
+
+        config_page = Config.query.filter_by(name=config_name).first()
 
         set_obj = Set.query.filter_by(number=set_number).first()
         if not set_obj:
@@ -93,6 +107,12 @@ def config_set():
         land = Land.query.filter_by(id=land_id).first()
         land.set_id = set_obj.id
         db.session.add(land)
+
+        # create new sensor configuration
+        for sensor in land.sensors:
+            sensor_config = SensorConfig(sensor_id=sensor.id, config_id=config_page.id)
+            db.session.add(sensor_config)
+
         db.session.commit()
         return redirect(url_for('sets.configuration'))
     else:
@@ -167,10 +187,10 @@ def run():
 @login_required
 def delay():
     payload = request.get_json()
-    sensor_id = payload['sensorId'] if 'sensorId' in payload else None
+    sensor_config_id = payload['sensorConfigId'] if 'sensorConfigId' in payload else None
     sensor_delay = payload['delay'] if 'delay' in payload else None
 
-    sensor = Sensor.query.filter_by(id=sensor_id).first()
+    sensor = SensorConfig.query.filter_by(id=sensor_config_id).first()
     if str(sensor.delay) != sensor_delay:
         sensor.delay = sensor_delay
         db.session.add(sensor)

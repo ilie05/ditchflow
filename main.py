@@ -4,6 +4,7 @@ from flask_login import login_required, current_user
 from database import db
 from models import Sensor, Message, Valve, LabelMessage, Land, Check, Set
 from utils import validate_message, validate_labels, write_settings
+import traceback
 
 main = Blueprint('main', __name__)
 
@@ -43,8 +44,12 @@ def sensor():
         payload = request.get_json()
         sensor_id = payload['sensorId'] if 'sensorId' in payload else None
 
-        Sensor.query.filter_by(id=sensor_id).delete()
-        db.session.commit()
+        try:
+            sensor = Sensor.query.filter_by(id=sensor_id).first()
+            db.session.delete(sensor)
+            db.session.commit()
+        except Exception as e:
+            traceback.print_exc()
 
         return Response(status=200)
 

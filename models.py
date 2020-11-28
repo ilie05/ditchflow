@@ -54,9 +54,21 @@ class Sensor(db.Model, SerializerMixin):
     temperature = db.Column(db.Float)
     water = db.Column(db.Float)
     float = db.Column(db.Boolean)
-    delay = db.Column(db.Integer, default=5)
     address = db.Column(db.String(100), unique=True)
     last_update = db.Column(db.DateTime)
+
+    serialize_rules = ('-sensor_configs.sensor',)
+
+    sensor_configs = db.relationship("SensorConfig", backref='sensor', cascade='all,delete')
+
+
+class SensorConfig(db.Model, SerializerMixin):
+    __tablename__ = 'sensor_config'
+
+    id = db.Column(db.Integer, primary_key=True)
+    sensor_id = db.Column(db.Integer, db.ForeignKey('sensor.id'))
+    config_id = db.Column(db.Integer, db.ForeignKey('config.id'))
+    delay = db.Column(db.Integer, default=5)
 
 
 class Valve(db.Model, SerializerMixin):
@@ -129,6 +141,10 @@ class Config(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
     active = db.Column(db.Boolean, default=True)
+
+    serialize_rules = ('-sensor_configs',)
+
+    sensor_configs = db.relationship("SensorConfig", backref='config', cascade='all,delete')
 
 # open time for valve: set, land, valve , time
 # tripping time for sensor: set, land, sensor, time_

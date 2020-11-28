@@ -37,7 +37,7 @@
         <div class="add-set-container">
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">New configuration name</span>
+                    <span class="input-group-text" id="basic-addon1">New configuration</span>
                 </div>
                 <input class="form-control" name="config_name" required>
             </div>
@@ -64,6 +64,7 @@
                         {% endfor %}
                     </select>
                 </div>
+                <input name="config_name" value="{{ config_name }}" hidden>
                 <button type="submit" class="btn btn-success btn-sm">Add set</button>
             </div>
         </form>
@@ -131,10 +132,14 @@
                                        onfocusout="updateLandDelay(this, '{{ land.id }}')"/>
                             {% endif %}
                             {% for sensor in land.sensors %}
-                                <span sensor-id="{{ sensor.id }}">
-                        <input type="number" min="0" value="{{ sensor.delay }}"
-                               onfocusout="updateSensorDelay(this, '{{ sensor.name }}')"/>
-                    </span>
+                                {% for sensor_config in sensor.sensor_configs %}
+                                    {% if sensor_config.config.name == config_name %}
+                                        <span sensor_config-id="{{ sensor_config.id }}">
+                                        <input type="number" min="0" value="{{ sensor_config.delay }}"
+                                               onfocusout="updateSensorDelay(this, '{{ sensor_config.sensor.name }}')"/>
+                                    </span>
+                                    {% endif %}
+                                {% endfor %}
                             {% endfor %}
                 </span>
                     </div>

@@ -46,7 +46,7 @@ const updateRun = (context, Name, t) => {
 }
 
 const updateSensorDelay = (context, sName) => {
-    const sensorId = $(context).parent().attr('sensor-id');
+    const sensorConfigId = $(context).parent().attr('sensor_config-id');
     const delay = $(context).val();
     if (delay === '' || Number(delay) < 0) return;
 
@@ -56,7 +56,7 @@ const updateSensorDelay = (context, sName) => {
             'Authorization': jwtToken,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({sensorId, delay})
+        body: JSON.stringify({sensorConfigId, delay})
     })
         .then(res => {
             const message = `Delay for sensor ${sName} has been updated!`;
