@@ -220,4 +220,26 @@ def ping_outside():
     while True:
         time.sleep(interval)
         urllib.request.urlopen('http://google.com/')
+        print("Ping Google....")
+
+
+# 1. Hit start: all the valves in set1 will open to the RUN
+# 2. If all the sensors in a specific land trip, then trigger the preflow for all the valves in the next set(all lands),
+# then close the valves from that land that triggered the preflow
+# 3. When all the sensors will trip in the first set(from all lands),
+# then open all the valves to the RUN the next set(all lands),
+# then close all the valves in the previous set
+
+# check if the xbee api retrieved a response, if the message is not delivered,
+# try again one more time, or display an error
+
+# before closing the valves on first set: send the preflow for each valve in the second set, wait for MOVING status,
+# then wait for IDLE status, then check if the Preflow == current position (+-1% error),
+# then close the valves on set one
+# do the same for the RUN
+
+
+# STOP will close all the valves, reset the clock
+# PAUSE time goes on, does not do anything
+
 

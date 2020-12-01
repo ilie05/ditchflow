@@ -178,3 +178,4 @@ class Config(db.Model, SerializerMixin):
 
 # open time for valve: set, land, valve , time
 # tripping time for sensor: set, land, sensor, time_
+# how long it took the water to get to the sensor after opening the valves

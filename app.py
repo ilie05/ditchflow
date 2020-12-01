@@ -1,18 +1,19 @@
-import jwt
 from flask import Flask, current_app
-from flask_migrate import Migrate
 from flask_socketio import SocketIO
-from auth import auth as auth_blueprint
 from flask_login import LoginManager
+from auth import auth as auth_blueprint
+from flask_cors import CORS
+from flask_migrate import Migrate
+import jwt
+from database import db
 from datetime import timedelta
 from main import main as main_blueprint
 from contact import contact as contact_blueprint
 from sets import sets as sets_blueprint
-from database import db
 from models import User
 from utils import load_config_settings, prepopulate_db
 from sensors_rcv import listen_sensors_thread
-from flask_cors import CORS
+from autorun import sending
 
 app = Flask(__name__)
 
@@ -68,6 +69,7 @@ if __name__ == '__main__':
     def activate_job():
         with context:
             listen_sensors_thread(socket_io)
+            sending()
 
 
     socket_io.run(app, host='0.0.0.0', debug=True, port=3000)
