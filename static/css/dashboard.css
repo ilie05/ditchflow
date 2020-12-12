@@ -89,7 +89,7 @@ table {
     display: flex;
 }
 
-#run-time {
+.run-time {
     margin: 0 0 20px 50px;
     font-size: 28px;
 }
@@ -112,7 +112,7 @@ and (max-device-width: 1024px) {
         flex-wrap: wrap;
     }
 
-    #run-time {
+    .run-time {
         margin-left: 0;
     }
 

@@ -4,10 +4,14 @@
     <script src="../static/bootstrap4/js/bootstrap-select.min.js"></script>
     <link href="../static/css/dashboard.css" rel="stylesheet">
     <script src="../static/js/socket.io.js"></script>
+    <script src="../static/js/dashboard.js"></script>
     <script>
         const jwtToken = "{{ jwt_token }}";
+        const run_time = "{{ run_time }}";
+        if (run_time !== "None") {
+            runTimePrep(run_time);
+        }
     </script>
-    <script src="../static/js/dashboard.js"></script>
 
     <table class="table table-bordered table-dark" id="main-table">
         <tbody>
@@ -135,7 +139,14 @@
         </div>
 
         <div>
-            <div id="run-time">Total run time: 3h 29min</div>
+            <div class="run-time">Total run time:
+                <span class="cont-display" style="display: {{ 'none' if not run_time else '' }}">
+                        <span class="h"></span>h
+                        <span class="m"></span>min
+                        <span class="s"></span>sec
+                    </span>
+                <span class="cont-hide" style="display: {{ 'none' if run_time else '' }}">---</span>
+            </div>
             <div class="btns">
                 <button type="button" id="startBtn" class="btn btn-dark btn-lg" {{ 'disabled' if is_autorun else '' }}
                         onclick="startSystem()">Start
@@ -147,11 +158,11 @@
                 <button type="button" id="pauseBtn"
                         class="btn btn-dark btn-lg" {{ 'disabled' if not is_autorun else '' }}
                         onclick="pauseSystem()">
-                        {% if is_paused %}
-                            Unpause
-                        {% else %}
-                            Pause
-                        {% endif %}
+                    {% if is_paused %}
+                        Unpause
+                    {% else %}
+                        Pause
+                    {% endif %}
                 </button>
             </div>
         </div>

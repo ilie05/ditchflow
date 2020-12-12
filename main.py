@@ -1,10 +1,11 @@
 import jwt
 from flask import Blueprint, render_template, request, url_for, redirect, flash, current_app, Response
 from flask_login import login_required, current_user
+import traceback
+import datetime
 from database import db
 from models import Sensor, Message, Valve, LabelMessage, Land, Check, Set, Config, LandConfig
 from utils import validate_message, validate_labels, write_settings
-import traceback
 
 main = Blueprint('main', __name__)
 
@@ -12,15 +13,20 @@ main = Blueprint('main', __name__)
 @main.route('/', )
 @login_required
 def index():
-    cache = current_app.config.get("CACHE")
+    cache = current_app.config.get("CACHE")['buttons']
+    start_time = current_app.config['CACHE']['start_time']
     token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                        algorithm='HS256').decode()
+    run_time = None
+    if start_time:
+        run_time = datetime.datetime.now().replace(microsecond=0) - start_time
+
     config_page = Config.query.filter_by(active=True).first()
     config_name = config_page.name if config_page else None
     sets = Set.query.all()
     is_autorun = cache['is_autorun'] if 'is_autorun' in cache else None
     is_paused = cache['is_paused'] if 'is_paused' in cache else None
-    return render_template('index.html', jwt_token=str(token), sets=sets, config_name=config_name,
+    return render_template('index.html', jwt_token=str(token), sets=sets, config_name=config_name, run_time=run_time,
                            is_autorun=is_autorun, is_paused=is_paused)
 
 

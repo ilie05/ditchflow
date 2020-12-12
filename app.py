@@ -25,7 +25,7 @@ CORS(app)
 app.config['SECRET_KEY'] = 'WuLXEWvce8EWr5KEPF'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['JWT_SECRET'] = 'mkFOcbEeBGBHLKiMxM6m'
-app.config['CACHE'] = {}
+app.config['CACHE'] = {'buttons': {}, 'start_time': None}
 
 app.permanent_session_lifetime = timedelta(days=app.config.get("SESSION_DURATION"))
 

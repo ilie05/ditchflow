@@ -90,6 +90,10 @@ function startSystem() {
                 $('#startBtn').prop('disabled', true);
                 $('#stopBtn').prop('disabled', false);
                 $('#pauseBtn').prop('disabled', false)
+                $('.run-time .cont-display').show();
+                countUpFromTime.interval = NaN;
+                runTimePrep('0:0:0');
+                $('.run-time .cont-hide').hide();
             }
         });
 }
@@ -109,6 +113,9 @@ function stopSystem() {
                 $('#stopBtn').prop('disabled', true);
                 $('#pauseBtn').text("Pause");
                 $('#pauseBtn').prop('disabled', true);
+                countUpFromTime.interval = -1
+                $('.run-time .cont-display').hide();
+                $('.run-time .cont-hide').show();
             }
         });
 
@@ -126,10 +133,44 @@ function pauseSystem() {
         .then(res => {
             if (res.ok) {
                 let state = $('#pauseBtn').text().trim();
-                if(state === "Pause") $('#pauseBtn').text("Unpause");
+                if (state === "Pause") $('#pauseBtn').text("Unpause");
                 else $('#pauseBtn').text("Pause");
                 $('#stopBtn').prop('disabled', false);
                 $('#startBtn').prop('disabled', true);
             }
         });
+}
+
+function runTimePrep(run_time) {
+    let dt = new Date();
+    dt.setHours(Number(run_time.split(':')[0]));
+    dt.setMinutes(Number(run_time.split(':')[1]));
+    dt.setSeconds(Number(run_time.split(':')[2]));
+    countUpFromTime(dt);
+}
+
+function countUpFromTime(countFrom) {
+    let now = new Date();
+    now.setSeconds(0);
+    now.setMinutes(0);
+    now.setHours(0);
+    let timeDifference = (countFrom - now);
+
+    let secondsInADay = 60 * 60 * 1000 * 24,
+        secondsInAHour = 60 * 60 * 1000;
+
+    let hours = Math.floor((timeDifference % (secondsInADay)) / (secondsInAHour) * 1);
+    let mins = Math.floor(((timeDifference % (secondsInADay)) % (secondsInAHour)) / (60 * 1000) * 1);
+    let secs = Math.floor((((timeDifference % (secondsInADay)) % (secondsInAHour)) % (60 * 1000)) / 1000 * 1);
+
+    $('.run-time .h').text(hours);
+    $('.run-time .m').text(mins);
+    $('.run-time .s').text(secs);
+
+    countFrom.setSeconds(countFrom.getSeconds() + 1);
+    if (countUpFromTime.interval === -1) return;
+    clearTimeout(countUpFromTime.interval);
+    countUpFromTime.interval = setTimeout(function () {
+        countUpFromTime(countFrom);
+    }, 1000);
 }
