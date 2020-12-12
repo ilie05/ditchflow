@@ -12,12 +12,16 @@ main = Blueprint('main', __name__)
 @main.route('/', )
 @login_required
 def index():
+    cache = current_app.config.get("CACHE")
     token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                        algorithm='HS256').decode()
     config_page = Config.query.filter_by(active=True).first()
     config_name = config_page.name if config_page else None
     sets = Set.query.all()
-    return render_template('index.html', jwt_token=str(token), sets=sets, config_name=config_name)
+    is_autorun = cache['is_autorun'] if 'is_autorun' in cache else None
+    is_paused = cache['is_paused'] if 'is_paused' in cache else None
+    return render_template('index.html', jwt_token=str(token), sets=sets, config_name=config_name,
+                           is_autorun=is_autorun, is_paused=is_paused)
 
 
 @main.route('/sensors', methods=["GET", "POST", "DELETE"])

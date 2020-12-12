@@ -137,9 +137,22 @@
         <div>
             <div id="run-time">Total run time: 3h 29min</div>
             <div class="btns">
-                <button type="button" class="btn btn-dark btn-lg" onclick="startSystem()">Start</button>
-                <button type="button" class="btn btn-dark btn-lg" onclick="stopSystem()">Stop</button>
-                <button type="button" class="btn btn-dark btn-lg" onclick="pauseSystem()">Pause</button>
+                <button type="button" id="startBtn" class="btn btn-dark btn-lg" {{ 'disabled' if is_autorun else '' }}
+                        onclick="startSystem()">Start
+                </button>
+                <button type="button" id="stopBtn"
+                        class="btn btn-dark btn-lg" {{ 'disabled' if not is_autorun else '' }} onclick="stopSystem()">
+                    Stop
+                </button>
+                <button type="button" id="pauseBtn"
+                        class="btn btn-dark btn-lg" {{ 'disabled' if not is_autorun else '' }}
+                        onclick="pauseSystem()">
+                        {% if is_paused %}
+                            Unpause
+                        {% else %}
+                            Pause
+                        {% endif %}
+                </button>
             </div>
         </div>
 

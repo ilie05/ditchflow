@@ -77,16 +77,59 @@ socket.on('sensor_notification', function (data) {
 });
 
 function startSystem() {
-    if (confirm("Are you sure you want to start?")) console.log("da")
-    else console.log("no")
+    if (!confirm("Are you sure you want to Start?")) return;
+
+    fetch(`${MAIN_URL}/startAutorun`, {
+        method: 'GET',
+        headers: {
+            'Authorization': jwtToken,
+        },
+    })
+        .then(res => {
+            if (res.ok) {
+                $('#startBtn').prop('disabled', true);
+                $('#stopBtn').prop('disabled', false);
+                $('#pauseBtn').prop('disabled', false)
+            }
+        });
 }
 
 function stopSystem() {
-    if (confirm("Are you sure you want to stop?")) console.log("da")
-    else console.log("no")
+    if (!confirm("Are you sure you want to Stop?")) return;
+
+    fetch(`${MAIN_URL}/stopAutorun`, {
+        method: 'GET',
+        headers: {
+            'Authorization': jwtToken,
+        },
+    })
+        .then(res => {
+            if (res.ok) {
+                $('#startBtn').prop('disabled', false);
+                $('#stopBtn').prop('disabled', true);
+                $('#pauseBtn').text("Pause");
+                $('#pauseBtn').prop('disabled', true);
+            }
+        });
+
 }
 
 function pauseSystem() {
-    if (confirm("Are you sure you want to pause?")) console.log("da")
-    else console.log("no")
+    if (!confirm(`Are you sure you want to ${$('#pauseBtn').text().trim()}?`)) return;
+
+    fetch(`${MAIN_URL}/pauseAutorun`, {
+        method: 'GET',
+        headers: {
+            'Authorization': jwtToken,
+        },
+    })
+        .then(res => {
+            if (res.ok) {
+                let state = $('#pauseBtn').text().trim();
+                if(state === "Pause") $('#pauseBtn').text("Unpause");
+                else $('#pauseBtn').text("Pause");
+                $('#stopBtn').prop('disabled', false);
+                $('#startBtn').prop('disabled', true);
+            }
+        });
 }

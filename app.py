@@ -10,6 +10,7 @@ from datetime import timedelta
 from main import main as main_blueprint
 from contact import contact as contact_blueprint
 from sets import sets as sets_blueprint
+from autorun import autorun as autorun_blueprint
 from models import User
 from utils import load_config_settings, prepopulate_db
 from sensors_rcv import listen_sensors_thread
@@ -24,6 +25,7 @@ CORS(app)
 app.config['SECRET_KEY'] = 'WuLXEWvce8EWr5KEPF'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['JWT_SECRET'] = 'mkFOcbEeBGBHLKiMxM6m'
+app.config['CACHE'] = {}
 
 app.permanent_session_lifetime = timedelta(days=app.config.get("SESSION_DURATION"))
 
@@ -56,6 +58,7 @@ app.register_blueprint(auth_blueprint)
 app.register_blueprint(main_blueprint)
 app.register_blueprint(contact_blueprint)
 app.register_blueprint(sets_blueprint)
+app.register_blueprint(autorun_blueprint)
 
 socket_io = SocketIO(app, async_mode='threading')
 
