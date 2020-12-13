@@ -12,7 +12,17 @@
             runTimePrep(run_time);
         }
     </script>
-
+    <div class="errors">
+        {% for error in errors %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ error.message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"
+                        onclick="deleteError({{ error.id }})">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
     <table class="table table-bordered table-dark" id="main-table">
         <tbody>
         <tr style="font-weight: bold">

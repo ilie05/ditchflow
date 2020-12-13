@@ -42,7 +42,7 @@ def configuration():
                            algorithm='HS256').decode()
         lands = Land.query.filter_by(set_id=None).order_by(Land.number).all()
         lands = list(filter(lambda l: len(l.sensors) > 0 or len(l.valves) > 0, lands))
-        sets = Set.query.all()
+        sets = Set.query.order_by(Set.number).all()
         return render_template('sets.html', lands=lands, sets=sets, jwt_token=str(token), configs=configs,
                                config_name=config_name)
     elif request.method == 'POST':

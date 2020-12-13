@@ -164,7 +164,7 @@ def receive_sensor_data(socket_io):
     notified_check_battery_ids = []
     notified_check_water_ids = []
 
-    device = g.local_device
+    device = current_app.config.get("CACHE")['device']
     print("Waiting for data...\n")
 
     while True:

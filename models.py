@@ -176,6 +176,13 @@ class Config(db.Model, SerializerMixin):
     check_configs = db.relationship("CheckConfig", backref='config', cascade='all,delete')
     land_configs = db.relationship("LandConfig", backref='config', cascade='all,delete')
 
+
+class Error(db.Model, SerializerMixin):
+    __tablename__ = 'error'
+
+    id = db.Column(db.Integer, primary_key=True)
+    message = db.Column(db.String(500))
+
 # open time for valve: set, land, valve , time
 # tripping time for sensor: set, land, sensor, time_
 # how long it took the water to get to the sensor after opening the valves

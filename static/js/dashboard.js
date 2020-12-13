@@ -76,6 +76,17 @@ socket.on('sensor_notification', function (data) {
     else card.css('background-color', 'dimgray')
 });
 
+socket.on('error_push', function (data) {
+    $('.errors').append(`
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                ${data.message}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"
+                        onclick="deleteError(${data.id})">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>`);
+});
+
 function startSystem() {
     if (!confirm("Are you sure you want to Start?")) return;
 
@@ -173,4 +184,15 @@ function countUpFromTime(countFrom) {
     countUpFromTime.interval = setTimeout(function () {
         countUpFromTime(countFrom);
     }, 1000);
+}
+
+function deleteError(errorId) {
+    fetch(`${MAIN_URL}/error`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': jwtToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({errorId})
+    });
 }

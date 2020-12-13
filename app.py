@@ -5,6 +5,7 @@ from auth import auth as auth_blueprint
 from flask_cors import CORS
 from flask_migrate import Migrate
 import jwt
+import logging
 from database import db
 from datetime import timedelta
 from main import main as main_blueprint
@@ -12,11 +13,12 @@ from contact import contact as contact_blueprint
 from sets import sets as sets_blueprint
 from autorun import autorun as autorun_blueprint
 from models import User
-from utils import load_config_settings, prepopulate_db
+from utils import load_config_settings, prepopulate_db, connect_to_device
 from sensors_rcv import listen_sensors_thread
-from autorun import sending
 
 app = Flask(__name__)
+log = logging.getLogger('werkzeug')
+log.disabled = True
 
 app.config.from_object('config.Config')
 load_config_settings(app)
@@ -61,9 +63,11 @@ app.register_blueprint(sets_blueprint)
 app.register_blueprint(autorun_blueprint)
 
 socket_io = SocketIO(app, async_mode='threading')
+app.config['SOCKET_IO'] = socket_io
 
 context = app.app_context()
 context.push()
+connect_to_device()
 
 prepopulate_db()
 
@@ -72,7 +76,6 @@ if __name__ == '__main__':
     def activate_job():
         with context:
             listen_sensors_thread(socket_io)
-            sending()
 
 
     socket_io.run(app, host='0.0.0.0', debug=True, port=3000)

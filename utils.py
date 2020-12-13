@@ -1,4 +1,5 @@
 from flask import current_app
+from digi.xbee.devices import XBeeDevice
 import random
 import re
 import urllib.request
@@ -223,6 +224,29 @@ def ping_outside():
         print("Ping Google....")
 
 
+def connect_to_device():
+    try:
+        port = current_app.config.get("DEVICE_PORT")
+        baud_rate = current_app.config.get("BAUD_RATE")
+        device = XBeeDevice(port, baud_rate)
+
+        device.open()
+        device.flush_queues()
+        current_app.config['CACHE']['device'] = device
+    except Exception as e:
+        print("!!!...CONNECTION TO THE DEVICE FAILED...!!!")
+        print(str(e))
+
+
+class RemoteDevice:
+    def __init__(self, local_device, address):
+        self.address = address
+
+
+class Device:
+    def send_data(self, remote_device, message):
+        print(f"Message {message} sent to the device with address: {remote_device.address}")
+
 # 1. Hit start: all the valves in set1 will open to the RUN
 # 2. If all the sensors in a specific land trip, then trigger the preflow for all the valves in the next set(all lands),
 # then close the valves from that land that triggered the preflow
@@ -241,5 +265,3 @@ def ping_outside():
 
 # STOP will close all the valves, reset the clock
 # PAUSE time goes on, does not do anything
-
-

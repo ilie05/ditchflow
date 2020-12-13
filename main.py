@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 import traceback
 import datetime
 from database import db
-from models import Sensor, Message, Valve, LabelMessage, Land, Check, Set, Config, LandConfig
+from models import Sensor, Message, Valve, LabelMessage, Land, Check, Set, Config, LandConfig, Error
 from utils import validate_message, validate_labels, write_settings
 
 main = Blueprint('main', __name__)
@@ -24,10 +24,11 @@ def index():
     config_page = Config.query.filter_by(active=True).first()
     config_name = config_page.name if config_page else None
     sets = Set.query.all()
+    errors = Error.query.all()
     is_autorun = cache['is_autorun'] if 'is_autorun' in cache else None
     is_paused = cache['is_paused'] if 'is_paused' in cache else None
     return render_template('index.html', jwt_token=str(token), sets=sets, config_name=config_name, run_time=run_time,
-                           is_autorun=is_autorun, is_paused=is_paused)
+                           is_autorun=is_autorun, is_paused=is_paused, errors=errors)
 
 
 @main.route('/sensors', methods=["GET", "POST", "DELETE"])
@@ -188,3 +189,16 @@ def create_land(land_number):
         db.session.commit()
 
     return land
+
+
+@main.route('/error', methods=['DELETE'])
+@login_required
+def main_error():
+    payload = request.get_json()
+    error_id = payload['errorId'] if 'errorId' in payload else None
+    error = Error.query.filter_by(id=error_id).first()
+    if not error:
+        return Response(status=404)
+    db.session.delete(error)
+    db.session.commit()
+    return Response(status=200)
