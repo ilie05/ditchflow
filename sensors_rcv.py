@@ -1,19 +1,14 @@
 from flaskthreads import AppContextThread
-from digi.xbee.devices import XBeeDevice
 from models import Sensor, Valve, Land, Check, Config, SensorConfig, ValveConfig, CheckConfig
 import datetime
 import traceback
 import serial
-from flask import current_app, g
+from flask import current_app
 from flask_login import current_user
 import time
 from database import db
 from utils import mock_device_data, mock_battery_temp, reset_xbee, ping_outside
 from email_service import send_status_notification, send_email
-
-
-# local_xbee = XBeeDevice("COM1", 9600)
-# remote_xbee = RemoteXBeeDevice(local_xbee, XBee64BitAddress.from_hex_string("0013A20012345678"))
 
 
 def create_update_sensor(message, address):
@@ -22,6 +17,7 @@ def create_update_sensor(message, address):
     try:
         name = message[0]
         float = True if message[1] == 'UP' else False
+        trip_time = current_time if float else None
         battery = int(message[2]) / 10
         temperature = int(message[3]) / 10
         water = int(message[4]) / 10
@@ -33,7 +29,7 @@ def create_update_sensor(message, address):
             # does not exist, create one
             land = Land.query.filter_by(number=1).first()
             sensor = Sensor(name=name, battery=battery, float=float, temperature=temperature, water=water,
-                            land_id=land.id, address=address, last_update=current_time)
+                            land_id=land.id, address=address, last_update=current_time, trip_time=trip_time)
             db.session.add(sensor)
             db.session.commit()
 
@@ -47,6 +43,7 @@ def create_update_sensor(message, address):
             sensor.name = name
             sensor.status = True
             sensor.float = float
+            sensor.trip_time = trip_time
             sensor.battery = battery
             sensor.temperature = temperature
             sensor.water = water
@@ -452,19 +449,6 @@ def listen_sensors_thread(socket_io):
     except Exception as e:
         print(str(e))
         print("COULD NOT RESET THE XBEE!")
-
-    try:
-        port = current_app.config.get("DEVICE_PORT")
-        baud_rate = current_app.config.get("BAUD_RATE")
-        device = XBeeDevice(port, baud_rate)
-
-        device.open()
-        device.flush_queues()
-
-        g.local_device = device
-    except Exception as e:
-        print(str(e))
-        print("CONNECTION TO THE DEVICE FAILED")
 
     t1 = AppContextThread(target=thread_wrap(receive_sensor_data), args=(socket_io,))
     print("***Listen sensors thread before running***")

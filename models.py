@@ -56,6 +56,7 @@ class Sensor(db.Model, SerializerMixin):
     float = db.Column(db.Boolean)
     address = db.Column(db.String(100), unique=True)
     last_update = db.Column(db.DateTime)
+    trip_time = db.Column(db.DateTime)
 
     serialize_rules = ('-sensor_configs.sensor',)
     sensor_configs = db.relationship("SensorConfig", backref='sensor', cascade='all,delete')
