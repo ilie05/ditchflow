@@ -23,3 +23,7 @@ class Config:
     MAIN_SYSTEM_DEVICE_PORT = "/dev/ttyAMA1"
 
     PING_INTERVAL = 15  # min
+
+    # MOVING VALVES VALIDATION TIME
+    MOVING_TIME = 6  # sec.
+    IDLE_TIME = 30  # sec.

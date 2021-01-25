@@ -40,6 +40,11 @@ def start_autorun_callback(socket_io):
             valve_config = next(filter(lambda x: x.config.active is True, valve.valve_configs), None)
             send_valve_position(valve, valve_config.run, socket_io)
 
+    error_list = validate_move_valves(sets[0].lands, 'run')
+    if error_list:
+        socket_io.emit('error_push', {'error_list': error_list}, namespace='/notification')
+        exit(0)
+
     set_cnt = 1
     land_flooded = False
     set_flooded = False
@@ -73,9 +78,11 @@ def start_autorun_callback(socket_io):
                         break
                 if not flooded:
                     break
-
             if flooded:
-                # TODO open to run all the valves in the current set
+                error_list = run_valves(socket_io, current_set, prev_set)
+                if error_list:
+                    socket_io.emit('error_push', {'error_list': error_list}, namespace='/notification')
+                    exit(0)
                 set_flooded = True
 
         if not set_flooded and not land_flooded:
@@ -83,35 +90,111 @@ def start_autorun_callback(socket_io):
         # TODO check when to move to the next set
 
 
-def validation_open_valves(valves):
-    pass
-
-
 def run_valves(socket_io, current_set, prev_set):
     max_time = max([get_max_sensors_delay(land.sensors) for land in prev_set])
+    time.sleep(max_time)
 
     def open_to_run():
         # open all valves to run in the current set
         # close all valves in the prev set
 
-        time.sleep(max_time)
-
         for land in current_set.lands:
             for valve in land.valves:
                 valve_config = next(filter(lambda x: x.config.active is True, valve.valve_configs), None)
                 send_valve_position(valve, valve_config.run, socket_io)
-                # TODO check for MOVING and IDLE status to confirm
 
-        # TODO checks before
+        error_list = validate_move_valves(current_set.lands, 'run')
+        if error_list:
+            return error_list
 
         for land in prev_set.lands:
             for valve in land.valves:
                 send_valve_position(valve, 0, socket_io)
 
-        # TODO CHECK when is done to move to the next set, global VAR
-
-    t = AppContextThread(target=open_to_run)
+    error_que = Queue()
+    t = AppContextThread(target=lambda q: error_que.put(open_to_run()), args=(error_que,))
     t.start()
+    t.join()
+    if not error_que.empty():
+        return error_que.get()
+
+
+def validate_move_valves(lands, action_type):
+    # checking the Moving and Idle position
+    temp_check = {'moving': set(), 'idle': set()}
+
+    # split into MOVING and IDLE
+    # MOVING 5 sec
+    # IDLE 30 sec
+    # STOP EVERYTHING if no response in this time
+    valves_num = 0
+    i = 0
+    while i < current_app.config.get("MOVING_TIME"):
+        for land in lands:
+            land_valves = Valve.query.filter_by(land_id=land.id).all()
+            valves_num += len(land_valves)
+            for valve in land_valves:
+                if valve.status == 'Moving':
+                    temp_check['moving'].add(valve.id)
+
+        if len(temp_check['moving']) == valves_num:
+            break
+
+        time.sleep(1)
+        i += 1
+
+    error_list = []
+    if len(temp_check['moving']) < valves_num:
+        for land in lands:
+            land_valves = Valve.query.filter_by(land_id=land.id).all()
+            for valve in land_valves:
+                if valve.id not in temp_check['moving']:
+                    error_list.append(f"Valve {valve.name} failed to respond with MOVING status!")
+
+    if error_list:
+        return error_list
+
+    # if gets here, that means all the valves have sent MOVING
+    i = 0
+    while i < current_app.config.get("IDLE_TIME"):
+        for land in lands:
+            land_valves = Valve.query.filter_by(land_id=land.id).all()
+            for valve in land_valves:
+                if valve.status == 'Idle':
+                    temp_check['idle'].add(valve.id)
+
+        if len(temp_check['idle']) == valves_num:
+            break
+
+        time.sleep(1)
+        i += 1
+
+    if len(temp_check['idle']) < valves_num:
+        for land in lands:
+            land_valves = Valve.query.filter_by(land_id=land.id).all()
+            for valve in land_valves:
+                if valve.id not in temp_check['idle']:
+                    error_list.append(f"Valve {valve.name} failed to respond with IDLE status!")
+
+    if error_list:
+        return error_list
+
+    # Check if the preflow/run == current_position ( +-1% error)
+    for land in lands:
+        land_valves = Valve.query.filter_by(land_id=land.id).all()
+        for valve in land_valves:
+            valve_config = next(filter(lambda x: x.config.active is True, valve.valve_configs), None)
+            if action_type == 'preflow':
+                if abs(valve.actuator_position - valve_config.preflow) > 1:
+                    error_list.append(
+                        f"Valve {valve.name} current-position does not correspond with the preflow position")
+            if action_type == 'run':
+                if abs(valve.actuator_position - valve_config.run) > 1:
+                    error_list.append(
+                        f"Valve {valve.name} current-position does not correspond with the run position")
+
+    if error_list:
+        return error_list
 
 
 def preflow_valves(socket_io, current_set, sensors, prev_land):
@@ -135,50 +218,7 @@ def preflow_valves(socket_io, current_set, sensors, prev_land):
                 valve_config = next(filter(lambda x: x.config.active is True, valve.valve_configs), None)
                 send_valve_position(valve, valve_config.preflow, socket_io)
 
-        # checking the Moving and Idle position
-        temp_check = {'moving': set(), 'idle': set()}
-        i = 0
-        valves_num = None
-        while i < 5:
-            prev_land_valves = Valve.query.filter_by(land_id=prev_land.id).all()
-            valves_num = len(prev_land_valves)
-            for valve in prev_land_valves:
-                if valve.status == 'Moving':
-                    temp_check['moving'].add(valve.id)
-                if valve.status == 'Idle':
-                    temp_check['idle'].add(valve.id)
-
-            if len(temp_check['moving']) == valves_num and len(temp_check['idle']) == valves_num:
-                break
-
-            # wait for Moving and Idle status 5 * 60 sec.
-            time.sleep(60)
-            i += 1
-
-        error_list = []
-        if len(temp_check['moving']) < valves_num:
-            prev_land_valves = Valve.query.filter_by(land_id=prev_land.id).all()
-            # TODO if it gets here, then not all the valves responded in the specific time, return an error
-            for valve in prev_land_valves:
-                if valve.id not in temp_check['moving']:
-                    error_list.append(f"Valve {valve.name} failed to respond with MOVING status!")
-
-        if len(temp_check['idle']) < valves_num:
-            prev_land_valves = Valve.query.filter_by(land_id=prev_land.id).all()
-            for valve in prev_land_valves:
-                if valve.id not in temp_check['idle']:
-                    error_list.append(f"Valve {valve.name} failed to respond with IDLE status!")
-
-        if error_list:
-            return error_list
-
-        # Check id the preflow == current_position ( +-1% error)
-        prev_land_valves = Valve.query.filter_by(land_id=prev_land.id).all()
-        for valve in prev_land_valves:
-            valve_config = next(filter(lambda x: x.config.active is True, valve.valve_configs), None)
-            if abs(valve.actuator_position - valve_config.preflow) > 1:
-                error_list.append(f"Valve {valve.name} current-position does not correspond with the preflow position")
-
+        error_list = validate_move_valves(current_set.lands, 'preflow')
         if error_list:
             return error_list
 
