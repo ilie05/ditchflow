@@ -8,3 +8,7 @@ sudo chmod g+w db.sqlite
 sudo chmod g+w .
 
 https://www.easyprogramming.net/raspberrypi/pi_flask_apache.php
+
+
+sudo nano /etc/logrotate.d/apache2  
+# LOGROTATE CONFIG
