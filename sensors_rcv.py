@@ -190,7 +190,8 @@ def receive_sensor_data(socket_io):
                         send_status_notification(sensor, 'battery')
                         notified_sensor_battery_ids.append(sensor.id)
                 else:
-                    if sensor.id in notified_sensor_battery_ids:
+                    if sensor.id in notified_sensor_battery_ids \
+                            and battery + 1 > current_app.config.get("BATTERY_MIN_VOLTAGE"):
                         notified_sensor_battery_ids.remove(sensor.id)
 
                 if float:
@@ -221,7 +222,8 @@ def receive_sensor_data(socket_io):
                         send_status_notification(valve, 'battery')
                         notified_valve_battery_ids.append(valve.id)
                 else:
-                    if valve.id in notified_valve_battery_ids:
+                    if valve.id in notified_valve_battery_ids \
+                            and battery + 1 > current_app.config.get("BATTERY_MIN_VOLTAGE"):
                         notified_valve_battery_ids.remove(valve.id)
 
                 if water is not None and water > current_app.config.get("WATER_MAX_LEVEL"):
@@ -243,7 +245,8 @@ def receive_sensor_data(socket_io):
                         send_status_notification(check, 'battery')
                         notified_check_battery_ids.append(check.id)
                 else:
-                    if check.id in notified_check_battery_ids:
+                    if check.id in notified_check_battery_ids \
+                            and battery + 1 > current_app.config.get("BATTERY_MIN_VOLTAGE"):
                         notified_check_battery_ids.remove(check.id)
 
                 if water is not None and water > current_app.config.get("WATER_MAX_LEVEL"):
@@ -288,7 +291,8 @@ def receive_sensor_data_test(socket_io):
                     send_status_notification(sensor, 'battery')
                     notified_sensor_battery_ids.append(sensor.id)
             else:
-                if sensor.id in notified_sensor_battery_ids:
+                if sensor.id in notified_sensor_battery_ids \
+                        and battery + 1 > current_app.config.get("BATTERY_MIN_VOLTAGE"):
                     notified_sensor_battery_ids.remove(sensor.id)
 
             if float:
@@ -319,7 +323,8 @@ def receive_sensor_data_test(socket_io):
                     send_status_notification(valve, 'battery')
                     notified_valve_battery_ids.append(valve.id)
             else:
-                if valve.id in notified_valve_battery_ids:
+                if valve.id in notified_valve_battery_ids \
+                        and battery + 1 > current_app.config.get("BATTERY_MIN_VOLTAGE"):
                     notified_valve_battery_ids.remove(valve.id)
 
             if water is not None and water > current_app.config.get("WATER_MAX_LEVEL"):
@@ -341,7 +346,8 @@ def receive_sensor_data_test(socket_io):
                     send_status_notification(check, 'battery')
                     notified_check_battery_ids.append(check.id)
             else:
-                if check.id in notified_check_battery_ids:
+                if check.id in notified_check_battery_ids \
+                        and battery + 1 > current_app.config.get("BATTERY_MIN_VOLTAGE"):
                     notified_check_battery_ids.remove(check.id)
 
             if water is not None and water > current_app.config.get("WATER_MAX_LEVEL"):
@@ -416,7 +422,8 @@ def update_battery_temp(socket_io):
                         send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
                         notified = True
                 else:
-                    notified = False
+                    if battery + 1.5 > min_battery_val:
+                        notified = False
 
                 socket_io.emit('batteryTemp', {'battery': battery, 'temperature': temperature},
                                namespace='/notification')
@@ -438,7 +445,8 @@ def update_battery_temp_test(socket_io):
                 send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
                 notified = True
         else:
-            notified = False
+            if battery + 1.5 > min_battery_val:
+                notified = False
 
         socket_io.emit('batteryTemp', {'battery': battery, 'temperature': temperature}, namespace='/notification')
 
