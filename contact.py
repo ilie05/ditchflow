@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, url_for, redirect
+from flask import Blueprint, render_template, request, url_for, redirect, current_app
 from flask_login import login_required
 from models import Carrier, Contact
 from database import db
@@ -42,9 +42,10 @@ def create():
 @login_required
 def contacts():
     if request.method == 'GET':
+        is_admin = current_app.config['ADMIN_USER']
         carriers = [carrier.to_dict() for carrier in Carrier.query.all()]
         contacts = [contact.to_dict() for contact in Contact.query.all()]
-        return render_template('contacts.html', contacts=contacts, carriers=carriers)
+        return render_template('contacts.html', contacts=contacts, carriers=carriers, is_admin=is_admin)
 
     else:
         print(request)

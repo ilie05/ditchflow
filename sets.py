@@ -12,6 +12,7 @@ sets = Blueprint('sets', __name__)
 @login_required
 def configuration():
     if request.method == 'GET':
+        is_admin = current_app.config['ADMIN_USER']
         config_name = request.args.get("config_name")
         configs = Config.query.all()
 
@@ -26,7 +27,7 @@ def configuration():
                     db.session.commit()
                     return redirect(url_for('sets.configuration', config_name=config_page.name))
                 else:
-                    return render_template('sets.html', configs=configs)
+                    return render_template('sets.html', configs=configs, is_admin=is_admin)
 
         config_page = Config.query.filter_by(name=config_name).first()
         if not config_page:
@@ -44,7 +45,7 @@ def configuration():
         lands = list(filter(lambda l: len(l.sensors) > 0 or len(l.valves) > 0, lands))
         sets = Set.query.order_by(Set.number).all()
         return render_template('sets.html', lands=lands, sets=sets, jwt_token=str(token), configs=configs,
-                               config_name=config_name)
+                               config_name=config_name, is_admin=is_admin)
     elif request.method == 'POST':
         config_name = request.form.get('config_name')
         if not config_name:

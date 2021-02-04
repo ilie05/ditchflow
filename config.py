@@ -27,3 +27,5 @@ class Config:
     # MOVING VALVES VALIDATION TIME
     MOVING_TIME = 6  # sec.
     IDLE_TIME = 30  # sec.
+
+    ADMIN_USER = False  # True / False

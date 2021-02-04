@@ -24,19 +24,26 @@
             <div class="container">
                 <div id="navbarMenuHeroA" class="navbar-menu navbar-brand">
                     <div class="navbar-start">
-                        <a href="{{ url_for('main.index') }}" class="navbar-item">
-                            Home
-                        </a>
                         {% if current_user.is_authenticated %}
+                            {% if is_admin %}
+                                <a href="{{ url_for('main.index') }}" class="navbar-item">
+                                    Home
+                                </a>
+                                <a href="{{ url_for('main.check') }}" class="navbar-item">
+                                    Checks
+                                </a>
+                                <a href="{{ url_for('main.valve') }}" class="navbar-item">
+                                    Valves
+                                </a>
+                            {% endif %}
                             <a href="{{ url_for('main.sensor') }}" class="navbar-item">
                                 Sensors
                             </a>
-                            <a href="{{ url_for('main.valve') }}" class="navbar-item">
-                                Valves
-                            </a>
-                            <a href="{{ url_for('main.check') }}" class="navbar-item">
-                                Checks
-                            </a>
+                            {% if is_admin %}
+                                <a href="{{ url_for('sets.configuration') }}" class="navbar-item">
+                                    Config
+                                </a>
+                            {% endif %}
                             <a href="{{ url_for('contact.contacts') }}" class="navbar-item">
                                 Contacts
                             </a>
@@ -45,9 +52,6 @@
                             </a>
                             <a href="{{ url_for('main.settings') }}" class="navbar-item">
                                 Settings
-                            </a>
-                            <a href="{{ url_for('sets.configuration') }}" class="navbar-item">
-                                Config
                             </a>
                             <a href="{{ url_for('auth.logout') }}" class="navbar-item">
                                 Logout

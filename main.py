@@ -15,6 +15,7 @@ main = Blueprint('main', __name__)
 def index():
     cache = current_app.config.get("CACHE")['buttons']
     start_time = current_app.config['CACHE']['start_time']
+    is_admin = current_app.config['ADMIN_USER']
     token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                        algorithm='HS256').decode()
     run_time = None
@@ -28,7 +29,7 @@ def index():
     is_autorun = cache['is_autorun'] if 'is_autorun' in cache else None
     is_paused = cache['is_paused'] if 'is_paused' in cache else None
     return render_template('index.html', jwt_token=str(token), sets=sets, config_name=config_name, run_time=run_time,
-                           is_autorun=is_autorun, is_paused=is_paused, errors=errors)
+                           is_autorun=is_autorun, is_paused=is_paused, errors=errors, is_admin=is_admin)
 
 
 @main.route('/sensors', methods=["GET", "POST", "DELETE"])
@@ -36,9 +37,11 @@ def index():
 def sensor():
     if request.method == 'GET':
         sensors = Sensor.query.all()
+        sensors.sort(key=lambda x: x.land.number)
+        is_admin = current_app.config['ADMIN_USER']
         token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                            algorithm='HS256').decode()
-        return render_template('sensors.html', sensors=sensors, jwt_token=str(token))
+        return render_template('sensors.html', sensors=sensors, jwt_token=str(token), is_admin=is_admin)
     elif request.method == 'POST':
         # update land number
         payload = request.get_json()
@@ -69,9 +72,10 @@ def sensor():
 def valve():
     if request.method == 'GET':
         valves = Valve.query.all()
+        is_admin = current_app.config['ADMIN_USER']
         token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                            algorithm='HS256').decode()
-        return render_template('valves.html', valves=valves, jwt_token=str(token))
+        return render_template('valves.html', valves=valves, jwt_token=str(token), is_admin=is_admin)
     elif request.method == 'POST':
         # update land number
         payload = request.get_json()
@@ -103,9 +107,10 @@ def check():
     if request.method == 'GET':
         checks = Check.query.all()
         sets = Set.query.all()
+        is_admin = current_app.config['ADMIN_USER']
         token = jwt.encode({'email': current_user.email}, current_app.config.get("JWT_SECRET"),
                            algorithm='HS256').decode()
-        return render_template('checks.html', checks=checks, sets=sets, jwt_token=str(token))
+        return render_template('checks.html', checks=checks, sets=sets, jwt_token=str(token), is_admin=is_admin)
     elif request.method == 'POST':
         # update land number
         payload = request.get_json()
@@ -134,7 +139,8 @@ def check():
 @login_required
 def settings():
     if request.method == 'GET':
-        return render_template('settings.html', field_name=current_app.config.get("FIELD_NAME"))
+        is_admin = current_app.config['ADMIN_USER']
+        return render_template('settings.html', field_name=current_app.config.get("FIELD_NAME"), is_admin=is_admin)
     else:
         field_name = request.form.get('fieldName')
         current_app.config['FIELD_NAME'] = field_name
@@ -148,7 +154,8 @@ def messages():
     labels = [label.to_dict() for label in LabelMessage.query.all()]
     msgs = [message.to_dict() for message in Message.query.all()]
     if request.method == 'GET':
-        return render_template('messages.html', labels=labels, messages=msgs)
+        is_admin = current_app.config['ADMIN_USER']
+        return render_template('messages.html', labels=labels, messages=msgs, is_admin=is_admin)
     else:
         fields = request.form.to_dict()
         for field in fields:
