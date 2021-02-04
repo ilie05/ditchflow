@@ -1,5 +1,5 @@
 # auth.py
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
 from werkzeug.security import check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 from models import User
@@ -30,6 +30,10 @@ def login_post():
 
     # if the above check passes, then we know the user has the right credentials
     login_user(user, remember=remember)
+    is_admin = current_app.config['ADMIN_USER']
+    if not is_admin:
+        return redirect(url_for('main.settings'))
+
     return redirect(url_for('main.index'))
 
 
