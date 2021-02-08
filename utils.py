@@ -1,12 +1,13 @@
 from flask import current_app
 from digi.xbee.devices import XBeeDevice
+from digi import xbee
 import random
 import re
 import urllib.request
 import json
 import os
 import time
-from models import Land, Check
+from models import Land, Check, Sensor
 from database import db
 
 
@@ -60,9 +61,8 @@ def validate_labels(labels, mess_labels):
 
 
 def format_message(message, dev_obj):
-    is_check = False
-    if isinstance(dev_obj, Check):
-        is_check = True
+    is_check = isinstance(dev_obj, Check)
+    is_sensor = isinstance(dev_obj, Sensor)
 
     dev_obj = dev_obj.to_dict()
 
@@ -80,7 +80,10 @@ def format_message(message, dev_obj):
         return
 
     for label in labels:
-        message = message.replace('{' + label + '}', str(dev_obj[label]))
+        if is_sensor and label == 'water':
+            message = message.replace('{' + label + '}', str(dev_obj['signal_strength']))
+        else:
+            message = message.replace('{' + label + '}', str(dev_obj[label]))
 
     return message
 
@@ -122,13 +125,12 @@ def mock_device_data():
 
         battery = random.randrange(90, 130)
         temperature = random.randrange(800, 1200)
-        water = random.randrange(0, 1200)
         float = random.choice([True, False])
         float = 'UP' if float else 'DOWN'
         name = sensors_mocks[idx]['name']
         address = sensors_mocks[idx]['address']
 
-        return address, f'S,{name},{float},{battery},{temperature},{water}'
+        return address, f'S,{name},{float},{battery},{temperature}'
     elif mess_type == 'v':
         # generate valve data
         idx = random.randrange(len(valves_mocks))

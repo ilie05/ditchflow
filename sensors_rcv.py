@@ -3,6 +3,7 @@ from models import Sensor, Valve, Land, Check, Config, SensorConfig, ValveConfig
 import datetime
 import traceback
 import serial
+import random
 from flask import current_app
 from flask_login import current_user
 import time
@@ -11,7 +12,7 @@ from utils import mock_device_data, mock_battery_temp, reset_xbee, ping_outside
 from email_service import send_status_notification, send_email
 
 
-def create_update_sensor(message, address):
+def create_update_sensor(message, address, signal_strength):
     sensor = Sensor.query.filter_by(address=address).first()
     current_time = datetime.datetime.now().replace(microsecond=0)
     try:
@@ -20,16 +21,13 @@ def create_update_sensor(message, address):
         trip_time = current_time if float else None
         battery = int(message[2]) / 10
         temperature = int(message[3]) / 10
-        water = int(message[4]) / 10
-
-        if water < 0 or water > 99.9:
-            water = None
 
         if not sensor:
             # does not exist, create one
             land = Land.query.filter_by(number=1).first()
-            sensor = Sensor(name=name, battery=battery, float=float, temperature=temperature, water=water,
-                            land_id=land.id, address=address, last_update=current_time, trip_time=trip_time)
+            sensor = Sensor(name=name, battery=battery, float=float, temperature=temperature,
+                            signal_strength=signal_strength, land_id=land.id, address=address, last_update=current_time,
+                            trip_time=trip_time)
             db.session.add(sensor)
             db.session.commit()
 
@@ -46,12 +44,12 @@ def create_update_sensor(message, address):
             sensor.trip_time = trip_time
             sensor.battery = battery
             sensor.temperature = temperature
-            sensor.water = water
+            sensor.signal_strength = signal_strength
             sensor.last_update = current_time
         db.session.commit()
 
         return {'id': sensor.id, 'name': name, 'last_update': str(current_time), 'battery': battery,
-                'float': float, 'temperature': temperature, 'water': water}, sensor
+                'float': float, 'temperature': temperature, 'signal_strength': signal_strength}, sensor
     except Exception as e:
         print(e)
         print("INVALID DATA FROM SENSORS")
@@ -155,7 +153,6 @@ def create_update_check(message, address):
 def receive_sensor_data(socket_io):
     notified_sensor_battery_ids = []
     notified_sensor_float_ids = []
-    notified_sensor_water_ids = []
     notified_valve_battery_ids = []
     notified_valve_water_ids = []
     notified_check_battery_ids = []
@@ -180,10 +177,10 @@ def receive_sensor_data(socket_io):
             print(f"From {dev_address} >> {message}")
 
             if mess_type == 'S':
-                data_to_send, sensor = create_update_sensor(message, dev_address)
+                signal_strength = 255 - int(device.get_parameter("DB").hex(), 16)
+                data_to_send, sensor = create_update_sensor(message, dev_address, signal_strength)
 
                 battery = data_to_send['battery']
-                water = data_to_send['water']
                 float = data_to_send['float']
                 if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
                     if sensor.id not in notified_sensor_battery_ids:
@@ -201,14 +198,6 @@ def receive_sensor_data(socket_io):
                 else:
                     if sensor.id in notified_sensor_float_ids:
                         notified_sensor_float_ids.remove(sensor.id)
-
-                if water is not None and water > current_app.config.get("WATER_MAX_LEVEL"):
-                    if sensor.id not in notified_sensor_water_ids:
-                        send_status_notification(sensor, 'water')
-                        notified_sensor_water_ids.append(sensor.id)
-                else:
-                    if sensor.id in notified_sensor_water_ids:
-                        notified_sensor_water_ids.remove(sensor.id)
 
                 socket_io.emit('sensor_notification', data_to_send, namespace='/notification')
                 print("\n")
@@ -265,7 +254,6 @@ def receive_sensor_data(socket_io):
 def receive_sensor_data_test(socket_io):
     notified_sensor_battery_ids = []
     notified_sensor_float_ids = []
-    notified_sensor_water_ids = []
     notified_valve_battery_ids = []
     notified_valve_water_ids = []
     notified_check_battery_ids = []
@@ -281,11 +269,11 @@ def receive_sensor_data_test(socket_io):
         message = message[1:]
 
         if mess_type == 'S':
-            data_to_send, sensor = create_update_sensor(message, dev_address)
+            signal_strength = 255 - random.randrange(80)
+            data_to_send, sensor = create_update_sensor(message, dev_address, signal_strength)
 
             battery = data_to_send['battery']
             float = data_to_send['float']
-            water = data_to_send['water']
             if battery < current_app.config.get("BATTERY_MIN_VOLTAGE"):
                 if sensor.id not in notified_sensor_battery_ids:
                     send_status_notification(sensor, 'battery')
@@ -302,14 +290,6 @@ def receive_sensor_data_test(socket_io):
             else:
                 if sensor.id in notified_sensor_float_ids:
                     notified_sensor_float_ids.remove(sensor.id)
-
-            if water is not None and water > current_app.config.get("WATER_MAX_LEVEL"):
-                if sensor.id not in notified_sensor_water_ids:
-                    send_status_notification(sensor, 'water')
-                    notified_sensor_water_ids.append(sensor.id)
-            else:
-                if sensor.id in notified_sensor_water_ids:
-                    notified_sensor_water_ids.remove(sensor.id)
 
             socket_io.emit('sensor_notification', data_to_send, namespace='/notification')
             print("\n")
@@ -488,6 +468,7 @@ def thread_wrap(thread_func):
             try:
                 thread_func(*args, **kwargs)
             except BaseException as e:
+                time.sleep(2)
                 traceback.print_exc()
                 print(f'{str(e)}; restarting thread')
             else:

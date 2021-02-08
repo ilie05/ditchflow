@@ -52,7 +52,7 @@ class Sensor(db.Model, SerializerMixin):
     status = db.Column(db.Boolean, default=True)
     battery = db.Column(db.Float)
     temperature = db.Column(db.Float)
-    water = db.Column(db.Float)
+    signal_strength = db.Column(db.Integer)
     float = db.Column(db.Boolean)
     address = db.Column(db.String(100), unique=True)
     last_update = db.Column(db.DateTime)

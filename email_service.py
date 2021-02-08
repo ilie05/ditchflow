@@ -20,11 +20,9 @@ def send_email(msg):
 
         receiver = [f'{contact.cell_number}@{carrier.email}', contact.email]
 
-        message = f"""Subject: Ditchflow Notification\n\n
+        message = f"""Subject: DitchFlow Notification\n\n
         {msg}"""
 
-        # print(f'Message to send: {message}')
-        # print(f'Sending to :{receiver}')
         try:
             with smtplib.SMTP(smtp_server, port) as server:
                 server.starttls()

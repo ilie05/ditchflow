@@ -1,9 +1,11 @@
 class Config:
+    SECRET_KEY = '49tZyjJmZxiQbL22EtSVtLY1WGEnEBH7'
+
     # SMTP Credentials
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587
-    MAIL_USERNAME = ''
-    MAIL_PASSWORD = ''
+    MAIL_USERNAME = 'ditchflow@gmail.com'
+    MAIL_PASSWORD = 'SINCE1937'
 
     SQLALCHEMY_DATABASE_URI = 'sqlite:///db.sqlite'
 
@@ -28,4 +30,4 @@ class Config:
     MOVING_TIME = 6  # sec.
     IDLE_TIME = 30  # sec.
 
-    ADMIN_USER = False  # True / False
+    ADMIN_USER = True  # True / False

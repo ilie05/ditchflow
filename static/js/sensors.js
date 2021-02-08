@@ -14,12 +14,7 @@ socket.on('sensor_notification', function (data) {
     $(card).find('li.sTemperature').text(`Temperature: ${data.temperature} °F`);
     $(card).find('li.sFloat').text(`Float: ${data.float ? 'UP' : 'DOWN'}`);
     $(card).find('li.sLastSeen').text(`Last seen: ${data.last_update}`);
-
-    if (data.water === null) {
-        $(card).find('li.sWater').text(`Water Level: ---`);
-    } else {
-        $(card).find('li.sWater').text(`Water Level: ${data.water} inches`);
-    }
+    $(card).find('li.sSignal').text(`Signal Strength: ${data.signal_strength}`);
 
     $(card).find('.card-front').removeClass('offline-indicator');
 });
@@ -30,7 +25,7 @@ socket.on('goOfflineSensor', function (id) {
     if (!card.length) return;
 
     $(card).find('li.sStatus').text('Status: OFFLINE');
-    $(card).find('li.sWater').text('Water Level: ---');
+    $(card).find('li.sSignal').text('Signal Strength: ---');
     $(card).find('li.sBattery').text('Battery Voltage: ---');
     $(card).find('li.sTemperature').text('Temperature: ---');
     $(card).find('li.sFloat').text('Float: ---');
