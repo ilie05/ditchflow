@@ -164,7 +164,7 @@ def receive_sensor_data(socket_io):
     while True:
         xbee_message = device.read_data()
         if xbee_message is not None:
-            # DATA FORMAT:  S,Sensor 1,UP,125,901,241
+            # DATA FORMAT:  S,Sensor 1,UP,125,901
             # DATA FORMAT:  V,VALVE 1,IDLE,50,121,700,241
             # DATA FORMAT:  M,121,700
             message = xbee_message.data.decode()
@@ -432,12 +432,6 @@ def update_battery_temp_test(socket_io):
 
 
 def listen_sensors_thread(socket_io):
-    try:
-        reset_xbee()
-    except Exception as e:
-        print(str(e))
-        print("COULD NOT RESET THE XBEE!")
-
     t1 = AppContextThread(target=thread_wrap(receive_sensor_data), args=(socket_io,))
     print("***Listen sensors thread before running***")
     t1.start()

@@ -226,20 +226,23 @@ def ping_outside():
 
 
 def connect_to_device():
-    while True:
-        try:
-            port = current_app.config.get("DEVICE_PORT")
-            baud_rate = current_app.config.get("BAUD_RATE")
-            device = XBeeDevice(port, baud_rate)
+    try:
+        reset_xbee()
+    except Exception as e:
+        print(str(e))
+        print("COULD NOT RESET THE XBEE!")
 
-            device.open()
-            device.flush_queues()
-            current_app.config['CACHE']['device'] = device
-            break
-        except Exception as e:
-            print("!!!...CONNECTION TO THE DEVICE FAILED...!!!")
-            print(str(e))
-            time.sleep(2)
+    try:
+        port = current_app.config.get("DEVICE_PORT")
+        baud_rate = current_app.config.get("BAUD_RATE")
+        device = XBeeDevice(port, baud_rate)
+
+        device.open()
+        device.flush_queues()
+        current_app.config['CACHE']['device'] = device
+    except Exception as e:
+        print("!!!...CONNECTION TO THE DEVICE FAILED...!!!")
+        print(str(e))
 
 
 class RemoteDevice:
