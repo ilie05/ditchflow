@@ -187,8 +187,9 @@ def write_settings(data):
 def mock_battery_temp():
     battery = random.randrange(90, 130)
     temperature = random.randrange(800, 1200)
+    cpu_temperature = random.randrange(600, 900)
 
-    return f'{battery},{temperature}'
+    return f'{battery},{temperature},{cpu_temperature}'
 
 
 def reset_xbee():

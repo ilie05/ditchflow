@@ -9,6 +9,9 @@
         <p>
             Temperature: <span id="temperature"></span>
         </p>
+        <p>
+            CPU Temperature: <span id="cpu_temperature"></span>
+        </p>
     </div>
     <div class="frm">
         <form method="post">
@@ -35,6 +38,7 @@
             console.log(data);
             $('#battery').text(data.battery + ' V');
             $('#temperature').text(data.temperature + ' °F');
+            $('#cpu_temperature').text(data.cpu_temperature + ' °C');
         })
     </script>
     <style>

@@ -1,6 +1,7 @@
 from flaskthreads import AppContextThread
 from models import Sensor, Valve, Land, Check, Config, SensorConfig, ValveConfig, CheckConfig
 import datetime
+from gpiozero import CPUTemperature
 import traceback
 import serial
 import random
@@ -385,8 +386,12 @@ def check_status_device(socket_io, devices, notified_ids):
 
 
 def update_battery_temp(socket_io):
-    notified = False
+    battery_notified = False
+    cpu_temp_notified = False
+
     min_battery_val = current_app.config.get("SYSTEM_BATTERY_MIN_VOLTAGE")
+    cpu_max_temp = current_app.config.get("SYSTEM_CPU_MAX_TEMPERATURE")
+
     while True:
         with serial.Serial(current_app.config.get("MAIN_SYSTEM_DEVICE_PORT"), 9600, timeout=3) as ser:
             data = ser.read(7)
@@ -396,22 +401,37 @@ def update_battery_temp(socket_io):
 
                 battery = int(message[0]) / 10
                 temperature = int(message[1]) / 10
+                cpu = CPUTemperature()
+                cpu_temperature = cpu.temperature
 
                 if battery < min_battery_val:
-                    if not notified:
+                    if not battery_notified:
                         send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
-                        notified = True
+                        battery_notified = True
                 else:
                     if battery + 1.5 > min_battery_val:
-                        notified = False
+                        battery_notified = False
 
-                socket_io.emit('batteryTemp', {'battery': battery, 'temperature': temperature},
+                if cpu_temperature > cpu_max_temp:
+                    if not cpu_temp_notified:
+                        send_email(current_app.config.get("SYSTEM_CPU_TEMPERATURE_MESSAGE"))
+                        cpu_temp_notified = True
+                else:
+                    if cpu_temperature < cpu_max_temp - 5:
+                        cpu_temp_notified = False
+
+                socket_io.emit('batteryTemp',
+                               {'battery': battery, 'temperature': temperature, 'cpu_temperature': cpu_temperature},
                                namespace='/notification')
 
 
 def update_battery_temp_test(socket_io):
-    notified = False
+    battery_notified = False
+    cpu_temp_notified = False
+
     min_battery_val = current_app.config.get("SYSTEM_BATTERY_MIN_VOLTAGE")
+    cpu_max_temp = current_app.config.get("SYSTEM_CPU_MAX_TEMPERATURE")
+
     while True:
         time.sleep(5)
         message = mock_battery_temp()
@@ -419,16 +439,27 @@ def update_battery_temp_test(socket_io):
 
         battery = int(message[0]) / 10
         temperature = int(message[1]) / 10
+        cpu_temperature = int(message[2]) / 10
 
         if battery < min_battery_val:
-            if not notified:
+            if not battery_notified:
                 send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
-                notified = True
+                battery_notified = True
         else:
             if battery + 1.5 > min_battery_val:
-                notified = False
+                battery_notified = False
 
-        socket_io.emit('batteryTemp', {'battery': battery, 'temperature': temperature}, namespace='/notification')
+        if cpu_temperature > cpu_max_temp:
+            if not cpu_temp_notified:
+                send_email(current_app.config.get("SYSTEM_CPU_TEMPERATURE_MESSAGE"))
+                cpu_temp_notified = True
+        else:
+            if cpu_temperature < cpu_max_temp - 5:
+                cpu_temp_notified = False
+
+        socket_io.emit('batteryTemp',
+                       {'battery': battery, 'temperature': temperature, 'cpu_temperature': cpu_temperature},
+                       namespace='/notification')
 
 
 def listen_sensors_thread(socket_io):

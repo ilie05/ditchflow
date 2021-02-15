@@ -22,6 +22,7 @@ class Config:
     BAUD_RATE = 9600
 
     SYSTEM_BATTERY_MIN_VOLTAGE = 11  # value in Volts
+    SYSTEM_CPU_MAX_TEMPERATURE = 80  # value in Celsius degree
     MAIN_SYSTEM_DEVICE_PORT = "/dev/ttyAMA1"
 
     PING_INTERVAL = 15  # min
