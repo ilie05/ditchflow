@@ -402,7 +402,7 @@ def update_battery_temp(socket_io):
                 battery = int(message[0]) / 10
                 temperature = int(message[1]) / 10
                 cpu = CPUTemperature()
-                cpu_temperature = cpu.temperature
+                cpu_temperature = round(cpu.temperature, 2)
 
                 if battery < min_battery_val:
                     if not battery_notified:
