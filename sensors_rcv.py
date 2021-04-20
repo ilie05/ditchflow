@@ -9,7 +9,7 @@ from flask import current_app
 from flask_login import current_user
 import time
 from database import db
-from utils import mock_device_data, mock_battery_temp, reset_xbee, ping_outside
+from utils import mock_device_data, mock_battery_temp, reset_xbee, ping_outside, connect_to_device
 from email_service import send_status_notification, send_email
 
 
@@ -394,7 +394,7 @@ def update_battery_temp(socket_io):
 
     while True:
         with serial.Serial(current_app.config.get("MAIN_SYSTEM_DEVICE_PORT"), 9600, timeout=3) as ser:
-            data = ser.read(7)
+            data = ser.read(8)
             data = data.decode()
             if data:
                 message = data.split(',')
@@ -402,7 +402,7 @@ def update_battery_temp(socket_io):
                 battery = int(message[0]) / 10
                 temperature = int(message[1]) / 10
                 cpu = CPUTemperature()
-                cpu_temperature = round(cpu.temperature, 2)
+                cpu_temperature = round(cpu.temperature * 1.8 + 32, 2) # Convert to Deg F
 
                 if battery < min_battery_val:
                     if not battery_notified:
