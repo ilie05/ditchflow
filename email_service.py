@@ -1,8 +1,7 @@
 from flask import current_app
 import smtplib
 from socket import gaierror
-from models import Message, Contact, Carrier, Sensor, Valve, Check
-from utils import format_message
+from models import Contact, Carrier
 
 
 def send_email(msg):
@@ -38,15 +37,3 @@ def send_email(msg):
         except Exception as e:
             print("Another exception")
             print(str(e))
-
-
-def send_status_notification(dev_obj, message_type):
-    if isinstance(dev_obj, Sensor):
-        message = Message.query.filter_by(name=message_type, mess_type='sensor').first().message
-    elif isinstance(dev_obj, Valve) or isinstance(dev_obj, Check):
-        message = Message.query.filter_by(name=message_type, mess_type='valve').first().message
-    else:
-        raise Exception("Wrong Notification Object Type")
-
-    formatted_message = format_message(message, dev_obj)
-    send_email(formatted_message)

@@ -22,7 +22,7 @@ class Config:
     BAUD_RATE = 9600
 
     SYSTEM_BATTERY_MIN_VOLTAGE = 11  # value in Volts
-    SYSTEM_CPU_MAX_TEMPERATURE = 180 # value in F degree
+    SYSTEM_CPU_MAX_TEMPERATURE = 180  # value in F degree
     MAIN_SYSTEM_DEVICE_PORT = "/dev/ttyAMA1"
 
     PING_INTERVAL = 15  # min
@@ -32,3 +32,7 @@ class Config:
     IDLE_TIME = 30  # sec.
 
     ADMIN_USER = False  # True / False
+
+    # GPS
+    GPS_SERIAL_PORT = '/dev/ttyACM0'
+    GROUND_SPEED_MIN = 10  # Knots

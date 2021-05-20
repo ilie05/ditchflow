@@ -1,1 +1,8 @@
-{"FIELD_NAME": "Oxalis 27", "SYSTEM_BATTERY_MESSAGE": "System battery is below 11 Volts.", "SYSTEM_CPU_TEMPERATURE_MESSAGE": "The CPU temperature has exceeded 80 degree Celsius", "NO_SENSOR_SET_MESSAGE": "Set 2 Land 3  Field_Name timed out!"}
+{
+  "FIELD_NAME": "Oxalis 27",
+  "SYSTEM_BATTERY_MESSAGE": "System battery is below 11 Volts.",
+  "SYSTEM_CPU_TEMPERATURE_MESSAGE": "The CPU temperature has exceeded 80 degree Celsius",
+  "NO_SENSOR_SET_MESSAGE": "Set 2 Land 3  Field_Name has timed out!",
+  "UNIT_IN_MOTION_MESSAGE": "The unit from Oxalis 27 field is in motion",
+  "UNIT_STOPPED_MESSAGE": "The unit from Oxalis 27 field has stopped. Its location is: \n"
+}

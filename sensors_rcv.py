@@ -1,16 +1,14 @@
 from flaskthreads import AppContextThread
 from models import Sensor, Valve, Land, Check, Config, SensorConfig, ValveConfig, CheckConfig
 import datetime
-from gpiozero import CPUTemperature
 import traceback
-import serial
 import random
 from flask import current_app
 from flask_login import current_user
 import time
 from database import db
-from utils import mock_device_data, mock_battery_temp, reset_xbee, ping_outside, connect_to_device
-from email_service import send_status_notification, send_email
+from utils import mock_device_data, ping_outside, check_online_status, send_status_notification
+from serial_rcv import update_battery_temp_test, update_battery_temp, get_gps_data_test, get_gps_data
 
 
 def create_update_sensor(message, address, signal_strength):
@@ -344,124 +342,6 @@ def receive_sensor_data_test(socket_io):
             raise Exception("Invalid data type from XBee Module")
 
 
-def check_online_status(socket_io):
-    notified_sensor_ids = []
-    notified_valve_ids = []
-    notified_check_ids = []
-    while True:
-        time.sleep(current_app.config.get("CHECK_FOR_STATUS_TIME"))  # every 10 sec.
-        db.session.commit()
-        sensors = Sensor.query.all()
-        valves = Valve.query.all()
-        checks = Check.query.all()
-        check_status_device(socket_io, sensors, notified_sensor_ids)
-        check_status_device(socket_io, valves, notified_valve_ids)
-        check_status_device(socket_io, checks, notified_check_ids)
-
-
-def check_status_device(socket_io, devices, notified_ids):
-    check_time = current_app.config.get("GO_OFFLINE_SENSOR_TIME")  # 30 min.
-    current_time = datetime.datetime.now().replace(microsecond=0)
-    for device in devices:
-        last_update = device.last_update
-        total_diff = current_time - last_update
-        total_diff_sec = total_diff.total_seconds()
-        if total_diff_sec > check_time:
-            device.status = False
-            db.session.add(device)
-            db.session.commit()
-            if device.id not in notified_ids:
-                send_status_notification(device, 'status')
-                notified_ids.append(device.id)
-            if isinstance(device, Sensor):
-                socket_io.emit('goOfflineSensor', device.id, namespace='/notification')
-            elif isinstance(device, Valve):
-                socket_io.emit('goOfflineValve', device.id, namespace='/notification')
-            elif isinstance(device, Check):
-                socket_io.emit('goOfflineCheck', device.id, namespace='/notification')
-
-        else:
-            if device.id in notified_ids:
-                notified_ids.remove(device.id)
-
-
-def update_battery_temp(socket_io):
-    battery_notified = False
-    cpu_temp_notified = False
-
-    min_battery_val = current_app.config.get("SYSTEM_BATTERY_MIN_VOLTAGE")
-    cpu_max_temp = current_app.config.get("SYSTEM_CPU_MAX_TEMPERATURE")
-
-    while True:
-        with serial.Serial(current_app.config.get("MAIN_SYSTEM_DEVICE_PORT"), 9600, timeout=3) as ser:
-            data = ser.read(8)
-            data = data.decode()
-            if data:
-                message = data.split(',')
-
-                battery = int(message[0]) / 10
-                temperature = int(message[1]) / 10
-                cpu = CPUTemperature()
-                cpu_temperature = round(cpu.temperature * 1.8 + 32, 2) # Convert to Deg F
-
-                if battery < min_battery_val:
-                    if not battery_notified:
-                        send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
-                        battery_notified = True
-                else:
-                    if battery + 1.5 > min_battery_val:
-                        battery_notified = False
-
-                if cpu_temperature > cpu_max_temp:
-                    if not cpu_temp_notified:
-                        send_email(current_app.config.get("SYSTEM_CPU_TEMPERATURE_MESSAGE"))
-                        cpu_temp_notified = True
-                else:
-                    if cpu_temperature < cpu_max_temp - 5:
-                        cpu_temp_notified = False
-
-                socket_io.emit('batteryTemp',
-                               {'battery': battery, 'temperature': temperature, 'cpu_temperature': cpu_temperature},
-                               namespace='/notification')
-
-
-def update_battery_temp_test(socket_io):
-    battery_notified = False
-    cpu_temp_notified = False
-
-    min_battery_val = current_app.config.get("SYSTEM_BATTERY_MIN_VOLTAGE")
-    cpu_max_temp = current_app.config.get("SYSTEM_CPU_MAX_TEMPERATURE")
-
-    while True:
-        time.sleep(5)
-        message = mock_battery_temp()
-        message = message.split(',')
-
-        battery = int(message[0]) / 10
-        temperature = int(message[1]) / 10
-        cpu_temperature = int(message[2]) / 10
-
-        if battery < min_battery_val:
-            if not battery_notified:
-                send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
-                battery_notified = True
-        else:
-            if battery + 1.5 > min_battery_val:
-                battery_notified = False
-
-        if cpu_temperature > cpu_max_temp:
-            if not cpu_temp_notified:
-                send_email(current_app.config.get("SYSTEM_CPU_TEMPERATURE_MESSAGE"))
-                cpu_temp_notified = True
-        else:
-            if cpu_temperature < cpu_max_temp - 5:
-                cpu_temp_notified = False
-
-        socket_io.emit('batteryTemp',
-                       {'battery': battery, 'temperature': temperature, 'cpu_temperature': cpu_temperature},
-                       namespace='/notification')
-
-
 def listen_sensors_thread(socket_io):
     t1 = AppContextThread(target=thread_wrap(receive_sensor_data), args=(socket_io,))
     print("***Listen sensors thread before running***")
@@ -478,6 +358,10 @@ def listen_sensors_thread(socket_io):
     t4 = AppContextThread(target=thread_wrap(ping_outside))
     print("***PING thread before running***")
     t4.start()
+
+    t5 = AppContextThread(target=thread_wrap(get_gps_data))
+    print("***GPS thread before running***")
+    t5.start()
 
     @socket_io.on('connect', namespace='/notification')
     def test_connect():

@@ -2,12 +2,14 @@ from flask import current_app
 from digi.xbee.devices import XBeeDevice
 import random
 import re
+import datetime
 import urllib.request
 import json
 import os
 import time
-from models import Land, Check, Sensor
+from models import Land, Check, Sensor, Valve, Message
 from database import db
+from email_service import send_email
 
 
 def validate_message(message):
@@ -57,6 +59,18 @@ def validate_labels(labels, mess_labels):
             return False
 
     return True
+
+
+def send_status_notification(dev_obj, message_type):
+    if isinstance(dev_obj, Sensor):
+        message = Message.query.filter_by(name=message_type, mess_type='sensor').first().message
+    elif isinstance(dev_obj, Valve) or isinstance(dev_obj, Check):
+        message = Message.query.filter_by(name=message_type, mess_type='valve').first().message
+    else:
+        raise Exception("Wrong Notification Object Type")
+
+    formatted_message = format_message(message, dev_obj)
+    send_email(formatted_message)
 
 
 def format_message(message, dev_obj):
@@ -254,6 +268,47 @@ class RemoteDevice:
 class Device:
     def send_data(self, remote_device, message):
         print(f"Message {message} sent to the device with address: {remote_device.address}")
+
+
+def check_online_status(socket_io):
+    notified_sensor_ids = []
+    notified_valve_ids = []
+    notified_check_ids = []
+    while True:
+        time.sleep(current_app.config.get("CHECK_FOR_STATUS_TIME"))  # every 10 sec.
+        db.session.commit()
+        sensors = Sensor.query.all()
+        valves = Valve.query.all()
+        checks = Check.query.all()
+        check_status_device(socket_io, sensors, notified_sensor_ids)
+        check_status_device(socket_io, valves, notified_valve_ids)
+        check_status_device(socket_io, checks, notified_check_ids)
+
+
+def check_status_device(socket_io, devices, notified_ids):
+    check_time = current_app.config.get("GO_OFFLINE_SENSOR_TIME")  # 30 min.
+    current_time = datetime.datetime.now().replace(microsecond=0)
+    for device in devices:
+        last_update = device.last_update
+        total_diff = current_time - last_update
+        total_diff_sec = total_diff.total_seconds()
+        if total_diff_sec > check_time:
+            device.status = False
+            db.session.add(device)
+            db.session.commit()
+            if device.id not in notified_ids:
+                send_status_notification(device, 'status')
+                notified_ids.append(device.id)
+            if isinstance(device, Sensor):
+                socket_io.emit('goOfflineSensor', device.id, namespace='/notification')
+            elif isinstance(device, Valve):
+                socket_io.emit('goOfflineValve', device.id, namespace='/notification')
+            elif isinstance(device, Check):
+                socket_io.emit('goOfflineCheck', device.id, namespace='/notification')
+
+        else:
+            if device.id in notified_ids:
+                notified_ids.remove(device.id)
 
 # 1. Hit start: all the valves in set1 will open to the RUN
 # 2. If all the sensors in a specific land trip, then trigger the preflow for all the valves in the next set(all lands),
