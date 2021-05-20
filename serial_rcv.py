@@ -103,7 +103,7 @@ def get_gps_data():
                 latitude = format_coordinates(message[3], n_s_indication)
                 w_e_indication = message[6]
                 longitude = format_coordinates(message[5], w_e_indication)
-                speed = int(message[7])
+                speed = float(message[7])
                 map_url = f"https://www.google.com/maps/search/?api=1&query={latitude},{longitude}"
 
                 if speed >= current_app.config.get("GROUND_SPEED_MIN"):
