@@ -9,6 +9,7 @@ from email_service import send_email
 def update_battery_temp(socket_io):
     battery_notified = False
     cpu_temp_notified = False
+    battery_counter = 0
 
     min_battery_val = current_app.config.get("SYSTEM_BATTERY_MIN_VOLTAGE")
     cpu_max_temp = current_app.config.get("SYSTEM_CPU_MAX_TEMPERATURE")
@@ -26,10 +27,13 @@ def update_battery_temp(socket_io):
                 cpu_temperature = round(cpu.temperature * 1.8 + 32, 2)  # Convert to Deg F
 
                 if battery < min_battery_val:
-                    if not battery_notified:
+                    battery_counter += 1
+                    if battery_counter >= 5 and not battery_notified:
                         send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
                         battery_notified = True
+                        battery_counter = 0
                 else:
+                    battery_counter = 0
                     if battery + 1.5 > min_battery_val:
                         battery_notified = False
 
@@ -49,6 +53,7 @@ def update_battery_temp(socket_io):
 def update_battery_temp_test(socket_io):
     battery_notified = False
     cpu_temp_notified = False
+    battery_counter = 0
 
     min_battery_val = current_app.config.get("SYSTEM_BATTERY_MIN_VOLTAGE")
     cpu_max_temp = current_app.config.get("SYSTEM_CPU_MAX_TEMPERATURE")
@@ -63,10 +68,13 @@ def update_battery_temp_test(socket_io):
         cpu_temperature = int(message[2]) / 10
 
         if battery < min_battery_val:
-            if not battery_notified:
+            battery_counter += 1
+            if battery_counter >= 5 and not battery_notified:
                 send_email(current_app.config.get("SYSTEM_BATTERY_MESSAGE"))
                 battery_notified = True
+                battery_counter = 0
         else:
+            battery_counter = 0
             if battery + 1.5 > min_battery_val:
                 battery_notified = False
 
