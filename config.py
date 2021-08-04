@@ -2,14 +2,14 @@ class Config:
     SECRET_KEY = '49tZyjJmZxiQbL22EtSVtLY1WGEnEBH7'
 
     # SMTP Credentials
-    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_SERVER = 'mail.ditchflow.com'
     MAIL_PORT = 587
-    MAIL_USERNAME = 'ditchflow@gmail.com'
-    MAIL_PASSWORD = 'SINCE1937'
+    MAIL_USERNAME = 'alerts@ditchflow.com'
+    MAIL_PASSWORD = 'Gpba17@5'
 
     SQLALCHEMY_DATABASE_URI = 'sqlite:///db.sqlite'
 
-    SESSION_DURATION = 5  # DAYS. The period duration to stay logged in
+    SESSION_DURATION = 1  # DAYS. The period duration to stay logged in
 
     BATTERY_MIN_VOLTAGE = 10  # value in Volts
     WATER_MAX_LEVEL = 21.5
@@ -36,3 +36,7 @@ class Config:
     # GPS
     GPS_SERIAL_PORT = '/dev/ttyACM0'
     GROUND_SPEED_MIN = 10  # Knots
+    
+    #SMS
+    TELNYX_KEY = "KEY017A21C91A0D683DFD31F56D74AF9DA5_5I19OMvMi2eTVWTvuPkcqQ"
+    TELNYX_NUMBER = "+17602549901"

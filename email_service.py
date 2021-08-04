@@ -9,19 +9,12 @@ def send_email(msg):
     smtp_server = current_app.config.get("MAIL_SERVER")
     sender = username = current_app.config.get("MAIL_USERNAME")
     password = current_app.config.get("MAIL_PASSWORD")
-
+   
     contacts = Contact.query.filter_by(notify=True).all()
     for contact in contacts:
-        carrier = Carrier.query.filter_by(id=contact.carrier_id).first()
-        if not carrier:
-            print(f'*** NO CARRIER FOUND FOR CONTACT NAME: {contact.name}')
-            continue
-
-        receiver = [f'{contact.cell_number}@{carrier.email}', contact.email]
-
-        message = f"""Subject: DitchFlow Notification\n\n
-        {msg}"""
-
+        receiver = contact.email
+        message = f"""Subject: DitchFlow Notification\n\n {msg}"""
+       
         try:
             with smtplib.SMTP(smtp_server, port) as server:
                 server.starttls()
@@ -37,3 +30,6 @@ def send_email(msg):
         except Exception as e:
             print("Another exception")
             print(str(e))
+            
+
+    
