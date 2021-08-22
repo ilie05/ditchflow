@@ -74,3 +74,25 @@ const updateLandNumber = (context) => {
             }
         });
 }
+
+const updateNotes = (context) => {
+    const card = $(context).closest(".flip-card-container");
+    const sensorId = card.attr('itemid');
+    const notes = $(context).val();
+    if (!notes) return
+
+    fetch(`${MAIN_URL}/sensors/notes`, {
+        method: 'POST',
+        headers: {
+            'Authorization': jwtToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({sensorId, notes})
+    })
+        .then(res => {
+            if (res.ok) {
+                $(card).find('.card-info.notes').show();
+                setInterval(() => $(card).find('.card-info.notes').hide(),3000);
+            }
+        });
+}

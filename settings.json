@@ -1,5 +1,4 @@
 {
-  "FIELD_NAME": "Oxalis 27",
   "SYSTEM_BATTERY_MESSAGE": "System battery is below 11 Volts.",
   "SYSTEM_CPU_TEMPERATURE_MESSAGE": "The CPU temperature has exceeded 80 degree Celsius",
   "NO_SENSOR_SET_MESSAGE": "Set 2 Land 3  Field_Name has timed out!",

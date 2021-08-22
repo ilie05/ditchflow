@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 import traceback
 import datetime
 from database import db
-from models import Sensor, Message, Valve, LabelMessage, Land, Check, Set, Config, LandConfig, Error
+from models import Sensor, Message, Valve, LabelMessage, Land, Check, Set, Config, LandConfig, Error, JSonTable
 from utils import validate_message, validate_labels, write_settings
 
 main = Blueprint('main', __name__)
@@ -65,6 +65,19 @@ def sensor():
             traceback.print_exc()
             return Response(status=404)
         return Response(status=200)
+
+
+@main.route('/sensors/notes', methods=["POST"])
+@login_required
+def sensor_notes():
+    payload = request.get_json()
+    sensor_id = payload['sensorId'] if 'sensorId' in payload else None
+    notes = payload['notes'] if 'notes' in payload else None
+
+    sensor = Sensor.query.filter_by(id=sensor_id).first()
+    sensor.notes = notes
+    db.session.commit()
+    return Response(status=200)
 
 
 @main.route('/valves', methods=['GET', 'POST', 'DELETE'])
@@ -140,11 +153,19 @@ def check():
 def settings():
     if request.method == 'GET':
         is_admin = current_app.config['ADMIN_USER']
-        return render_template('settings.html', field_name=current_app.config.get("FIELD_NAME"), is_admin=is_admin)
+        field_name_obj = JSonTable.query.filter_by(jKey='field_name').first()
+        field_name = field_name_obj.jValue if field_name_obj else ''
+        return render_template('settings.html', field_name=field_name, is_admin=is_admin)
     else:
         field_name = request.form.get('fieldName')
-        current_app.config['FIELD_NAME'] = field_name
-        write_settings({'FIELD_NAME': field_name})
+
+        field_name_obj = JSonTable.query.filter_by(jKey='field_name').first()
+        if not field_name_obj:
+            field_name_obj = JSonTable(jKey='field_name', jValue=field_name)
+        else:
+            field_name_obj.jValue = field_name
+        db.session.add(field_name_obj)
+        db.session.commit()
         return redirect(url_for('main.settings'))
 
 

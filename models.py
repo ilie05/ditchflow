@@ -56,10 +56,14 @@ class Sensor(db.Model, SerializerMixin):
     float = db.Column(db.Boolean)
     address = db.Column(db.String(100), unique=True)
     last_update = db.Column(db.DateTime)
+    notes = db.Column(db.String(100), default='')
     trip_time = db.Column(db.DateTime)
 
     serialize_rules = ('-sensor_configs.sensor',)
     sensor_configs = db.relationship("SensorConfig", backref='sensor', cascade='all,delete')
+
+    def __str__(self):
+        return f'Name: {self.name}: address: {self.address}'
 
 
 class SensorConfig(db.Model, SerializerMixin):
@@ -183,6 +187,13 @@ class Error(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     message = db.Column(db.String(500))
+
+
+class JSonTable(db.Model, SerializerMixin):
+    __tablename__ = 'json_table'
+    id = db.Column(db.Integer, primary_key=True)
+    jKey = db.Column(db.String(100), unique=True)
+    jValue = db.Column(db.String(100))
 
 # open time for valve: set, land, valve , time
 # tripping time for sensor: set, land, sensor, time_

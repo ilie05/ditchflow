@@ -92,15 +92,17 @@ def update_battery_temp_test(socket_io):
 
 
 def get_gps_data_test():
-    pass
+    while True:
+        pass
 
 
 def get_gps_data():
     moving_email_sent = False
     stopped_email_sent = True
+    moving_counter = 0
 
-    while True:
-        with serial.Serial(current_app.config.get("GPS_SERIAL_PORT"), 9600) as ser:
+    with serial.Serial(current_app.config.get("GPS_SERIAL_PORT"), 9600) as ser:
+        while True:
             data = ser.read(67)
             data = data.decode()
             if data:
@@ -115,11 +117,14 @@ def get_gps_data():
                 map_url = f"https://www.google.com/maps/search/?api=1&query={latitude},{longitude}"
 
                 if speed >= current_app.config.get("GROUND_SPEED_MIN"):
-                    if not moving_email_sent:
+                    moving_counter += 1
+                    if not moving_email_sent and moving_counter >= 3:
                         send_email(current_app.config.get("UNIT_IN_MOTION_MESSAGE"))
                         moving_email_sent = True
                         stopped_email_sent = False
+                        moving_counter = 0
                 else:
+                    moving_counter = 0
                     if not stopped_email_sent:
                         send_email(current_app.config.get("UNIT_STOPPED_MESSAGE") + map_url)
                         stopped_email_sent = True

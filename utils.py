@@ -7,7 +7,7 @@ import urllib.request
 import json
 import os
 import time
-from models import Land, Check, Sensor, Valve, Message
+from models import Land, Check, Sensor, Valve, Message, JSonTable
 from database import db
 from email_service import send_email
 
@@ -80,7 +80,8 @@ def format_message(message, dev_obj):
     dev_obj = dev_obj.to_dict()
 
     # add field_name label to the dev-object
-    dev_obj['field_name'] = current_app.config.get("FIELD_NAME")
+    field_name_obj = JSonTable.query.filter_by(jKey='field_name').first()
+    dev_obj['field_name'] = field_name_obj.jValue
 
     if is_check:
         dev_obj['land_number'] = '---'
@@ -225,11 +226,16 @@ def reset_xbee():
 
 
 def prepopulate_db():
+    field_name_obj = JSonTable.query.filter_by(jKey='field_name').first()
+    if not field_name_obj:
+        field_name_obj = JSonTable(jKey='field_name', jValue='')
+        db.session.add(field_name_obj)
+
     land = Land.query.filter_by(number=1).first()
     if not land:
         land = Land(number=1)
         db.session.add(land)
-        db.session.commit()
+    db.session.commit()
 
 
 def ping_outside():

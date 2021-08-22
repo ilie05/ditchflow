@@ -12,14 +12,21 @@ from serial_rcv import update_battery_temp_test, update_battery_temp, get_gps_da
 
 
 def create_update_sensor(message, address, signal_strength):
-    sensor = Sensor.query.filter_by(address=address).first()
-    current_time = datetime.datetime.now().replace(microsecond=0)
     try:
+        current_time = datetime.datetime.now().replace(microsecond=0)
         name = message[0]
         float = True if message[1] == 'UP' else False
         trip_time = current_time if float else None
         battery = int(message[2]) / 10
         temperature = int(message[3]) / 10
+
+        # delete the sensor if there is data when the same sensor name but different address
+        sensor = Sensor.query.filter(Sensor.name == name, Sensor.address != address).first()
+        if sensor:
+            db.session.delete(sensor)
+            db.session.commit()
+
+        sensor = Sensor.query.filter_by(address=address).first()
 
         if not sensor:
             # does not exist, create one
@@ -377,11 +384,11 @@ def thread_wrap(thread_func):
             try:
                 thread_func(*args, **kwargs)
             except BaseException as e:
-                time.sleep(2)
                 traceback.print_exc()
                 print(f'{str(e)}; restarting thread')
             else:
                 traceback.print_exc()
                 print('Exited normally, bad thread; restarting')
+            time.sleep(2)
 
     return wrapper

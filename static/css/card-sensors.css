@@ -16,7 +16,7 @@
     --grey: hsl(0, 0%, 50%);
 
     width: 25%;
-    height: 475px;
+    height: 530px;
     margin: 40px;
 
     perspective: 1000px;
@@ -152,7 +152,7 @@ and (max-device-width: 1024px) {
 .card-info {
     display: none;
     position: absolute;
-    margin-top: 430px;
+    margin-top: 500px;
     font-size: 11px;
     color: deepskyblue;
 }
